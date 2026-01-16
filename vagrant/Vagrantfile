@@ -1,0 +1,65 @@
+# Use Vagrant configuration version 2
+# This is the modern, standard Vagrant config format
+Vagrant.configure("2") do |config|
+
+  # Base OS image for all machines
+  # Ubuntu 22.04 LTS (Jammy) – stable, well-supported, good for k3s later
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.synced_folder "C:/Projects/StackPilot", "/vagrant", type: "virtualbox"
+
+  # Define all VM nodes in a single data structure
+  # This avoids copy-paste and keeps changes consistent
+  nodes = [
+    {
+      name: "control",
+      ip: "192.168.56.10",
+      memory: 8000,   # Control node gets more RAM (k3s server, CI tools, monitoring)
+      cpus: 3         # Extra CPU headroom for Kubernetes + builds
+    },
+    {
+      name: "worker1",
+      ip: "192.168.56.11",
+      memory: 4100,   # Worker nodes are lighter
+      cpus: 2
+    },
+    {
+      name: "worker2",
+      ip: "192.168.56.12",
+      memory: 4100,
+      cpus: 2
+    }
+  ]
+
+  # Loop over each node definition and create a VM
+  nodes.each do |node|
+    config.vm.define node[:name] do |n|
+
+      # Set the hostname inside the VM
+      # This must match the logical node name for /etc/hosts and k3s later
+      n.vm.hostname = node[:name]
+
+      # Attach a private (host-only) network with a static IP
+      # This ensures predictable VM-to-VM communication
+      n.vm.network "private_network", ip: node[:ip]
+
+      # Run baseline provisioning on every VM (runs on `vagrant up` and re-runs on `vagrant provision`) 
+      n.vm.provision "shell", path: "../scripts/provision.sh", privileged: true
+      n.vm.provision "shell", path: "../scripts/hosts.sh", privileged: true
+
+
+      # Provider-specific configuration (VirtualBox)
+      n.vm.provider "virtualbox" do |vb|
+
+        # Name as shown in VirtualBox GUI
+        # Makes it easy to identify StackPilot VMs
+        vb.name = "stackpilot-#{node[:name]}"
+
+        # Allocate memory (in MB)
+        vb.memory = node[:memory]
+
+        # Allocate CPU cores
+        vb.cpus = node[:cpus]
+      end
+    end
+  end
+end
