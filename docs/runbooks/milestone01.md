@@ -1,75 +1,51 @@
-Week 1 Runbook – Lab Foundation (Vagrant + Networking + Baseline Checks)
+# Milestone 01 — 3-Node Lab Foundation
 
-Scope
-Provision 3 Ubuntu VMs with static IPs and verify host↔VM and VM↔VM connectivity.
+# Overview
 
-Prereqs (Windows host)
+This milestone establishes a reproducible 3-VM lab used for all future work.
 
-* Vagrant installed: `vagrant --version`
-* VirtualBox installed: `VBoxManage --version`
-* Run terminal as normal user (Admin usually not needed).
-* Enough resources: aim for at least 9GB+ free RAM, 30GB+ free disk for optimal performance.
+The lab consists of:
 
-Repo paths
+1 control node
 
-* `vagrant/Vagrantfile`
+2 worker nodes
 
-Milestone A: Bring up
-From repo root:
+Host-only networking with static IPs
 
-* `cd vagrant`
-* `vagrant up`
-* `vagrant status` (expect: all running)
+Hostname-based communication
 
-Milestone B: Host connectivity (Windows PowerShell)
+Verification scripts that define “working”
 
-* `ping 192.168.56.10 -n 2`
-* `ping 192.168.56.11 -n 2`
-* `ping 192.168.56.12 -n 2`
+No application workloads are included in this milestone.
 
-Milestone C: SSH + verify inside VMs
-Control:
+# Node Inventory
+Node	Hostname	IP Address	Role
+control	control	192.168.56.10	control
+worker1	worker1	192.168.56.11	worker
+worker2	worker2	192.168.56.12	worker
+# Golden Path (Fresh Start)
 
-* `vagrant ssh control`
-  Inside:
-* `hostname` (expect: control)
-* `hostname -I` (expect includes: 192.168.56.10)
-* `ping -c 2 192.168.56.11`
-* `ping -c 2 192.168.56.12`
-* `sudo apt-get update`
-* `exit`
+These steps assume nothing is broken.
 
-Worker1:
+# Start the lab
 
-* `vagrant ssh worker1`
-  Inside:
-* `hostname` (expect: worker1)
-* `hostname -I` (expect includes: 192.168.56.11)
-* `ping -c 2 192.168.56.10`
-* `sudo apt-get update`
-* `exit`
+cd vagrant
+vagrant up
 
-Worker2:
 
-* `vagrant ssh worker2`
-  Inside:
-* `hostname` (expect: worker2)
-* `hostname -I` (expect includes: 192.168.56.12)
-* `ping -c 2 192.168.56.10`
-* `sudo apt-get update`
-* `exit`
+# Provision all nodes
 
-Milestone D: Teardown / reset
+vagrant provision
 
-* Stop: `vagrant halt`
-* Destroy: `vagrant destroy -f`
 
-Week 1 acceptance criteria
+# Verify the lab
 
-* `vagrant up` succeeds with no errors
-* `vagrant status` shows 3 running VMs
-* Windows host can ping all 3 IPs
-* Can SSH into all 3 VMs
-* Each VM reports correct hostname and correct static IP
-* VM-to-VM ping works (control↔workers)
-* `sudo apt-get update` succeeds on all VMs
+./scripts/verify_host.sh
+./scripts/verify_cluster.sh
+
+
+# Expected result: all checks pass.
+
+# Stop the lab (end of session)
+
+vagrant halt

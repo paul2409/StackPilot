@@ -23,5 +23,5 @@ echo "baseline tools installed" | sudo tee -a $LOG_FILE
  sudo timedatectl set-timezone Africa/Lagos
  echo "timezone set to Africa/Lagos" | sudo tee -a $LOG_FILE
 
-echo "===== STACKPILOT PROVISION END: $(date) =====" | sudo tee -a $LOG_FILES
+echo "===== STACKPILOT PROVISION END: $(date) =====" | sudo tee -a $LOG_FILE
 

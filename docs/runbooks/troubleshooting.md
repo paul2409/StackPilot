@@ -1,49 +1,22 @@
-Troubleshooting Runbook (StackPilot)
+# Troubleshooting Runbook
 
-Vagrant can’t find VirtualBox / provider errors
-Symptoms
+This file records verified fixes discovered during the StackPilot build.  
+Entries are appended per milestone.
 
-* “No usable default provider could be found”
-  Fix
-* Confirm VirtualBox installed: `VBoxManage --version`
-* Confirm Vagrant sees it: `vagrant up --provider=virtualbox`
+## Milestone 01 — Lab Foundation (Week 1)
 
-Host can’t ping 192.168.56.x
-Symptoms
+| **Issue** | **Symptom** | **Checks** | **Fix** | **Verify** |
 
-* VMs are running, but ping fails from Windows host
-  Checks
-* In VirtualBox: Tools → Network → Host-only Networks (ensure one exists)
-* In Windows: ensure “VirtualBox Host-Only Network” adapter exists and is enabled
-  Fix
-* Create/repair host-only network in VirtualBox Host Network Manager
-* If subnet conflicts with your machine/network/VPN, change to another range (e.g. 192.168.57.10/11/12) and run:
+| --- | --- | --- | --- | --- |
+| **T01: Host cannot reach VM** | `verify_host.sh` fails to ping VM IP | `ping 192.168.56.10`, `vagrant status` | Ensure VM is running. Reload VM after network changes. Use correct ping flags for OS (Git Bash vs Linux). | `./scripts/verify_host.sh` |
 
-  * `vagrant reload` (or `vagrant destroy -f && vagrant up`)
+| **T02: SSH into VM fails** | `vagrant ssh <node>` fails or hangs | `vagrant status`, `vagrant ssh-config <node>` | Start or reload VM. Destroy and rebuild VM if SSH state is corrupted. | `vagrant ssh <node>` |
 
-SSH times out (`vagrant ssh` fails)
-Fix order
+| **T03: Hostname resolution fails** | `verify_cluster.sh` reports hostname error | `getent hosts control worker1 worker2`, `cat /etc/hosts` | Restore missing `/etc/hosts` entries. Re-run provisioning if needed. | `./scripts/verify_cluster.sh` |
 
-* `vagrant reload`
-* `vagrant halt && vagrant up`
-* If still broken: `vagrant destroy -f && vagrant up`
+| **T04: Script fails, manual works** | Script reports FAIL but manual check passes | `cat scripts/verify_*.sh` | Fix OS-specific command usage. Normalize line endings if required. | `./scripts/verify_host.sh`, `./scripts/verify_cluster.sh` |
 
-Hyper-V / WSL2 conflicts (Windows)
-Symptoms
+**Milestone 01 Exit Criteria:**  
+Lab rebuilds cleanly, provisioning is re-runnable, and verification scripts reliably detect failures.
 
-* VirtualBox VMs run painfully slow, fail to boot, or VT-x errors
-  Fix
-* Disable Hyper-V features that conflict (Hyper-V, Virtual Machine Platform, Windows Hypervisor Platform), reboot, retry
-* Ensure virtualization is enabled in BIOS/UEFI
 
-Low resources (VMs slow, random failures)
-Fix
-
-* Reduce worker sizes in Vagrantfile (e.g., workers 1024MB RAM, 1 CPU)
-* Close heavy apps on host
-
-Networking breaks after sleep/VPN
-Fix
-
-* Disconnect VPN temporarily and retry ping
-* `vagrant reload`
