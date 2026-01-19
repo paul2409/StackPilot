@@ -4,7 +4,7 @@ set -e
 LOG_FILE="/var/log/stackpilot-provision.log"
 
 sudo touch $LOG_FILE
-sudo chmod 644 $LOG_FILE
+sudo chmod 666 $LOG_FILE
 
 echo "===== STACKPILOT PROVISION START: $(date) =====" | sudo tee -a $LOG_FILE
 
