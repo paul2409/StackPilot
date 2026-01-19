@@ -1,7 +1,8 @@
-VAGRANT_DIR := vagrant
+ROOT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+VAGRANT_DIR := $(ROOT_DIR)/vagrant
+SCRIPTS_DIR := $(ROOT_DIR)/scripts
 
-.PHONY: up halt destroy status reload ssh-control ssh-worker1 ssh-worker2 provision \
-        verify verify-host verify-cluster
+.PHONY: up halt destroy status reload ssh-control ssh-worker1 ssh-worker2 provision verify 
 
 up:
 	cd $(VAGRANT_DIR) && vagrant up
@@ -31,18 +32,7 @@ ssh-worker2:
 provision:
 	cd $(VAGRANT_DIR) && vagrant provision
 
-# If you specifically want reload + provision (heavier but sometimes useful)
-reload-provision:
-	cd $(VAGRANT_DIR) && vagrant reload --provision
-
 verify:
-	@echo "Starting verification..."
-	@$(MAKE) verify-host
-	@$(MAKE) verify-cluster
-	@echo "ALL VERIFICATION PASSED"
-
-verify-host:
-	@./scripts/verify_host.sh
-
-verify-cluster:
-	@./scripts/verify_cluster.sh
+	@echo "Running verification from repo root: $(ROOT_DIR)"
+	cd "$(ROOT_DIR)" && bash "$(SCRIPTS_DIR)/verify-host.sh"
+	cd "$(ROOT_DIR)" && bash "$(SCRIPTS_DIR)/verify-cluster.sh"

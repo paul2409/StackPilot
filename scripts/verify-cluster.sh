@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-VAGRANT_DIR="vagrant"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VAGRANT_DIR="${ROOT_DIR}/vagrant"
 
 echo "===== VERIFY CLUSTER (VM to VM by hostname) ====="
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-VAGRANT_DIR="vagrant"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VAGRANT_DIR="${ROOT_DIR}/vagrant"
 
 CONTROL_IP="192.168.56.10"
 WORKER1_IP="192.168.56.11"
