@@ -1,51 +1,87 @@
-# Milestone 01 — 3-Node Lab Foundation
+MILESTONE 01 — LAB FOUNDATION RUNBOOK
 
-# Overview
+Purpose
+This runbook defines the operational scope, guarantees, and failure boundaries for
+Milestone 01 of StackPilot. This milestone establishes a deterministic 3-VM lab
+that all later milestones depend on.
 
-This milestone establishes a reproducible 3-VM lab used for all future work.
+If this milestone is unstable, DO NOT proceed to Week 2.
 
-The lab consists of:
+----------------------------------------------------------------
 
-1 control node
+LAB TOPOLOGY (AUTHORITATIVE)
 
-2 worker nodes
+Node      Hostname   IP               Role
+------------------------------------------------
+control   control    192.168.56.10    Control node
+worker1   worker1    192.168.56.11    Worker node
+worker2   worker2    192.168.56.12    Worker node
 
-Host-only networking with static IPs
+----------------------------------------------------------------
 
-Hostname-based communication
+CANONICAL ENTRY POINT
 
-Verification scripts that define “working”
+All diagnosis and validation for Milestone 01 starts here:
 
-No application workloads are included in this milestone.
+make verify
 
-# Node Inventory
-Node	Hostname	IP Address	Role
-control	control	192.168.56.10	control
-worker1	worker1	192.168.56.11	worker
-worker2	worker2	192.168.56.12	worker
-# Golden Path (Fresh Start)
+“Working” for this milestone is defined ONLY by verification scripts.
+Manual success does not override verification failure.
 
-These steps assume nothing is broken.
+----------------------------------------------------------------
 
-# Start the lab
+WHAT MILESTONE 01 GUARANTEES
 
-cd vagrant
-vagrant up
+• A reproducible 3-VM lab that can be destroyed and rebuilt from zero  
+• Stable node identity (hostnames and IPs do not drift)  
+• Host → VM connectivity validated externally  
+• VM ↔ VM connectivity validated by hostname, not IP  
+• Idempotent provisioning (safe to re-run)  
+• Deterministic hostname resolution enforced by automation  
+• Clear PASS / FAIL output when invariants break  
 
+----------------------------------------------------------------
 
-# Provision all nodes
+FAILURE DOMAINS COVERED
 
-vagrant provision
+ID    Failure Domain                               Detected By
+---------------------------------------------------------------
+T01   Host cannot reach VM (network/IP)            verify_host
+T02   SSH into VM fails                            verify_host
+T03   VM ↔ VM hostname resolution broken           verify_cluster
+T04   Verification logic mismatch                  verify scripts
 
+Recovery procedures for all failures live in:
+docs/runbooks/troubleshooting.md
 
-# Verify the lab
+----------------------------------------------------------------
 
-./scripts/verify_host.sh
-./scripts/verify_cluster.sh
+NON-NEGOTIABLE OPERATING RULES
 
+• /etc/hosts must NEVER be edited manually  
+• Hostname resolution is enforced via provisioning (hosts.sh)  
+• Provisioning must be safe to re-run at any time  
+• .vagrant/ is local state and must never be committed  
+• Debugging starts with verification, not guesswork  
 
-# Expected result: all checks pass.
+----------------------------------------------------------------
 
-# Stop the lab (end of session)
+REQUIRED ARTIFACTS FOR THIS MILESTONE
 
-vagrant halt
+• Vagrantfile defining 3 VMs with static IPs  
+• Idempotent provisioning scripts  
+• Host and cluster verification scripts  
+• Enforced hostname resolution script  
+• Executable runbooks with real commands  
+
+----------------------------------------------------------------
+
+EXIT CRITERIA (ALL MUST BE TRUE)
+
+• make destroy && make up && make provision && make verify succeeds  
+• Re-running provisioning does not break the lab  
+• All nodes resolve each other by hostname  
+• At least one controlled failure was reproduced and recovered  
+• Runbooks contain executable commands (not prose)  
+
+Only after ALL criteria are met may this milestone be merged.

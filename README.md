@@ -1,69 +1,70 @@
 # StackPilot — Platform Engineering Lab
-*Standard Deploys, Happy Developers*
+Standard Deploys, Happy Developers
 
-StackPilot is a platform engineering sandbox for consistent rollouts and fast feedback. It’s a local-first lab where you practice: Linux + Vagrant → Docker → Kubernetes (k3s) → GitOps (Argo CD) → Observability (Prometheus/Grafana).
+StackPilot is a local-first Platform Engineering and SRE lab.
+It is operated as a system with explicit guarantees, verification, and recovery paths — not as a tutorial or sandbox.
 
-## What You’ll Build
-- A reproducible 3-VM lab environment
-- A Kubernetes (k3s) cluster
-- CI pipelines for build/test
-- GitOps-based deployment with Argo CD
-- Monitoring and dashboards with Prometheus and Grafana
-- Runbooks, troubleshooting notes, and controlled failure drills
+The repository is built incrementally through milestones. Each milestone is merged only when its guarantees hold.
 
-## Lab Nodes (Host-only Network)
-- control: 192.168.56.10
-- worker1: 192.168.56.11
-- worker2: 192.168.56.12
+---
 
-## Commands
-- `make up` — boot the lab
-- `make provision` — provision packages + baseline config
-- `make verify` — run checks (host + VM connectivity)
-- `make destroy` — tear down the lab
+## Lab Topology (Host-only Network)
+
+control   — 192.168.56.10  
+worker1   — 192.168.56.11  
+worker2   — 192.168.56.12  
+
+---
+
+## Golden Commands (Canonical)
+
+These are the only supported ways to operate the lab.
+
+make destroy  
+make up  
+make provision  
+make verify  
+
+If `make verify` does not PASS, the system is not considered working.
+
+---
 
 ## Repo Structure
-- `vagrant/` — VM definitions
-- `scripts/` — provisioning and verification scripts
-- `docs/` — runbooks and notes
-- `apps/` — sample apps
-- `ci/` — CI workflows
 
-## Milestone 01 — Lab Foundation
+vagrant/   — VM definitions  
+scripts/   — provisioning and verification  
+docs/      — runbooks and operational notes  
+apps/      — sample applications (later milestones)  
+ci/        — CI workflows (later milestones)  
 
-# Goal #
-Establish a reproducible local lab that all later StackPilot milestones build on.
+---
 
-# What This Milestone Covers #
+## Milestone 01 — Lab Foundation (v0.1)
 
-3-node Ubuntu lab using Vagrant (control + 2 workers)
+### Goal
+Establish a deterministic, reproducible 3-VM lab that all later StackPilot milestones depend on.
 
-Static IP networking and hostname-based communication
+### What This Milestone Demonstrates
+• Reproducible environments built from zero  
+• Stable node identity (hostnames and IPs do not drift)  
+• Host → VM connectivity verified externally  
+• VM ↔ VM connectivity verified by hostname  
+• Idempotent provisioning safe to re-run  
+• Verification-defined correctness (not manual checks)  
+• Executable runbooks and a controlled failure drill  
 
-Idempotent Bash provisioning on all nodes
+### What “Working” Means
+“Working” is defined only by:
 
-Automated verification from host and between VMs
+make verify
 
-Initial runbook created from a controlled failure
+Manual SSH success or ad-hoc checks do not override verification failure.
 
-# Lab Topology #
+### Runbooks
+docs/runbooks/milestone01.md  
+docs/runbooks/troubleshooting.md  
 
-control — 192.168.56.10
+If a failure cannot be recovered using the runbooks, the documentation is improved before moving forward.
 
-worker1 — 192.168.56.11
-
-worker2 — 192.168.56.12
-
-# Golden Commands #
-
-make up — bring up the lab
-
-make provision — provision all nodes
-
-make verify — validate lab health
-
-make destroy — tear down the lab
-
-# Tag #
-
+### Tag
 v0.1 — Lab Foundation
