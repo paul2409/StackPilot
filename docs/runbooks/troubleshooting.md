@@ -3,7 +3,7 @@
 This file records verified fixes discovered during the StackPilot build.  
 Entries are appended per milestone.
 
-## Milestone 01 — Lab Foundation (Week 1)
+## Milestone 01 — Lab Foundation
 
 | **Issue** | **Symptom** | **Checks** | **Fix** | **Verify** |
 
@@ -21,7 +21,7 @@ Lab rebuilds cleanly, provisioning is re-runnable, and verification scripts reli
 
 
 
-## Milestone 2 — Docker & Service Troubleshooting Matrix (Week 2)
+## Milestone 2 — Docker & Service Troubleshooting Matrix 
 
 This table covers the full failure surface introduced in Milestone 2:
 Docker runtime, containers, Compose, service configuration, networking,

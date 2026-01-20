@@ -13,7 +13,6 @@ echo "[2/6] Installing Docker prerequisites..."
 sudo apt-get update -y
 sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
-
 echo "[3/6] Installing ops tools (debug toolkit)..."
 # Install common operational/debugging tools used throughout the project
 sudo apt-get install -y jq git net-tools iproute2 lsof dnsutils tcpdump

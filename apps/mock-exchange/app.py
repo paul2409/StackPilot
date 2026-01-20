@@ -194,7 +194,7 @@ def ready():
     Meaning:
     - Is the service ready to accept traffic?
 
-    Day 9 rule:
+    Rule:
     - Ready ONLY if config loaded
     """
     if CONFIG is None:

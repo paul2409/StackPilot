@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-echo "[down] Day 8 placeholder."
-echo "[down] This script will later stop the docker stack."
+echo "[down] Stopping mock-exchange (if running)..."
+docker stop mock-exchange 2>/dev/null || true
 
+echo "[down] Removing mock-exchange container (if exists)..."
+docker rm mock-exchange 2>/dev/null || true
+
+echo "[down] Done."
