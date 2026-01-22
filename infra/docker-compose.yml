@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16.4-alpine
+    container_name: stackpilot-db
+    environment:
+      POSTGRES_DB: stackpilot
+      POSTGRES_USER: stackpilot
+      POSTGRES_PASSWORD: stackpilot
+    volumes:
+      - stackpilot_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stackpilot -d stackpilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    image: mock-exchange:0.2.0
+    container_name: mock-exchange
+    env_file:
+      - ../apps/mock-exchange/dev.env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: stackpilot
+      DB_USER: stackpilot
+      DB_PASSWORD: stackpilot
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  stackpilot_pgdata:
+    name: stackpilot_pgdata

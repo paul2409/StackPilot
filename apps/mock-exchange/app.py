@@ -1,22 +1,59 @@
-# Standard library imports
-import os          # Used to read environment variables (config contract)
-import time        # Used for timestamps and latency measurement
-import uuid        # Used to generate unique order IDs
+# =================================================
+# apps/mock-exchange/app.py
+# =================================================
+#
+# This file defines the mock-exchange API service.
+#
+# Design goals:
+# - Fail fast on bad configuration
+# - Separate liveness from readiness
+# - Remain observable under dependency failure
+# - Behave like a real production service, not a demo
+#
+# =================================================
 
-# FastAPI imports
+
+# ----------------------------
+# Standard library imports
+# ----------------------------
+import os          # Read environment variables (config contract)
+import time        # Timestamps and latency measurement
+import uuid        # Generate unique order IDs
+
+
+# ----------------------------
+# Third-party imports
+# ----------------------------
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-# Create the FastAPI application object
-# This represents the running service/process
+# PostgreSQL driver (Day 11 dependency)
+import psycopg
+
+
+# =================================================
+# APPLICATION OBJECT
+# =================================================
+#
+# This represents the running service process.
+# If this object exists and responds, the process is alive.
+#
 app = FastAPI()
 
-# -------------------------------------------------
-# STRICT CONFIGURATION SECTION (CRITICAL)
-# -------------------------------------------------
 
-# These environment variables MUST exist.
+# =================================================
+# STRICT CONFIGURATION CONTRACT (STARTUP)
+# =================================================
+#
+# These variables MUST exist at startup.
 # If any are missing, the service must refuse to start.
+#
+# This prevents:
+# - half-configured deployments
+# - silent misbehavior
+# - debugging by guesswork
+#
+
 REQUIRED_ENV_VARS = [
     "SERVICE_NAME",
     "ENV",
@@ -24,25 +61,25 @@ REQUIRED_ENV_VARS = [
     "VERSION",
 ]
 
+
 def load_config_or_die():
     """
-    Load required configuration from environment variables.
+    Load required runtime configuration.
 
-    If any required variable is missing:
-    - Raise an exception
-    - Kill the process at startup
-    - Prevent a half-broken service from running
+    Behavior:
+    - Validate required env vars
+    - Kill the process immediately if any are missing
+
+    This enforces a *hard startup contract*.
     """
     missing = [k for k in REQUIRED_ENV_VARS if not os.getenv(k)]
 
     if missing:
-        # Fail fast and loudly
         raise RuntimeError(
             f"Missing required env vars: {', '.join(missing)}"
         )
 
-    # Return a dictionary containing runtime metadata
-    # This is later exposed via /version
+    # Runtime metadata exposed via /version
     return {
         "service": os.getenv("SERVICE_NAME"),
         "env": os.getenv("ENV"),
@@ -52,27 +89,24 @@ def load_config_or_die():
         "build_time": os.getenv("BUILD_TIME", "unknown"),
     }
 
-# Global config object
-# This will be populated exactly once at startup
+
+# Global config is loaded exactly once at startup.
 CONFIG = None
+
 
 @app.on_event("startup")
 def startup():
     """
-    This function runs when the service starts.
+    FastAPI startup hook.
 
     If config loading fails here:
-    - FastAPI never finishes starting
-    - The process exits
-    - This is exactly what we want
+    - The service never becomes available
+    - Containers fail fast
+    - Broken deployments are obvious
     """
     global CONFIG
     CONFIG = load_config_or_die()
 
-    # Log a startup event so operators know:
-    # - which service started
-    # - which version
-    # - which environment
     log(
         "startup",
         service=CONFIG["service"],
@@ -81,43 +115,44 @@ def startup():
         git_sha=CONFIG["git_sha"],
     )
 
-# -------------------------------------------------
+
+# =================================================
 # STRUCTURED LOGGING (OPS-ORIENTED)
-# -------------------------------------------------
+# =================================================
+#
+# Logs are:
+# - line-oriented
+# - key=value formatted
+# - safe to grep
+# - safe to parse
+#
 
 def log(event, **fields):
     """
-    Simple structured logger.
+    Emit a structured log line.
 
-    Why this format?
-    - Easy to read by humans
-    - Easy to parse by machines
-    - Easy to grep in production
-
-    Example output:
+    Example:
     event='request' ts=1712345678 method='GET' path='/health'
     """
-    base = {
+    record = {
         "event": event,
         "ts": int(time.time()),
     }
+    record.update(fields)
 
-    # Merge extra fields into base log record
-    base.update(fields)
-
-    # Print as key=value pairs
-    line = " ".join(f"{k}={repr(v)}" for k, v in base.items())
+    line = " ".join(f"{k}={repr(v)}" for k, v in record.items())
     print(line, flush=True)
+
 
 @app.middleware("http")
 async def request_logger(request: Request, call_next):
     """
-    Middleware runs for EVERY HTTP request.
+    Global request middleware.
 
-    Purpose:
+    Responsibilities:
     - Measure latency
     - Log request metadata
-    - Log failures consistently
+    - Ensure failures are observable
     """
     start = time.time()
 
@@ -143,21 +178,18 @@ async def request_logger(request: Request, call_next):
             method=request.method,
             path=request.url.path,
             latency_ms=latency_ms,
-            error=str(e),
+            error=type(e).__name__,
         )
-
-        # Re-raise so FastAPI handles it properly
         raise
+
 
 @app.exception_handler(Exception)
 async def unhandled_exception(request: Request, exc: Exception):
     """
-    Catch-all exception handler.
+    Final safety net.
 
-    Why?
-    - Prevent ugly stack traces from leaking
-    - Return predictable JSON errors
-    - Make failures observable but controlled
+    Prevents raw stack traces from leaking to clients
+    while keeping errors observable via logs.
     """
     return JSONResponse(
         status_code=500,
@@ -167,65 +199,141 @@ async def unhandled_exception(request: Request, exc: Exception):
         },
     )
 
-# -------------------------------------------------
-# ENDPOINTS (SERVICE CONTRACT)
-# -------------------------------------------------
+
+# =================================================
+# DATABASE HELPERS 
+# =================================================
+#
+# DB is treated as an external dependency:
+# - networked
+# - fallible
+# - not required for process liveness
+#
+
+DB_REQUIRED_VARS = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
+
+
+def db_dsn_or_empty() -> str:
+    """
+    Build a PostgreSQL DSN from env vars.
+
+    Returns:
+    - DSN string if config exists
+    - empty string if config is missing
+    """
+    missing = [k for k in DB_REQUIRED_VARS if not os.getenv(k)]
+    if missing:
+        return ""
+
+    return (
+        f"host={os.getenv('DB_HOST')} "
+        f"port={os.getenv('DB_PORT', '5432')} "
+        f"dbname={os.getenv('DB_NAME')} "
+        f"user={os.getenv('DB_USER')} "
+        f"password={os.getenv('DB_PASSWORD')} "
+        f"connect_timeout=2"
+    )
+
+
+def db_ping() -> tuple[bool, str]:
+    """
+    Lightweight DB readiness probe.
+
+    Used ONLY by /ready.
+    """
+    dsn = db_dsn_or_empty()
+    if not dsn:
+        return False, "db_config_missing"
+
+    try:
+        with psycopg.connect(dsn) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+                cur.fetchone()
+        return True, "ok"
+    except Exception as e:
+        return False, f"db_unreachable:{type(e).__name__}"
+
+
+def db_connect():
+    """
+    Create a DB connection for request handlers.
+
+    Raises HTTP 503 if DB is unavailable.
+    """
+    dsn = db_dsn_or_empty()
+    if not dsn:
+        raise HTTPException(status_code=503, detail="db_config_missing")
+
+    try:
+        return psycopg.connect(dsn)
+    except Exception:
+        log("db_connect_failed")
+        raise HTTPException(status_code=503, detail="db_unreachable")
+
+
+# =================================================
+# SERVICE ENDPOINTS
+# =================================================
 
 @app.get("/health")
 def health():
     """
-    LIVENESS CHECK.
+    LIVENESS PROBE.
 
     Meaning:
-    - Is the process running?
-    - Nothing else.
+    - Is the process alive?
 
-    It should return 200 even if:
+    Must remain 200 even if:
     - Database is down
     - Dependencies are broken
     """
     return {"ok": True}
 
+
 @app.get("/ready")
 def ready():
     """
-    READINESS CHECK.
+    READINESS PROBE.
 
     Meaning:
-    - Is the service ready to accept traffic?
+    - Is the service safe to receive traffic *right now*?
 
-    Rule:
-    - Ready ONLY if config loaded
+    Conditions:
+    - Config loaded
+    - DB reachable
     """
     if CONFIG is None:
         raise HTTPException(status_code=503, detail="config_not_loaded")
 
+    ok, reason = db_ping()
+    if not ok:
+        raise HTTPException(status_code=503, detail=reason)
+
     return {
         "ready": True,
-        "checks": {"config_loaded": True},
+        "checks": {"config_loaded": True, "db": True},
     }
+
 
 @app.get("/version")
 def version():
     """
-    Version and build metadata endpoint.
+    Build and runtime metadata.
 
-    This prevents:
-    - Stale deploy confusion
-    - "Which version is running?" guessing
+    Prevents stale-deploy confusion.
     """
     if CONFIG is None:
         raise HTTPException(status_code=503, detail="config_not_loaded")
-
     return CONFIG
+
 
 @app.get("/price")
 def price(symbol: str):
     """
-    Fake pricing endpoint.
+    Deterministic pricing endpoint.
 
-    Deterministic on purpose.
-    Randomness hides bugs.
+    No randomness by design.
     """
     symbol = symbol.upper()
 
@@ -239,15 +347,15 @@ def price(symbol: str):
 
     return {"symbol": symbol, "price": prices[symbol]}
 
+
 @app.post("/order")
 def create_order(symbol: str, side: str, qty: float):
     """
-    Create a fake order.
+    Create and persist an order.
 
-    This endpoint exists mainly to:
-    - Generate logs
-    - Exercise validation
-    - Produce IDs for later DB work
+    Dependency behavior:
+    - DB down → 503
+    - Validation errors → 400
     """
     symbol = symbol.upper()
     side = side.lower()
@@ -263,7 +371,17 @@ def create_order(symbol: str, side: str, qty: float):
 
     order_id = str(uuid.uuid4())
 
-    # Log a domain event
+    with db_connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO orders (id, symbol, side, qty, status)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (order_id, symbol, side, qty, "accepted"),
+            )
+        conn.commit()
+
     log(
         "order_created",
         order_id=order_id,
@@ -274,18 +392,41 @@ def create_order(symbol: str, side: str, qty: float):
 
     return {"order_id": order_id, "status": "accepted"}
 
+
 @app.get("/orders/{order_id}")
 def get_order(order_id: str):
     """
-    Placeholder endpoint.
+    Fetch an order from the database.
 
-    Exists to:
-    - Lock the API shape
-    - Make Day 11 (DB) a drop-in replacement
+    Dependency behavior:
+    - DB down → 503
+    - Order missing → 404
     """
+    with db_connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, symbol, side, qty, status, created_at
+                FROM orders
+                WHERE id = %s
+                """,
+                (order_id,),
+            )
+            row = cur.fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="order_not_found")
+
     return {
-        "order_id": order_id,
-        "status": "placeholder",
-        "note": "DB comes Day 11",
+        "order_id": row[0],
+        "symbol": row[1],
+        "side": row[2],
+        "qty": float(row[3]),
+        "status": row[4],
+        "created_at": row[5].isoformat() if row[5] else None,
     }
-# End of file: apps/mock-exchange/app.py
+
+
+# =================================================
+# END OF FILE
+# =================================================
