@@ -7,7 +7,8 @@ Vagrant.configure("2") do |config|
 
   # Sync project repo into /vagrant inside each VM
   # This allows provisioning scripts to be reused across nodes
-  config.vm.synced_folder "C:/Projects/StackPilot", "/vagrant", type: "virtualbox"
+  config.vm.synced_folder ".", "/vagrant", type: "virtualbox", disabled: true
+  config.vm.synced_folder "../", "/vagrant", type: "virtualbox"
 
   # Canonical definition of all nodes
   # Single source of truth for identity and resources
@@ -52,6 +53,12 @@ Vagrant.configure("2") do |config|
       n.vm.provision "shell",
         path: "../scripts/hosts.sh",
         privileged: true
+      
+      # Install Docker engine and CLI (idempotent)
+      n.vm.provision "shell",
+        path: "../scripts/install-docker.sh",
+        privileged: true
+
 
       # --- Provider configuration ---
       n.vm.provider "virtualbox" do |vb|

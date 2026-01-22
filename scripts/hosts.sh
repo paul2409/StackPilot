@@ -34,6 +34,3 @@ getent hosts worker1  >/dev/null 2>&1 || { echo "FAIL: cannot resolve worker1"; 
 getent hosts worker2  >/dev/null 2>&1 || { echo "FAIL: cannot resolve worker2"; exit 1; }
 
 echo "PASS: StackPilot /etc/hosts block enforced"
-
-
-chmod +x scripts/hosts.sh

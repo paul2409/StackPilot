@@ -1,3 +1,6 @@
+# Vagrant local state
+.vagrant/
+vagrant/.vagrant/
 
 # Terraform local state
 .terraform/
