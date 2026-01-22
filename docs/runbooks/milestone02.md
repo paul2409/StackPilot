@@ -1,4 +1,4 @@
-## Milestone 02 — Dockerized Service Contracts, Host-Driven Lifecycle & Failure-First Operations
+# Milestone 02 — Dockerized Service Contracts, Host-Driven Lifecycle & Failure-First Operations
 
 ## Executive Summary
 
@@ -6,12 +6,13 @@ Milestone 02 proves that this system behaves like a real production service.
 
 From the host machine, the system can be:
 
-* started intentionally,
-* verified truthfully,
-* failed safely,
-* and recovered without manual intervention.
+* started intentionally
+* verified truthfully
+* failed safely
+* recovered without manual intervention
 
-This milestone introduces Dockerized runtime contracts, truthful health and readiness semantics, host-driven lifecycle control, and documented failure drills.
+This milestone introduces Dockerized runtime contracts, truthful health and readiness semantics, **explicit TCP-level reachability guarantees**, host-driven lifecycle control, and documented failure drills.
+
 The result is a portable, observable service that fails predictably instead of silently.
 
 ---
@@ -27,6 +28,7 @@ Key changes:
 * Configuration, health, readiness, and failure behavior are defined and verified
 * A real external dependency (Postgres) is introduced
 * The system lifecycle becomes controllable **from the host**, not via manual SSH
+* Service reachability is verified at the **TCP transport layer**, not assumed
 
 ---
 
@@ -36,7 +38,7 @@ The purpose of this milestone is to establish a **production-behaving service wi
 
 The system must be startable, verifiable, and stoppable **from the host machine**, without manual SSH intervention, and must report its state truthfully under both healthy and degraded conditions.
 
-The API itself is intentionally simple. The focus is on **operational correctness**, not features: strict configuration, truthful signals, predictable failure, observable degradation, and portability across hosts.
+The API itself is intentionally simple. The focus is on **operational correctness**, not features: strict configuration, truthful signals, predictable failure, observable degradation, **verifiable TCP reachability**, and portability across hosts.
 
 ---
 
@@ -50,6 +52,7 @@ The API itself is intentionally simple. The focus is on **operational correctnes
 * Host-driven lifecycle control (`make up`, `make verify`, `make halt/destroy`)
 * Host-driven verification defining system truth
 * Runnable, documented failure drills
+* Explicit TCP networking validation for service and dependency reachability
 
 ---
 
@@ -63,13 +66,14 @@ The API itself is intentionally simple. The focus is on **operational correctnes
 
 ### One-Glance Guarantees
 
-| Scenario            | Expected Outcome                     |
-| ------------------- | ------------------------------------ |
-| Process crash       | `/health` fails                      |
-| DB unavailable      | `/health` passes, `/ready` fails     |
-| Dependency restored | `/ready` recovers without restart    |
-| Restart service     | Data persists                        |
-| Verification fails  | System must not be considered usable |
+| Scenario             | Expected Outcome                     |
+| -------------------- | ------------------------------------ |
+| Process crash        | `/health` fails                      |
+| DB unavailable       | `/health` passes, `/ready` fails     |
+| Dependency restored  | `/ready` recovers without restart    |
+| Restart service      | Data persists                        |
+| TCP port unreachable | Verification fails                   |
+| Verification fails   | System must not be considered usable |
 
 ---
 
@@ -87,8 +91,23 @@ The API itself is intentionally simple. The focus is on **operational correctnes
 
 * The same container image runs on multiple VMs
 * The service is reachable across the private VM network
+* **TCP connectivity is explicitly validated before HTTP checks**
 * No reliance on `localhost` or build-time paths
 * Verification can target different service hosts without code changes
+
+---
+
+## TCP Networking Contract (Explicit)
+
+This milestone defines **transport-layer guarantees** for service operation.
+
+Before any HTTP-level check is considered valid:
+
+* The service must be listening on `0.0.0.0:<port>` inside the container
+* Docker must publish the port on the VM
+* The host must be able to establish a TCP connection to the VM port
+
+Failure at the TCP layer invalidates all higher-level checks.
 
 ---
 
@@ -111,6 +130,7 @@ The API itself is intentionally simple. The focus is on **operational correctnes
 
   * *alive* vs *ready*
   * *reachable* vs *usable*
+  * *TCP reachable* vs *application healthy*
 
 ---
 
@@ -121,12 +141,12 @@ This milestone defines a clear, host-driven lifecycle for the system.
 * **`make up`**
 
   * Brings all VMs online
-  * Starts the Docker Compose service stack on the control node
+  * Starts the Docker Compose service stack on the target node
 
 * **`make verify`**
 
-  * Verifies system state from the host perspective
-  * Confirms truthful health and readiness semantics
+  * Verifies TCP reachability before HTTP semantics
+  * Confirms truthful health and readiness behavior
   * Fails loudly when guarantees are violated
 
 * **`make halt` / `make destroy`**
@@ -156,6 +176,7 @@ Covered scenarios:
 * Incorrect database credentials
 * Database unavailability
 * Mid-flight dependency loss
+* **Service TCP port unreachable**
 
 Each drill documents reproduction, expected behavior, and recovery.
 
@@ -167,6 +188,7 @@ Milestone 02 is complete only if:
 
 * The system starts from a clean state via the golden path
 * Verification passes without manual fixes
+* TCP connectivity is proven from host to service
 * Health and readiness behave truthfully under failure
 * Persistence is proven via restart
 * The service runs correctly on more than one host
@@ -179,7 +201,8 @@ Milestone 02 is complete only if:
 
 This milestone prioritizes **operational correctness over feature scope**.
 
-The API is intentionally simple. The intent is to demonstrate system thinking and operational discipline, not application complexity.
+The API is intentionally simple.
+The intent is to demonstrate system thinking, networking awareness, and operational discipline — not application complexity.
 
 ---
 
@@ -203,9 +226,23 @@ make halt
 
 ---
 
-## Direct Service Verification (Reference)
+## TCP Reachability Verification (Authoritative)
 
-From the host (targeting the control node):
+From the host:
+
+```bash
+nc -zv 192.168.56.10 8000
+```
+
+Expected:
+
+* TCP connection succeeds
+
+If this fails, HTTP-level checks are invalid.
+
+---
+
+## Direct Service Verification (Reference)
 
 ```bash
 curl -i http://192.168.56.10:8000/health
@@ -222,30 +259,27 @@ curl -i http://192.168.56.10:8000/version
 
 ## Create Data (Corrected and Verified)
 
-Earlier attempts failed due to payload mismatch.
-The correct request format is:
-
 ```bash
-curl -sS -X POST "http://localhost:8000/order?symbol=BTC&side=buy&qty=1" | tee /tmp/order.json
+curl -sS -X POST "http://192.168.56.10:8000/order?symbol=BTC&side=buy&qty=1" | tee /tmp/order.json
 ```
 
-### Expected Response
+Expected:
 
 * HTTP `200` or `201`
-* JSON response containing a generated `order_id`
+* JSON containing `order_id`
 
 ---
 
 ## Verify Data
 
 ```bash
-curl http://192.168.56.10:8000/order/<order_id>
+curl http://192.168.56.10:8000/orders/<order_id>
 ```
 
 Expected:
 
-* Order data is returned
-* Values match the original request
+* Order data returned
+* Values match original request
 
 ---
 
@@ -254,12 +288,7 @@ Expected:
 ```bash
 make halt
 make up
-```
-
-Then re-run:
-
-```bash
-curl http://192.168.56.10:8000/order/<order_id>
+curl http://192.168.56.10:8000/orders/<order_id>
 ```
 
 Expected:
@@ -280,16 +309,16 @@ docker compose -f infra/docker-compose.yml stop db
 From host:
 
 ```bash
+nc -zv 192.168.56.10 8000
 curl -i http://192.168.56.10:8000/health
 curl -i http://192.168.56.10:8000/ready
 ```
 
-### Expected Behavior (DB Down)
+Expected:
 
-* `/health` → `200` (process alive)
-* `/ready` → `503` (dependency unavailable)
-* Service does not crash or restart
-* Verification fails intentionally when readiness is expected to be up
+* TCP reachable
+* `/health` → `200`
+* `/ready` → `503`
 
 ---
 
@@ -297,19 +326,8 @@ curl -i http://192.168.56.10:8000/ready
 
 ```bash
 docker compose -f infra/docker-compose.yml start db
-```
-
-From host:
-
-```bash
 make verify
 ```
-
-### Expected Recovery
-
-* `/ready` returns `200`
-* No service restart required
-* Verification passes without modification
 
 ---
 
@@ -323,5 +341,7 @@ make halt
 
 ### Final Assessment
 
-With this milestone, the project transitions from **setup** to **system**.
-This is no longer a Docker exercise — it is a controlled, verifiable service with explicit operational guarantees.
+With explicit TCP verification added, this milestone no longer **assumes networking** — it proves it.
+
+This is now a genuine operational system milestone, not just a Docker exercise.
+Violating any of these rules invalidates the milestone.

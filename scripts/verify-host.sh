@@ -32,13 +32,14 @@ VAGRANT_DIR="$ROOT_DIR/vagrant"
 CONTROL_IP="192.168.56.10"
 WORKER1_IP="192.168.56.11"
 WORKER2_IP="192.168.56.12"
+SERVICE_IP="${SERVICE_IP:-$CONTROL_IP}"
 
 # ------------------------------------------------------------
 # Service access configuration
 # ------------------------------------------------------------
 # API is exposed from the control VM to the host
 API_PORT="${API_PORT:-8000}"
-BASE_URL="http://${CONTROL_IP}:${API_PORT}"
+BASE_URL="http://${SERVICE_IP}:${API_PORT}"
 
 # ------------------------------------------------------------
 # Small helpers for consistent output
@@ -141,3 +142,4 @@ echo "$VERSION_JSON" | jq -e 'has("service") and has("version")' >/dev/null 2>&1
 pass "service version information exposed"
 
 echo "===== VERIFY HOST: ALL PASS ====="
+echo "Target service at $BASE_URL verified successfully from host."

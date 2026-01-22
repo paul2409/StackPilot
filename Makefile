@@ -3,22 +3,23 @@ VAGRANT_DIR := $(ROOT_DIR)/vagrant
 SCRIPTS_DIR := $(ROOT_DIR)/scripts
 
 .PHONY: up halt destroy status reload ssh-control ssh-worker1 ssh-worker2 provision verify \
-        vm-up vm-halt vm-destroy service-up service-down
+        vm-up vm-halt vm-destroy service-up service-down \
+        up-worker1 halt-worker1 verify-worker1
 
 # -----------------------------
-# Golden path: bring system up
+# Golden path: VMs + services (default: control)
 # -----------------------------
 up: vm-up service-up
 
 vm-up:
 	cd $(VAGRANT_DIR) && vagrant up
 
-# Starts the Docker Compose stack on control (host-driven)
+# Start services on selected node (default: control)
 service-up:
-	cd "$(ROOT_DIR)" && bash "$(SCRIPTS_DIR)/service-up.sh"
+	cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(SCRIPTS_DIR)/service-up.sh"
 
 # -----------------------------
-# Bring system down safely
+# Down: stop services then halt/destroy VMs
 # -----------------------------
 halt: service-down vm-halt
 
@@ -30,12 +31,12 @@ destroy: service-down vm-destroy
 vm-destroy:
 	cd $(VAGRANT_DIR) && vagrant destroy -f
 
-# Stops the Docker Compose stack on control (host-driven)
+# Stop services on selected node (default: control)
 service-down:
-	cd "$(ROOT_DIR)" && bash "$(SCRIPTS_DIR)/service-down.sh"
+	cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(SCRIPTS_DIR)/service-down.sh"
 
 # -----------------------------
-# Convenience targets (unchanged)
+# Convenience targets
 # -----------------------------
 status:
 	cd $(VAGRANT_DIR) && vagrant status
@@ -52,14 +53,21 @@ ssh-worker1:
 ssh-worker2:
 	cd $(VAGRANT_DIR) && vagrant ssh worker2
 
-# Run provisioning without always rebooting VMs
 provision:
 	cd $(VAGRANT_DIR) && vagrant provision
 
 # -----------------------------
-# Verification (unchanged)
+# Verify (SERVICE_IP defaults inside script to control)
 # -----------------------------
 verify:
-	@echo "Running verification from repo root: $(ROOT_DIR)"
-	cd "$(ROOT_DIR)" && bash "$(SCRIPTS_DIR)/verify-host.sh"
-	cd "$(ROOT_DIR)" && bash "$(SCRIPTS_DIR)/verify-cluster.sh"
+	cd "$(ROOT_DIR)" && SERVICE_IP="$(SERVICE_IP)" bash "$(SCRIPTS_DIR)/verify-host.sh"
+	cd "$(ROOT_DIR)" && bash "$(SCRIPTS_DIR)/verify-cluster.sh" 
+# -----------------------------
+# Worker1 specific targets
+# -----------------------------
+up-worker1:
+	cd $(VAGRANT_DIR) && vagrant up worker1
+halt-worker1:
+	cd $(VAGRANT_DIR) && vagrant halt worker1
+verify-worker1:
+	cd "$(ROOT_DIR)" && SERVICE_IP="192.168.56.11" bash "$(SCRIPTS_DIR)/verify-host.sh"

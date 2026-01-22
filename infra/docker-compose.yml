@@ -21,7 +21,7 @@ services:
     image: mock-exchange:0.2.0
     container_name: mock-exchange
     env_file:
-      - ../apps/mock-exchange/dev.env
+      - ../apps/mock-exchange/env/dev.env
     environment:
       DB_HOST: db
       DB_PORT: "5432"
