@@ -9,15 +9,15 @@ sudo chmod 666 $LOG_FILE
 echo "===== STACKPILOT PROVISION START: $(date) =====" | sudo tee -a $LOG_FILE
 
 echo "Running apt update..." | sudo tee -a $LOG_FILE
-sudo apt-get update -qq > /dev/null 2>&1
+sudo apt-get update 
 echo "apt update completed" | sudo tee -a $LOG_FILE
 
 echo "Running apt upgrade..." | sudo tee -a $LOG_FILE
-sudo apt-get upgrade -y -qq > /dev/null 2>&1
+sudo apt-get upgrade -y -qq 
 echo "apt upgrade completed" | sudo tee -a $LOG_FILE
 
 echo "Installing baseline tools..." | sudo tee -a $LOG_FILE
-sudo apt-get install -y -qq curl git jq net-tools ufw ca-certificates unzip > /dev/null 2>&1
+sudo apt-get install -y -qq curl git jq net-tools ufw ca-certificates unzip dnsutils tcpdump lsof iproute2
 echo "baseline tools installed" | sudo tee -a $LOG_FILE
 
  sudo timedatectl set-timezone Africa/Lagos

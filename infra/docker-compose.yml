@@ -18,8 +18,10 @@ services:
     restart: unless-stopped
 
   api:
-    image: mock-exchange:0.2.0
-    container_name: mock-exchange
+    build:
+      context: ..
+      dockerfile: apps/mock-exchange/Dockerfile
+    container_name: stackpilot-api
     env_file:
       - ../apps/mock-exchange/env/dev.env
     environment:

@@ -2,18 +2,18 @@
 
 ## Executive Summary
 
-Milestone 02 proves that this system behaves like a real production service.
+Milestone 02 proves that the system behaves like a **production-behaving service**, not just a running process.
 
 From the host machine, the system can be:
 
 * started intentionally
-* verified truthfully
+* verified authoritatively
 * failed safely
 * recovered without manual intervention
 
 This milestone introduces Dockerized runtime contracts, truthful health and readiness semantics, **explicit TCP-level reachability guarantees**, host-driven lifecycle control, and documented failure drills.
 
-The result is a portable, observable service that fails predictably instead of silently.
+The result is a portable, observable service that **fails predictably instead of silently**.
 
 ---
 
@@ -38,7 +38,14 @@ The purpose of this milestone is to establish a **production-behaving service wi
 
 The system must be startable, verifiable, and stoppable **from the host machine**, without manual SSH intervention, and must report its state truthfully under both healthy and degraded conditions.
 
-The API itself is intentionally simple. The focus is on **operational correctness**, not features: strict configuration, truthful signals, predictable failure, observable degradation, **verifiable TCP reachability**, and portability across hosts.
+The API itself is intentionally simple. The focus is on **operational correctness**, not features:
+
+* strict configuration enforcement
+* truthful health and readiness signals
+* predictable failure behavior
+* observable degradation
+* **verifiable TCP reachability**
+* portability across hosts
 
 ---
 
@@ -49,7 +56,7 @@ The API itself is intentionally simple. The focus is on **operational correctnes
 * Docker-based runtime with non-root execution
 * Docker Compose orchestration with Postgres
 * Verified persistence across restarts
-* Host-driven lifecycle control (`make up`, `make verify`, `make halt/destroy`)
+* Host-driven lifecycle control (`make up`, `make verify`, `make down`, `make destroy`)
 * Host-driven verification defining system truth
 * Runnable, documented failure drills
 * Explicit TCP networking validation for service and dependency reachability
@@ -107,7 +114,7 @@ Before any HTTP-level check is considered valid:
 * Docker must publish the port on the VM
 * The host must be able to establish a TCP connection to the VM port
 
-Failure at the TCP layer invalidates all higher-level checks.
+Failure at the TCP layer **invalidates all higher-level checks**.
 
 ---
 
@@ -125,8 +132,8 @@ Failure at the TCP layer invalidates all higher-level checks.
 * Verification is executed **from the host**, not from inside VMs
 * Verification scripts define what “working” means
 * Verification is authoritative and non-interactive
-* A green verification run is the only accepted definition of correctness
-* Verification explicitly distinguishes:
+* A green verification run is the **only accepted definition of correctness**
+* Verification explicitly distinguishes between:
 
   * *alive* vs *ready*
   * *reachable* vs *usable*
@@ -149,9 +156,9 @@ This milestone defines a clear, host-driven lifecycle for the system.
   * Confirms truthful health and readiness behavior
   * Fails loudly when guarantees are violated
 
-* **`make halt` / `make destroy`**
+* **`make down` / `make destroy`**
 
-  * Stops services before halting or destroying VMs
+  * Stops services before VM halt or destruction
   * Prevents hidden running state or data corruption
 
 The system does not require manual SSH for normal operation.
@@ -163,7 +170,7 @@ The system does not require manual SSH for normal operation.
 All lifecycle and verification commands are executed from the host.
 
 VMs are treated as managed infrastructure, not operator workstations.
-Manual SSH is reserved for debugging and deliberate failure drills only.
+Manual SSH is reserved for debugging and **deliberate failure drills only**.
 
 ---
 
@@ -178,7 +185,7 @@ Covered scenarios:
 * Mid-flight dependency loss
 * **Service TCP port unreachable**
 
-Each drill documents reproduction, expected behavior, and recovery.
+Each drill documents reproduction steps, expected behavior, and recovery.
 
 ---
 
@@ -193,7 +200,7 @@ Milestone 02 is complete only if:
 * Persistence is proven via restart
 * The service runs correctly on more than one host
 * At least one failure drill is executed and recovered
-* The full lifecycle (up → verify → down) is executable from the host
+* The full lifecycle (`up → verify → down`) is executable from the host
 
 ---
 
@@ -208,7 +215,7 @@ The intent is to demonstrate system thinking, networking awareness, and operatio
 
 # Operational Runbook — Milestone 02 (Host-Driven)
 
-This runbook documents expected operational behavior.
+This runbook documents **expected operational behavior**.
 It is not a tutorial.
 
 All normal operations are executed **from the host** using Make targets.
@@ -221,7 +228,7 @@ Direct Docker commands are shown for clarity and debugging only.
 ```bash
 make up
 make verify
-make halt
+make down
 ```
 
 ---
@@ -257,7 +264,7 @@ curl -i http://192.168.56.10:8000/version
 
 ---
 
-## Create Data (Corrected and Verified)
+## Create Data (Verified)
 
 ```bash
 curl -sS -X POST "http://192.168.56.10:8000/order?symbol=BTC&side=buy&qty=1" | tee /tmp/order.json
@@ -286,7 +293,7 @@ Expected:
 ## Persistence Proof (Restart)
 
 ```bash
-make halt
+make down
 make up
 curl http://192.168.56.10:8000/orders/<order_id>
 ```
@@ -334,14 +341,16 @@ make verify
 ## Stop (Non-Destructive)
 
 ```bash
-make halt
+make down
 ```
 
 ---
 
 ### Final Assessment
 
-With explicit TCP verification added, this milestone no longer **assumes networking** — it proves it.
+With explicit TCP verification enforced, this milestone no longer **assumes networking** — it proves it.
 
-This is now a genuine operational system milestone, not just a Docker exercise.
-Violating any of these rules invalidates the milestone.
+This is an operational system milestone, not a Docker exercise.
+Violating any of these guarantees invalidates the milestone.
+
+---
