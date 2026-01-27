@@ -10,6 +10,7 @@
 #  - host preflight fails fast before doing expensive work
 #  - service operations happen via scripts (not ad-hoc docker)
 #  - NODE allows running the service on control/worker1/worker2
+#  - drills are explicit and destructive (never part of verify)
 #
 # ==========================================================
 # QUICK EXAMPLES (copy/paste)
@@ -21,6 +22,10 @@
 #
 # Reviewer flow:
 #   make demo-reviewer -> clean-room -> demo -> verify
+#
+# Failure drills (Milestone 03 Phase 2):
+#   make drill-db-ready          -> controlled DB outage proof (host-driven)
+#   NODE=worker1 make drill-db-ready
 #
 # Multi-node usage:
 #   NODE=worker1 make demo
@@ -57,6 +62,9 @@ CORE_DIR    := $(SCRIPTS_DIR)/core
 VERIFY_DIR  := $(SCRIPTS_DIR)/verify
 OPS_DIR     := $(SCRIPTS_DIR)/ops
 
+# Drills folder (failure + recovery proofs)
+DRILLS_DIR  := $(SCRIPTS_DIR)/drills
+
 
 # ----------------------------------------------------------
 # Runtime parameters (overridable)
@@ -81,7 +89,7 @@ APP_IMAGE ?= infra-api:local
 # Phony targets (these are commands, not files)
 # ----------------------------------------------------------
 .PHONY: help preflight up demo demo-reviewer verify logs down clean destroy \
-        vm-up vm-halt vm-destroy ssh status provision
+        vm-up vm-halt vm-destroy ssh status provision drills drill-db-ready
 
 
 # ----------------------------------------------------------
@@ -102,6 +110,10 @@ help:
 	@echo "Reviewer proof"
 	@echo "  make demo-reviewer   Clean-room -> demo -> verify (anti-stale proof)"
 	@echo ""
+	@echo "Failure drills (Milestone 03 Phase 2)"
+	@echo "  make drills          List available drills"
+	@echo "  make drill-db-ready  Controlled DB outage drill (readiness honesty + recovery proof)"
+	@echo ""
 	@echo "Ops helpers"
 	@echo "  make logs            Tail service logs on NODE"
 	@echo "  make clean           Clean-room teardown on NODE (remove containers + app image + prune build cache)"
@@ -118,6 +130,8 @@ help:
 	@echo "  NODE=worker1 make verify"
 	@echo "  make demo-reviewer"
 	@echo "  NODE=worker1 make demo-reviewer"
+	@echo "  make drill-db-ready"
+	@echo "  NODE=worker1 make drill-db-ready"
 	@echo "  APP_IMAGE=infra-api:local make clean"
 	@echo "  make destroy"
 
@@ -168,12 +182,16 @@ demo: preflight
 #     2) rebuild via demo
 #     3) verify end-to-end
 #
+# Notes:
+#   - This target is intentionally non-destructive (no drills).
+#   - Failure drills are explicit and run via drill targets.
+#
 # Examples:
 #   make demo-reviewer
 #   NODE=worker1 make demo-reviewer
 demo-reviewer: preflight
-	@$(MAKE) clean NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)"
-	@$(MAKE) demo  NODE="$(NODE)"
+	@$(MAKE) clean  NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)"
+	@$(MAKE) demo   NODE="$(NODE)"
 	@$(MAKE) verify NODE="$(NODE)"
 
 
@@ -191,6 +209,10 @@ demo-reviewer: preflight
 #   If verify fails, the system is not "working" regardless of
 #   manual checks or ad-hoc SSH success.
 #
+# Important:
+#   verify is NON-DESTRUCTIVE.
+#   It must never induce failures (drills are separate).
+#
 # Examples:
 #   make verify
 #   NODE=worker1 make verify
@@ -198,6 +220,38 @@ verify: preflight
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-host.sh"
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-cluster.sh"
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(VERIFY_DIR)/verify-build.sh"
+
+
+# ----------------------------------------------------------
+# Failure drills (Milestone 03 Phase 2)
+# ----------------------------------------------------------
+
+# drills:
+#   Discoverability helper.
+#   Lists supported drills exposed via Make.
+drills:
+	@echo "Available drills:"
+	@echo "  make drill-db-ready   (DB down readiness honesty + recovery proof)"
+
+# drill-db-ready:
+#   Phase 2 readiness honesty drill.
+#
+# Contract proved:
+#   - TCP remains reachable while DB is down
+#   - /health stays 200 (liveness only)
+#   - /ready fails while DB is down (readiness honesty)
+#   - /ready recovers when DB returns without restarting the API
+#   - make verify fails during outage and passes after recovery
+#
+# Notes:
+#   - This drill is intentionally destructive (controlled failure).
+#   - It is NOT part of `make verify`.
+#
+# Examples:
+#   make drill-db-ready
+#   NODE=worker1 make drill-db-ready
+drill-db-ready: preflight
+	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(DRILLS_DIR)/db-ready.sh"
 
 
 # ----------------------------------------------------------

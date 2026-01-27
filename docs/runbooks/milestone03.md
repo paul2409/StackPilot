@@ -39,31 +39,31 @@ It does **not** change:
 
 Milestone 03 enforces the following guarantees:
 
-1. **Single Golden Path**
+### 1. Single Golden Path
 
-   * There is exactly one supported way to start services.
-   * All lifecycle actions flow through Make targets and scripts.
+* There is exactly one supported way to start services.
+* All lifecycle actions flow through Make targets and scripts.
 
-2. **Execution Discipline**
+### 2. Execution Discipline
 
-   * All operational scripts must execute from `/vagrant` inside the VM.
-   * Incorrect execution context causes immediate failure.
+* All operational scripts must execute from `/vagrant` inside the VM.
+* Incorrect execution context causes immediate failure.
 
-3. **Clean-Room Rebuildability**
+### 3. Clean-Room Rebuildability
 
-   * Cached images are not trusted.
-   * Rebuilds must occur when images are removed.
-   * Rebuild behavior must be observable.
+* Cached images are not trusted.
+* Rebuilds must occur when images are removed.
+* Rebuild behavior must be observable.
 
-4. **Separation of Concerns**
+### 4. Separation of Concerns
 
-   * Stopping services is not the same as cleaning state.
-   * Cleaning state is not the same as destroying infrastructure.
+* Stopping services is not the same as cleaning state.
+* Cleaning state is not the same as destroying infrastructure.
 
-5. **Verification as Truth**
+### 5. Verification as Truth
 
-   * Verification defines correctness.
-   * Manual inspection does not override verification failure.
+* Verification defines correctness.
+* Manual inspection does not override verification failure.
 
 ---
 
@@ -180,12 +180,15 @@ Verification is authoritative.
 Verification must:
 
 * Run from the **host**
+
 * Inspect VM-side state
+
 * Confirm:
 
   * runtime container state
   * image usage
   * compose wiring
+
 * Never mutate system state
 
 Verification does **not**:
@@ -195,6 +198,57 @@ Verification does **not**:
 * make assumptions
 
 If verification fails, the system is not correct.
+
+---
+
+## Phase 2 — Failure & Recovery Enforcement (Step 6)
+
+Milestone 03 includes a mandatory **Phase 2 failure drill** that proves the system behaves honestly under runtime dependency failure and recovers without operator intervention.
+
+### Failure Scenario: Database Unavailable
+
+This phase introduces **deliberate mid-flight dependency failure**.
+
+When the database becomes unavailable while the API is running, the system must prove:
+
+* The API process remains reachable at the **TCP layer**
+* `/health` continues to report liveness (`200`)
+* `/ready` truthfully reports dependency failure (non-`200`)
+* Host-side verification fails while the dependency is down
+* Recovery occurs automatically when the dependency returns
+* No API restart is required for recovery
+
+### Drill Script (Authoritative)
+
+The failure and recovery sequence is encoded in a host-driven drill script:
+
+```bash
+scripts/drills/db-ready.sh
+```
+
+This script:
+
+1. Verifies a clean baseline (`make verify`)
+2. Stops **only** the database container on the target node
+3. Proves TCP reachability from the host
+4. Asserts:
+
+   * `/health` = 200
+   * `/ready` ≠ 200
+5. Confirms `make verify` fails during the outage
+6. Restarts the database container
+7. Proves `/ready` recovers without restarting the API
+8. Confirms `make verify` passes again
+
+### Tooling Portability
+
+To avoid reviewer friction, the drill:
+
+* Prefers raw TCP checks (`nc`) when available
+* Falls back to Bash `/dev/tcp` or short-timeout `curl`
+* Never requires the reviewer to install additional tools
+
+The drill remains **host-driven and authoritative**, even when fallbacks are used.
 
 ---
 
@@ -232,12 +286,21 @@ Milestone 03 is complete only if **all** of the following are true:
 
   * all compose-managed containers
   * the locally-built application image
+
 * `make demo` rebuilds the image from source
+
 * Rebuild output is observable
+
 * `make verify` passes after a clean-room rebuild
+
 * Verification reflects real runtime and image state
+
 * Scripts refuse to run outside `/vagrant`
+
 * No manual Docker commands are required
+
+* Failure drill proves honest degradation and recovery
+
 * Guarantees hold on more than one VM
 
 ---
@@ -252,6 +315,7 @@ This milestone explicitly prevents:
 * partial repo mounts
 * hidden running containers
 * unverifiable rebuild claims
+* silent dependency failures
 
 ---
 
@@ -272,4 +336,10 @@ Those concerns are intentionally deferred.
 
 Milestone 03 transforms the system from *correct-by-intent* to *correct-by-enforcement*.
 
+Failure behavior is no longer assumed.
+Recovery is no longer manual.
+Verification is no longer optional.
+
 If any of the guarantees above can be bypassed, the milestone is considered **invalid** and must be corrected before progressing.
+
+---
