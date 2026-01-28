@@ -45,20 +45,19 @@ Vagrant.configure("2") do |config|
       # --- Provisioning ---
       # Baseline OS packages and tooling (idempotent)
       n.vm.provision "shell",
-        path: "../scripts/provision.sh",
+        path: "../scripts/provision/provision.sh",
         privileged: true
 
       # Enforce deterministic hostname resolution
       # This manages only the StackPilot block in /etc/hosts
       n.vm.provision "shell",
-        path: "../scripts/hosts.sh",
-        privileged: true
-      
-      # Install Docker engine and CLI (idempotent)
-      n.vm.provision "shell",
-        path: "../scripts/install-docker.sh",
+        path: "../scripts/ops/hosts.sh",
         privileged: true
 
+      # Install Docker engine and CLI (idempotent)
+      n.vm.provision "shell",
+        path: "../scripts/provision/install-docker.sh",
+        privileged: true
 
       # --- Provider configuration ---
       n.vm.provider "virtualbox" do |vb|

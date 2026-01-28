@@ -1,0 +1,23 @@
+GUARANTEE | ENFORCED_BY | PROOF_COMMAND | NOTES
+
+Golden_Path_Rebuild | Makefile, scripts/checks/policy.sh | make up && make verify | Clean repo clone must pass without manual fixes
+
+Repo_Structure_Is_Enforced | scripts/checks/policy.sh | ./scripts/checks/policy.sh | Blocks missing files, wrong layout, non-executable scripts
+
+Checks_Run_Before_Runtime_Verification | scripts/checks/policy.sh | make verify | Checks execute before any verify scripts
+
+No_Silent_Failures_In_Gates | scripts/checks/policy.sh, scripts/checks/secrets.sh | make verify | Gates fail fast with explicit FAIL messages
+
+Secrets_Are_Not_Accidentally_Committed | scripts/checks/secrets.sh | ./scripts/checks/secrets.sh | Demo env files are intentionally allowlisted and documented
+
+Demo_Secrets_Are_Explicit_Not_Accidental | scripts/checks/secrets.sh | ./scripts/checks/secrets.sh | Allowlist documents intentional non-production secrets
+
+Verification_Defines_Reality | scripts/verify/verify-host.sh, scripts/verify/verify-cluster.sh | make verify | Runtime state is source of truth, not docs
+
+Host_To_VM_Connectivity_Is_Required | scripts/verify/verify-host.sh | ./scripts/verify/verify-host.sh | Host must reach control and workers
+
+Cluster_State_Is_Verified | scripts/verify/verify-cluster.sh | ./scripts/verify/verify-cluster.sh | Verifies containers/services are actually running
+
+Checks_Are_Non_Interactive | scripts/checks/ | make verify | No prompts, no shells, no user input
+
+Repo_Claims_Must_Be_Mapped | scripts/checks/guarantees-map.sh | ./scripts/checks/guarantees_map.sh | Every guarantee must reference a real enforcement hook

@@ -1,7 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# ==========================================================
+# scripts/verify/verify-cluster.sh
+#
+# Verifies VM-to-VM connectivity by HOSTNAME (not IP).
+#
+# Usage:
+#   bash scripts/verify/verify-cluster.sh
+# ==========================================================
+
+# ----------------------------------------------------------
+# Resolve repo root safely (works from scripts/core/, scripts/verify/, etc.)
+# ----------------------------------------------------------
+ROOT_DIR=""
+if command -v git >/dev/null 2>&1; then
+  ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+fi
+if [ -z "${ROOT_DIR:-}" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+fi
+
 VAGRANT_DIR="${ROOT_DIR}/vagrant"
 
 echo "===== VERIFY CLUSTER (VM to VM by hostname) ====="
@@ -24,12 +44,10 @@ check_ping() {
     || { echo "FAIL: $from cannot ping $to"; exit 1; }
 }
 
-# 1) resolution checks
 check_resolve control
 check_resolve worker1
 check_resolve worker2
 
-# 2) ping matrix (hostname)
 echo "----- Pings by hostname -----"
 check_ping control worker1
 check_ping control worker2
