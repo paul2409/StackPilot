@@ -3,12 +3,12 @@
 **Standard Deploys, Happy Developers**
 
 StackPilot is a local-first Platform Engineering and SRE lab.
-It is operated as a system with explicit guarantees, verification, and recovery paths — not as a tutorial, demo, or sandbox.
+It is operated as a system with explicit guarantees, executable verification, and recovery paths — **not** as a tutorial, demo, or sandbox.
 
 The repository is built incrementally through milestones.
-Each milestone is merged only when its guarantees hold and are provable through executable verification.
+Each milestone is merged only when its guarantees are **provable through executable verification**, not manual inspection.
 
-⸻
+---
 
 ## Lab Topology (Host-only Network)
 
@@ -21,7 +21,7 @@ worker2   — 192.168.56.12
 All nodes run Ubuntu 22.04 LTS with static hostnames and IPs.
 The host-only network allows all guarantees to be verified externally from the host.
 
-⸻
+---
 
 ## Golden Commands (Canonical)
 
@@ -49,24 +49,30 @@ make destroy
 
 If `make verify` does not **PASS**, the system is not considered working.
 
-Manual SSH success, ad-hoc Docker commands, or local checks do not override verification failure.
+Manual SSH success, ad-hoc Docker commands, or partial service health do **not** override verification failure.
 
-⸻
+---
 
 ## Repository Structure
 
 ```
-vagrant/   — VM definitions and topology
-scripts/   — provisioning, lifecycle, clean-room, and verification logic
-docs/      — runbooks, guarantees, and operational notes
+vagrant/   — VM definitions, networking, and node identity
+scripts/   — lifecycle, clean-room, provisioning, and verification logic
+docs/      — guarantees, runbooks, and failure recovery
 apps/      — sample services used to prove platform behavior
-ci/        — CI workflows (introduced in later milestones)
+ci/        — CI workflows (introduced after Milestone 03)
 ```
 
-Scripts are organized by intent and responsibility.
-Verification scripts never mutate state; lifecycle scripts never assert correctness.
+Scripts are organized by responsibility:
 
-⸻
+* lifecycle scripts **mutate state**
+* verification scripts **assert correctness only**
+* clean-room scripts **remove all implicit state**
+
+Verification scripts never modify the system.
+Lifecycle scripts never assert correctness.
+
+---
 
 ## Milestone 01 — Lab Foundation (v0.1)
 
@@ -99,13 +105,11 @@ If verification fails, the lab is not considered operational.
 * `docs/runbooks/milestone01.md`
 * `docs/runbooks/troubleshooting.md`
 
-If a failure cannot be recovered using the runbooks, the documentation is improved before moving forward.
-
 ### Tag
 
 **v0.1 — Lab Foundation (Infrastructure Truth)**
 
-⸻
+---
 
 ## Milestone 02 — Dockerized Service Contracts & Host-Driven Operations (v0.2)
 
@@ -115,13 +119,13 @@ Prove that the lab can run a production-behaving service with explicit lifecycle
 
 ### What This Milestone Demonstrates
 
-* Docker as the enforced runtime (no “it runs locally” assumptions)
+* Docker as the enforced runtime (no local execution assumptions)
 * A real API service with strict startup and runtime contracts
 * Separation of liveness (`/health`) and readiness (`/ready`)
 * A real external dependency (Postgres)
 * Failure-first behavior that degrades safely instead of crashing
-* Explicit TCP-level network verification before HTTP checks
-* Host-driven lifecycle control (`make up / demo / verify / down`)
+* Explicit TCP-level verification before HTTP checks
+* Host-driven lifecycle control via Makefile
 * Portable execution across multiple VMs without code changes
 * Runnable failure drills with documented recovery
 
@@ -137,7 +141,7 @@ The system is considered working only if all of the following are true:
 * Data persists across service restarts
 * The service can run on more than one VM
 
-### Operational Runbooks
+### Runbooks
 
 * `docs/runbooks/milestone02.md`
 * `docs/runbooks/troubleshooting.md`
@@ -146,32 +150,33 @@ The system is considered working only if all of the following are true:
 
 **v0.2 — Dockerized Service Contracts & Host-Driven Operations**
 
-⸻
+---
 
 ## Milestone 03 — Operational Hardening & Delivery Discipline (v0.3)
 
 ### Goal
 
-Transform the lab from “it runs correctly” into a system that **enforces correctness**, prevents stale state, and proves rebuildability through mandatory clean-room execution and verification.
+Transform the lab from “it runs correctly” into a system that **enforces correctness**, prevents stale state, and proves rebuildability through mandatory clean-room execution.
 
-This milestone focuses on **operational discipline**, not new features.
+This milestone introduces **delivery discipline**, not new features.
 
 ### What This Milestone Demonstrates
 
-* Local image builds as the only supported delivery mechanism
-* A single enforced golden path for starting services
-* **Execution discipline: all operational scripts must run from `/vagrant` inside the VM**
+* A **single enforced golden path** for service operation
+* Local image builds as the **only supported delivery mechanism**
+* Explicit refusal to operate outside `/vagrant`
 * Failure-fast behavior when execution context is incorrect
-* Clean separation between:
+* Hard separation between:
 
-  * stopping services
+  * service stop
   * clean-room teardown
   * infrastructure destruction
 * Mandatory clean-room rebuilds that do not rely on cached images
-* Explicit proof that rebuilds occur when images are deleted
-* Deterministic service lifecycle across multiple VMs
-* Verification that reflects *actual* runtime and build state (not assumptions)
+* Proof that rebuilds occur when images are deleted
+* Deterministic lifecycle across multiple VMs
+* Verification that inspects **actual runtime and build state**
 * A reviewer-grade demo flow that cannot bypass rebuild guarantees
+* Makefile as the **only supported operator interface**
 
 ### What “Working” Means
 
@@ -180,12 +185,16 @@ The system is considered working only if all of the following are true:
 * `make clean` removes:
 
   * all compose-managed containers
-  * the locally-built application image
-* `make demo` rebuilds the application image automatically
+  * all locally built application images
+* `make demo` **forces** an image rebuild via the golden path
 * `make verify` passes after a clean-room rebuild
-* Verification includes VM-side build and runtime inspection
-* Scripts **refuse to run** when the repository is not mounted at `/vagrant`
-* No manual Docker commands are required to recover the system
+* Verification confirms:
+
+  * image rebuild occurred
+  * containers are running expected images
+  * services are reachable and truthful
+* Scripts refuse to run when the repo is not mounted at `/vagrant`
+* No manual Docker or SSH intervention is required
 * The same guarantees hold on more than one VM
 
 ### Reviewer Demo Contract
@@ -206,7 +215,7 @@ This command **always** performs:
 
 If this command passes, the system is considered reproducible and operationally correct.
 
-### Operational Runbooks
+### Runbooks
 
 * `docs/runbooks/milestone03.md`
 * `docs/runbooks/troubleshooting.md`
@@ -215,13 +224,18 @@ If this command passes, the system is considered reproducible and operationally 
 
 **v0.3 — Operational Hardening & Delivery Discipline**
 
-⸻
+---
+
+## Guarantees Map
+See `docs/guarantees-map.txt` for a complete list of enforced guarantees and their verification status.
+
+---
 
 ## Project Philosophy
 
-StackPilot prioritizes operational correctness over feature scope.
+StackPilot prioritizes **operational correctness over feature scope**.
 
 The applications are intentionally simple.
-The value of the project lies in guarantees, verification, failure behavior, and recoverability — not in application complexity.
+The value of the project lies in guarantees, verification, failure behavior, rebuildability, and recovery — not in application complexity.
 
 ---

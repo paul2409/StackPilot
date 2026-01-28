@@ -17,7 +17,7 @@ sudo apt-get upgrade -y -qq
 echo "apt upgrade completed" | sudo tee -a $LOG_FILE
 
 echo "Installing baseline tools..." | sudo tee -a $LOG_FILE
-sudo apt-get install -y -qq curl git jq net-tools ufw ca-certificates unzip dnsutils tcpdump lsof iproute2
+sudo apt-get install -y -qq curl git jq net-tools ufw ca-certificates unzip dnsutils tcpdump lsof iproute2 shellcheck
 echo "baseline tools installed" | sudo tee -a $LOG_FILE
 
  sudo timedatectl set-timezone Africa/Lagos

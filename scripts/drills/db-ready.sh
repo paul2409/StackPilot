@@ -175,12 +175,12 @@ need_cmd curl
 
 echo "== 0) Baseline check: system must be healthy =="
 
-#if ! make -C "$ROOT_DIR" verify; then
- # fail "baseline make verify failed — fix baseline before running drill"
-#fi
+if ! make -C "$ROOT_DIR" verify; then
+  fail "baseline make verify failed — fix baseline before running drill"
+fi
 
-#pass "baseline verification passes"
-#echo
+pass "baseline verification passes"
+echo
 
 
 # ----------------------------------------------------------
