@@ -20,8 +20,8 @@ services:
   api:
     image: infra-api:local
     build:
-      context: ..
-      dockerfile: apps/mock-exchange/Dockerfile
+      context: ../apps/mock-exchange
+      dockerfile: Dockerfile
     container_name: stackpilot-api
     env_file:
       - ../apps/mock-exchange/env/dev.env
