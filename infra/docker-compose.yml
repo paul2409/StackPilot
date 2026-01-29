@@ -18,6 +18,7 @@ services:
     restart: unless-stopped
 
   api:
+    image: infra-api:local
     build:
       context: ..
       dockerfile: apps/mock-exchange/Dockerfile

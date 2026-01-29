@@ -1,0 +1,217 @@
+# ==========================================================
+# CI WORKFLOW — SINGLE SOURCE OF TRUTH (TEACHING VERSION)
+#
+# Goal:
+# - ONE workflow file
+# - If self-hosted runner is available:
+#     → bring up VMs (via Makefile switch)
+#     → run full verification (make verify)
+#     → destroy lab (cleanup)
+# - If self-hosted runner is NOT available:
+#     → do NOT attempt VMs
+#     → run repo checks only (make checks)
+#
+# Log rule:
+# - All logs MUST be created under: ci/logs/
+# - We capture stdout/stderr with `tee` so reviewers can read failures.
+#
+# Important reality:
+# - GitHub chooses runners BEFORE steps run.
+# - So we cannot "detect runner" inside the same job.
+# - The correct pattern is:
+#     Job A targets self-hosted → runs only when available
+#     Job B is hosted fallback → runs when A didn’t succeed
+# ==========================================================
+
+name: ci
+
+# ----------------------------------------------------------
+# Triggers:
+# - pull_request: every PR gets validated
+# - push to main: main stays protected/verified
+# ----------------------------------------------------------
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+# ----------------------------------------------------------
+# Permissions:
+# - contents: read is enough to checkout the repo.
+# - we are NOT using any API calls here, so no actions:read needed.
+# ----------------------------------------------------------
+permissions:
+  contents: read
+
+# ----------------------------------------------------------
+# Concurrency (repo-level):
+# - Prevents multiple runs stepping on each other per branch/ref.
+# - If you push new commits quickly, older runs get cancelled.
+#
+# Note:
+# - This is separate from "lab concurrency" below.
+# ----------------------------------------------------------
+concurrency:
+  group: stackpilot-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ======================================================
+  # JOB 1 — SELF-HOSTED LAB PATH (PREFERRED)
+  #
+  # Runs on:
+  # - a self-hosted runner that has label: stackpilot-vmhost
+  #
+  # When will this job run?
+  # - Only when you have a self-hosted runner registered + online
+  # - If you do not, GitHub will NOT be able to schedule it.
+  #
+  # What does it do?
+  # - Calls `CI_LAB_BOOTSTRAP=1 make verify`
+  #   which (by your Makefile design) will:
+  #     1) vm-up (bring up VMs) because CI_LAB_BOOTSTRAP=1
+  #     2) run checks (policy/secrets/guarantees)
+  #     3) run runtime verification (verify-host/cluster/build)
+  # - Always destroys the lab afterward (cleanup guarantee).
+  # ======================================================
+  lab_full:
+    name: Self-Hosted Lab (VM → Verify → Destroy)
+
+    # This is the key:
+    # - GitHub will only schedule this job on a runner that matches these labels.
+    runs-on: [self-hosted, stackpilot-vmhost]
+
+    # Allow more time because VM lifecycle can take time.
+    timeout-minutes: 60
+
+    # ----------------------------------------------------
+    # Lab-level concurrency:
+    # - Only ONE CI job is allowed to own the lab at a time.
+    # - Without this, two CI runs could both try to boot/destroy the same VMs.
+    # ----------------------------------------------------
+    concurrency:
+      group: stackpilot-lab
+      cancel-in-progress: true
+
+    # ----------------------------------------------------
+    # continue-on-error:
+    # - This is IMPORTANT for your design requirement.
+    # - If no self-hosted runner exists / job can't run,
+    #   GitHub marks it as not successful.
+    # - We want the fallback job to still run.
+    #
+    # Note:
+    # - This does not "hide" real failures from logs.
+    # - You will still see the job fail in Actions when it actually runs.
+    # - It just allows the workflow to proceed to the fallback path.
+    # ----------------------------------------------------
+    continue-on-error: true
+
+    steps:
+      # Pull the repo onto the runner.
+      - uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # The main step:
+      # - Create ci/logs/ (your repo-root CI folder)
+      # - Run make verify with VM bootstrap enabled
+      # - Capture all output into ci/logs/verify.log
+      #
+      # Why tee?
+      # - You see output live in Actions logs
+      # - You also save it to a file for artifact upload
+      #
+      # Why set -euo pipefail?
+      # - e: stop on first failure
+      # - u: error on unset variables
+      # - pipefail: if any command in a pipeline fails, the step fails
+      # --------------------------------------------------
+      - name: Full verification (boot lab then verify)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci/logs
+          CI_LAB_BOOTSTRAP=1 make verify 2>&1 | tee ci/logs/verify.log
+
+      # --------------------------------------------------
+      # Artifact upload:
+      # - ALWAYS upload logs even if verify fails
+      # - This is critical: failure must be inspectable.
+      # --------------------------------------------------
+      - name: Upload lab logs (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab-logs
+          path: ci/logs/
+          if-no-files-found: warn
+          retention-days: 14
+
+      # --------------------------------------------------
+      # Cleanup:
+      # - ALWAYS destroy the lab
+      # - This prevents leaked VMs, stuck containers, stale state.
+      # --------------------------------------------------
+      - name: Destroy lab (always)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          make destroy
+
+  # ======================================================
+  # JOB 2 — HOSTED FALLBACK (NO VMs)
+  #
+  # Runs on:
+  # - GitHub-hosted runner ubuntu-latest
+  #
+  # When will this job run?
+  # - Only if job1 did NOT succeed.
+  #   That includes:
+  #     - self-hosted runner not available (job1 can't run)
+  #     - self-hosted job ran but failed
+  #
+  # What does it do?
+  # - Runs `make checks` only (no VM attempts)
+  # - Saves output to ci/logs/checks.log
+  #
+  # Why do we do checks only here?
+  # - Hosted runners cannot run your VirtualBox/Vagrant VMs.
+  # - So we enforce repo correctness, not runtime correctness.
+  # ======================================================
+  checks_only:
+    name: Hosted Fallback (Checks Only)
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # This enforces ordering:
+    # - Try lab_full first
+    # - If it didn't succeed, this job can run
+    needs: lab_full
+
+    # This is the decision gate:
+    # - If self-hosted path succeeded → do NOT run fallback
+    # - If self-hosted path did not succeed → run fallback
+    if: needs.lab_full.result != 'success'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Run repo checks and capture logs
+      - name: Repo checks (no VM access)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci/logs
+          make checks 2>&1 | tee ci/logs/checks.log
+
+      # Upload logs even if checks fail
+      - name: Upload checks logs (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checks-logs
+          path: ci/logs/
+          if-no-files-found: warn
+          retention-days: 14

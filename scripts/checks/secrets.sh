@@ -6,30 +6,22 @@ set -euo pipefail
 #
 # PURPOSE
 # -------
-# This script prevents accidental leakage of credentials or
-# private keys into the git repository.
+# Prevent committing real secrets (keys, passwords, tokens)
+# into the repository.
 #
-# DESIGN PHILOSOPHY
-# -----------------
-# - Be conservative and explicit
-# - Fail loudly on real mistakes
-# - Allow intentional demo shortcuts, but document them
+# This is a *guardrail*, not a security scanner.
+# It is intentionally simple and conservative.
 #
-# IMPORTANT PROJECT NOTE
-# ----------------------
-# This repository intentionally includes demo environment
-# files with dummy credentials to keep the lab frictionless.
-# These specific files are allowlisted and excluded from
-# secret-pattern scanning by design.
-#
-# This is a safety gate, NOT a full security scanner.
+# IMPORTANT
+# ---------
+# - Demo env files with fake credentials are allowed explicitly
+# - This script MUST NOT scan itself (it contains the patterns)
 # ==========================================================
 
 
 # ----------------------------------------------------------
-# Standardized output helpers
+# Output helpers (consistent, readable messages)
 # ----------------------------------------------------------
-# These ensure consistent, readable output across all checks.
 PASS="PASS"
 FAIL="FAIL"
 
@@ -39,26 +31,27 @@ bad() { say "${FAIL}: $*" >&2; exit 1; }
 
 
 # ----------------------------------------------------------
-# Resolve repository root directory
+# Resolve repository root
 # ----------------------------------------------------------
-# This script lives at: scripts/checks/secrets.sh
-# Moving two levels up reliably lands us at repo root.
+# Script location: scripts/checks/secrets.sh
+# Two levels up always lands at repo root.
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
 
 # ----------------------------------------------------------
-# Allowlist: demo env files with intentional dummy secrets
+# Self-exclusion
+# ----------------------------------------------------------
+# This script contains the secret patterns by design.
+# It MUST NOT scan itself or it will false-positive.
+SELF_PATH="scripts/checks/secrets.sh"
+
+
+# ----------------------------------------------------------
+# Allowlist: demo env files with fake credentials
 # ----------------------------------------------------------
 # These files are intentionally committed for demo purposes.
-# They MAY contain passwords or credentials, but:
-# - they are non-production
-# - they are explicitly acknowledged here
-# - they are excluded from secret-pattern scanning only
-#
-# IMPORTANT:
-# These files are still subject to the "blocked file" rules
-# below (e.g., we still block private keys).
+# They may contain PASSWORD= or API_KEY= but are non-production.
 ALLOWLIST_FILES=(
   "apps/mock-exchange/env/dev.env"
   "apps/mock-exchange/env/dev.worker1.env"
@@ -66,12 +59,10 @@ ALLOWLIST_FILES=(
 
 
 # ----------------------------------------------------------
-# Helper: check if a file is allowlisted
+# Helper: check if file is allowlisted
 # ----------------------------------------------------------
-# Returns success if the given path matches an allowlisted file.
 is_allowlisted() {
   local candidate="$1"
-  local allow
   for allow in "${ALLOWLIST_FILES[@]}"; do
     [[ "$candidate" == "$allow" ]] && return 0
   done
@@ -80,12 +71,11 @@ is_allowlisted() {
 
 
 # ==========================================================
-# CHECK 1: BLOCKED SECRET-LIKE FILES
+# CHECK 1: BLOCKED FILE TYPES
 # ==========================================================
 say "== Check: tracked secret-like files =="
 
-# These patterns should NEVER be committed, even in a demo.
-# If any of these are tracked, we fail immediately.
+# These file types should NEVER be committed, even in demos
 BLOCKED_TRACKED_PATTERNS=(
   ".env"
   ".env.*"
@@ -100,15 +90,14 @@ BLOCKED_TRACKED_PATTERNS=(
 
 tracked_hits=()
 
-# For each blocked pattern, check whether git is tracking
-# any matching files.
+# Check git-tracked files against blocked patterns
 for pattern in "${BLOCKED_TRACKED_PATTERNS[@]}"; do
   while IFS= read -r file; do
     [[ -n "$file" ]] && tracked_hits+=("$file")
   done < <(git ls-files "$pattern" 2>/dev/null || true)
 done
 
-# If we found any blocked files, fail and explain why.
+# Fail if any blocked files are tracked
 if ((${#tracked_hits[@]} > 0)); then
   say "${FAIL}: blocked secret-like files are tracked:"
   for f in "${tracked_hits[@]}"; do
@@ -126,8 +115,7 @@ ok "no blocked secret-like files tracked"
 # ==========================================================
 say "== Check: secret patterns in tracked files =="
 
-# These are intentionally obvious patterns.
-# The goal is to catch accidents, not perform deep inspection.
+# Intentionally obvious patterns to catch accidents
 PATTERNS=(
   "AWS_ACCESS_KEY_ID"
   "AWS_SECRET_ACCESS_KEY"
@@ -144,38 +132,43 @@ PATTERNS=(
   "PASSWORD="
 )
 
-# Build a single extended regex for grep.
+# Build grep regex
 regex="$(IFS="|"; echo "${PATTERNS[*]}")"
 
 
 # ----------------------------------------------------------
 # Scan logic
 # ----------------------------------------------------------
-# Steps:
-# 1) Enumerate tracked files only (git ls-files)
-# 2) Skip allowlisted demo env files
-# 3) Skip binary files
-# 4) Grep remaining files for secret patterns
+# Rules:
+# - only scan git-tracked files
+# - skip this script
+# - skip allowlisted demo env files
+# - skip binary files
 scan_hits="$(
   git ls-files -z \
   | while IFS= read -r -d '' f; do
-      # Skip files explicitly allowlisted
+      # Skip this script itself
+      if [[ "$f" == "$SELF_PATH" ]]; then
+        continue
+      fi
+
+      # Skip allowlisted demo env files
       if is_allowlisted "$f"; then
         continue
       fi
 
-      # Skip binary files (certs, images, etc.)
+      # Skip binary files
       if file -b --mime "$f" | grep -q "charset=binary"; then
         continue
       fi
 
-      # Pass eligible files forward for scanning
+      # Eligible file → scan
       printf "%s\0" "$f"
     done \
   | xargs -0 grep -nE --color=never "$regex" 2>/dev/null || true
 )"
 
-# If any matches are found, fail and show exact locations.
+# Fail if any secret-like patterns are found
 if [[ -n "$scan_hits" ]]; then
   say "${FAIL}: possible secrets detected in tracked files:"
   say "$scan_hits"
@@ -187,7 +180,7 @@ ok "no obvious secrets detected in tracked content (demo env files excluded)"
 
 
 # ----------------------------------------------------------
-# Final success message
+# Final success
 # ----------------------------------------------------------
 say "== Secrets safety checks passed =="
 exit 0

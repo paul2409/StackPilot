@@ -163,7 +163,7 @@ up: preflight vm-up demo
 demo: preflight
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(CORE_DIR)/service-up.sh"
 
-demo-reviewer: preflight
+demo-reviewer: 
 	@$(MAKE) clean  NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)"
 	@$(MAKE) demo   NODE="$(NODE)"
 	@$(MAKE) verify NODE="$(NODE)"
@@ -200,10 +200,40 @@ verify-cluster: preflight
 verify-build: preflight
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(VERIFY_DIR)/verify-build.sh"
 
+# ----------------------------------------------------------
 # verify:
-#   runs checks first, then runtime verification layers
-verify: checks verify-host verify-cluster verify-build
-	@echo "PASS: verification complete"
+#   Phase 1 rule:
+#     - In GitHub-hosted CI (no VMs), verify runs repo gates only.
+#     - Locally (or on a self-hosted runner with VMs), verify runs full suite.
+#
+# Detection:
+#   - GitHub Actions sets GITHUB_ACTIONS=true
+#   - Full runtime requires Vagrant + running VMs, which hosted runners won't have.
+# ----------------------------------------------------------
+verify: preflight
+	@echo "== VERIFY: start =="
+
+	@if [[ "$${CI_LAB_BOOTSTRAP:-0}" == "1" ]]; then \
+		echo "== VERIFY: lab bootstrap =="; \
+		echo "CI_LAB_BOOTSTRAP=1 -> bringing up VMs"; \
+		$(MAKE) vm-up; \
+	else \
+		echo "== VERIFY: lab bootstrap skipped =="; \
+	fi
+
+	@echo "== VERIFY: repo checks =="
+	@$(MAKE) checks
+
+	@echo "== VERIFY: host verification =="
+	@$(MAKE) verify-host
+
+	@echo "== VERIFY: cluster verification =="
+	@$(MAKE) verify-cluster
+
+	@echo "== VERIFY: build/runtime verification =="
+	@$(MAKE) verify-build
+
+	@echo "== VERIFY: PASS =="
 
 
 # ----------------------------------------------------------

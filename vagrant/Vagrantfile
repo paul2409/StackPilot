@@ -42,10 +42,13 @@ Vagrant.configure("2") do |config|
       # Private network with static IP
       n.vm.network "private_network", ip: node[:ip]
 
+
+
       # --- Provisioning ---
       # Baseline OS packages and tooling (idempotent)
+      
       n.vm.provision "shell",
-        path: "../scripts/provision/provision.sh",
+        path: "../scripts/provision/bootstrap.sh",
         privileged: true
 
       # Enforce deterministic hostname resolution
@@ -55,9 +58,9 @@ Vagrant.configure("2") do |config|
         privileged: true
 
       # Install Docker engine and CLI (idempotent)
-      n.vm.provision "shell",
-        path: "../scripts/provision/install-docker.sh",
-        privileged: true
+    #  n.vm.provision "shell",
+     #   path: "../scripts/provision/install-docker.sh",
+      #  privileged: true
 
       # --- Provider configuration ---
       n.vm.provider "virtualbox" do |vb|
