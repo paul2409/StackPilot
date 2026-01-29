@@ -55,46 +55,29 @@ SHELL := /usr/bin/env bash
 # Paths (resolved from this Makefile location)
 # ----------------------------------------------------------
 
-# Absolute path to the repository root (folder containing this Makefile)
 ROOT_DIR    := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-
-# Vagrant folder (contains Vagrantfile + VM topology)
 VAGRANT_DIR := $(ROOT_DIR)/vagrant
-
-# Scripts folder (organized by purpose)
 SCRIPTS_DIR := $(ROOT_DIR)/scripts
 
-# Script subfolders (stable interface)
 CORE_DIR    := $(SCRIPTS_DIR)/core
 VERIFY_DIR  := $(SCRIPTS_DIR)/verify
 OPS_DIR     := $(SCRIPTS_DIR)/ops
 CHECKS_DIR  := $(SCRIPTS_DIR)/checks
-
-# Drills folder (failure + recovery proofs)
 DRILLS_DIR  := $(SCRIPTS_DIR)/drills
-
 
 # ----------------------------------------------------------
 # Runtime parameters (overridable)
 # ----------------------------------------------------------
 
-# Which VM to run service commands on.
-# Examples:
-#   NODE=worker1 make demo
-#   NODE=worker2 make logs
 NODE ?= control
-
-# The application image name removed during clean-room.
-# Must match the compose file `image:` for the API service.
-# Milestone 03 rule: avoid :latest.
 APP_IMAGE ?= infra-api:local
-
 
 # ----------------------------------------------------------
 # Phony targets (these are commands, not files)
 # ----------------------------------------------------------
 .PHONY: help preflight-host preflight-repo up demo demo-reviewer \
-        checks check-policy check-secrets check-guarantees \
+        checks check-policy check-secrets check-guarantees check-build \
+        check-python check-immutable-tags \
         verify verify-host verify-cluster verify-build \
         logs down clean destroy \
         vm-up vm-halt vm-destroy ssh status provision \
@@ -114,7 +97,7 @@ help:
 	@echo "  make down            Stop services on NODE (containers removed, images/volumes kept)"
 	@echo ""
 	@echo "Repo checks (Milestone 03 gates)"
-	@echo "  make checks          Run all repo gates (policy + secrets + guarantees map)"
+	@echo "  make checks          Run all repo gates (policy + secrets + guarantees map + build)"
 	@echo "  make check-policy    Run repo structure/policy gate"
 	@echo "  make check-secrets   Run secrets safety gate (demo env allowlisted)"
 	@echo "  make check-guarantees Run guarantees map gate"
@@ -190,7 +173,16 @@ check-secrets: preflight-repo
 check-guarantees: preflight-repo
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/guarantees-map.sh"
 
-checks: check-policy check-secrets check-guarantees
+check-build: preflight-repo
+	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/build.sh"
+
+check-python: preflight-repo
+	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/python.sh"
+
+check-immutable-tags: preflight-repo
+	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/immutable-tags.sh"
+
+checks: check-policy check-secrets check-guarantees check-build check-python check-immutable-tags
 
 
 # ----------------------------------------------------------
@@ -220,13 +212,11 @@ verify: preflight-repo
 	@echo "== VERIFY: repo checks =="
 	@$(MAKE) checks
 
-	@# Optional lab bootstrap (self-hosted CI or local operator)
 	@if [[ "$${CI_LAB_BOOTSTRAP:-0}" == "1" ]]; then \
 		echo "== VERIFY: lab bootstrap =="; \
-		$(MAKE) vm-up; \
+		$(MAKE) up; \
 	fi
 
-	@# Capability check: runtime requires Vagrant + VMs
 	@if ! command -v vagrant >/dev/null 2>&1; then \
 		echo "== VERIFY: runtime skipped (no vagrant available) =="; \
 		echo "PASS: verification complete (checks-only)"; \
