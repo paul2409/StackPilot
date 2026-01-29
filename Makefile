@@ -93,7 +93,7 @@ APP_IMAGE ?= infra-api:local
 # ----------------------------------------------------------
 # Phony targets (these are commands, not files)
 # ----------------------------------------------------------
-.PHONY: help preflight up demo demo-reviewer \
+.PHONY: help preflight-host preflight-repo up demo demo-reviewer \
         checks check-policy check-secrets check-guarantees \
         verify verify-host verify-cluster verify-build \
         logs down clean destroy \
@@ -149,21 +149,26 @@ help:
 
 
 # ----------------------------------------------------------
-# preflight: host prerequisite checks
+# preflight: prerequisite checks
+#   - preflight-repo: CI-safe (no vagrant/virtualbox requirement)
+#   - preflight-host: requires VM tooling
 # ----------------------------------------------------------
-preflight:
-	@bash "$(CORE_DIR)/preflight.sh"
+preflight-host:
+	@bash "$(CORE_DIR)/preflight-host.sh"
+
+preflight-repo:
+	@bash "$(CORE_DIR)/preflight-repo.sh"
 
 
 # ----------------------------------------------------------
 # Golden path targets
 # ----------------------------------------------------------
-up: preflight vm-up demo
+up: preflight-host vm-up demo
 
-demo: preflight
+demo: preflight-host
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(CORE_DIR)/service-up.sh"
 
-demo-reviewer: 
+demo-reviewer:
 	@$(MAKE) clean  NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)"
 	@$(MAKE) demo   NODE="$(NODE)"
 	@$(MAKE) verify NODE="$(NODE)"
@@ -176,13 +181,13 @@ demo-reviewer:
 #   Checks must run BEFORE runtime verification.
 #   Checks are non-destructive and must never run drills.
 # ----------------------------------------------------------
-check-policy: preflight
+check-policy: preflight-repo
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/policy.sh"
 
-check-secrets: preflight
+check-secrets: preflight-repo
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/secrets.sh"
 
-check-guarantees: preflight
+check-guarantees: preflight-repo
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/guarantees-map.sh"
 
 checks: check-policy check-secrets check-guarantees
@@ -191,13 +196,13 @@ checks: check-policy check-secrets check-guarantees
 # ----------------------------------------------------------
 # Verification (runtime proof)
 # ----------------------------------------------------------
-verify-host: preflight
+verify-host: preflight-host
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-host.sh"
 
-verify-cluster: preflight
+verify-cluster: preflight-host
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-cluster.sh"
 
-verify-build: preflight
+verify-build: preflight-host
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(VERIFY_DIR)/verify-build.sh"
 
 # ----------------------------------------------------------
@@ -207,10 +212,9 @@ verify-build: preflight
 #     - Locally (or on a self-hosted runner with VMs), verify runs full suite.
 #
 # Detection:
-#   - GitHub Actions sets GITHUB_ACTIONS=true
 #   - Full runtime requires Vagrant + running VMs, which hosted runners won't have.
 # ----------------------------------------------------------
-verify: preflight
+verify: preflight-repo
 	@echo "== VERIFY: start =="
 
 	@echo "== VERIFY: repo checks =="
@@ -241,7 +245,6 @@ verify: preflight
 	@echo "== VERIFY: PASS =="
 
 
-
 # ----------------------------------------------------------
 # Failure drills (Milestone 03 Phase 2)
 # ----------------------------------------------------------
@@ -249,46 +252,46 @@ drills:
 	@echo "Available drills:"
 	@echo "  make drill-db-ready   (DB down readiness honesty + recovery proof)"
 
-drill-db-ready: preflight
+drill-db-ready: preflight-host
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(DRILLS_DIR)/db-ready.sh"
 
 
 # ----------------------------------------------------------
 # Service lifecycle targets
 # ----------------------------------------------------------
-down: preflight
+down: preflight-host
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(CORE_DIR)/service-down.sh"
 
-clean: preflight
+clean: preflight-host
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)" bash "$(CORE_DIR)/clean-room.sh"
 
-destroy: preflight clean vm-destroy
+destroy: preflight-host clean vm-destroy
 
 
 # ----------------------------------------------------------
 # VM lifecycle (infrastructure layer)
 # ----------------------------------------------------------
-vm-up:
+vm-up: preflight-host
 	@cd "$(VAGRANT_DIR)" && vagrant up
 
-vm-halt:
+vm-halt: preflight-host
 	@cd "$(VAGRANT_DIR)" && vagrant halt
 
-vm-destroy:
+vm-destroy: preflight-host
 	@cd "$(VAGRANT_DIR)" && vagrant destroy -f
 
 
 # ----------------------------------------------------------
 # Helpers (non-golden-path, still supported)
 # ----------------------------------------------------------
-logs: preflight
+logs: preflight-host
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(OPS_DIR)/logs.sh"
 
-ssh: preflight
+ssh: preflight-host
 	@cd "$(VAGRANT_DIR)" && vagrant ssh "$(NODE)"
 
-status: preflight
+status: preflight-host
 	@cd "$(VAGRANT_DIR)" && vagrant status
 
-provision: preflight
+provision: preflight-host
 	@cd "$(VAGRANT_DIR)" && vagrant provision
