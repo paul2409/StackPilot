@@ -18,9 +18,14 @@
 # Important reality:
 # - GitHub chooses runners BEFORE steps run.
 # - So we cannot "detect runner" inside the same job.
-# - The correct pattern is:
-#     Job A targets self-hosted → runs only when available
-#     Job B is hosted fallback → runs when A didn’t succeed
+#
+# What changed in this version (so you don't wait):
+# - Hosted checks run ALWAYS and IMMEDIATELY (no dependency on self-hosted).
+# - Self-hosted lab job is "best-effort":
+#     • if runner exists, it runs
+#     • if runner does not exist, it will sit queued, but it will NOT block your
+#       hosted checks from completing or your PR from becoming mergeable
+#       (as long as branch protection requires ONLY the hosted checks job).
 # ==========================================================
 
 name: ci
@@ -45,7 +50,7 @@ permissions:
 
 # ----------------------------------------------------------
 # Concurrency (repo-level):
-# - Prevents multiple runs stepping on each other per branch/ref.
+# - Prevents overlapping CI runs stepping on each other per ref.
 # - If you push new commits quickly, older runs get cancelled.
 #
 # Note:
@@ -57,14 +62,62 @@ concurrency:
 
 jobs:
   # ======================================================
-  # JOB 1 — SELF-HOSTED LAB PATH (PREFERRED)
+  # JOB 1 — HOSTED CHECKS (ALWAYS RUNS, NEVER WAITS)
+  #
+  # Runs on:
+  # - GitHub-hosted runner ubuntu-latest
+  #
+  # When will this job run?
+  # - ALWAYS (every PR/push), immediately.
+  #
+  # What does it do?
+  # - Runs `make checks` only (no VM attempts)
+  # - Saves output to ci/logs/checks.log
+  #
+  # Why do we do checks only here?
+  # - Hosted runners cannot run your VirtualBox/Vagrant VMs.
+  # - So we enforce repo correctness, not runtime correctness.
+  #
+  # Phase 1 rule (recommended):
+  # - In branch protection, require THIS job to pass.
+  # - Do NOT require the self-hosted lab job yet.
+  # ======================================================
+  checks_only:
+    name: Hosted Checks (No VM Access)
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Run repo checks and capture logs
+      - name: Repo checks (no VM access)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci/logs
+          make checks 2>&1 | tee ci/logs/checks.log
+
+      # Upload logs even if checks fail
+      - name: Upload checks logs (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checks-logs
+          path: ci/logs/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ======================================================
+  # JOB 2 — SELF-HOSTED LAB PATH (BEST-EFFORT)
   #
   # Runs on:
   # - a self-hosted runner that has label: stackpilot-vmhost
   #
   # When will this job run?
   # - Only when you have a self-hosted runner registered + online
-  # - If you do not, GitHub will NOT be able to schedule it.
+  # - If you do not, GitHub will NOT be able to schedule it and it may remain queued.
   #
   # What does it do?
   # - Calls `CI_LAB_BOOTSTRAP=1 make verify`
@@ -73,6 +126,11 @@ jobs:
   #     2) run checks (policy/secrets/guarantees)
   #     3) run runtime verification (verify-host/cluster/build)
   # - Always destroys the lab afterward (cleanup guarantee).
+  #
+  # Why this does NOT block you anymore:
+  # - Hosted checks run independently (no needs/if gate).
+  # - Your PR can be mergeable based on hosted checks alone (Phase 1),
+  #   even if this job is queued waiting for a runner.
   # ======================================================
   lab_full:
     name: Self-Hosted Lab (VM → Verify → Destroy)
@@ -96,14 +154,11 @@ jobs:
     # ----------------------------------------------------
     # continue-on-error:
     # - This is IMPORTANT for your design requirement.
-    # - If no self-hosted runner exists / job can't run,
-    #   GitHub marks it as not successful.
-    # - We want the fallback job to still run.
+    # - It prevents the overall workflow from being "hard-blocked" by lab failures.
     #
     # Note:
-    # - This does not "hide" real failures from logs.
-    # - You will still see the job fail in Actions when it actually runs.
-    # - It just allows the workflow to proceed to the fallback path.
+    # - You will still SEE a failure in this job if it actually runs and fails.
+    # - This is "best-effort lab proof" until Phase 3 is fully enforced.
     # ----------------------------------------------------
     continue-on-error: true
 
@@ -158,60 +213,3 @@ jobs:
         run: |
           set -euo pipefail
           make destroy
-
-  # ======================================================
-  # JOB 2 — HOSTED FALLBACK (NO VMs)
-  #
-  # Runs on:
-  # - GitHub-hosted runner ubuntu-latest
-  #
-  # When will this job run?
-  # - Only if job1 did NOT succeed.
-  #   That includes:
-  #     - self-hosted runner not available (job1 can't run)
-  #     - self-hosted job ran but failed
-  #
-  # What does it do?
-  # - Runs `make checks` only (no VM attempts)
-  # - Saves output to ci/logs/checks.log
-  #
-  # Why do we do checks only here?
-  # - Hosted runners cannot run your VirtualBox/Vagrant VMs.
-  # - So we enforce repo correctness, not runtime correctness.
-  # ======================================================
-  checks_only:
-    name: Hosted Fallback (Checks Only)
-
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    # This enforces ordering:
-    # - Try lab_full first
-    # - If it didn't succeed, this job can run
-    needs: lab_full
-
-    # This is the decision gate:
-    # - If self-hosted path succeeded → do NOT run fallback
-    # - If self-hosted path did not succeed → run fallback
-    if: needs.lab_full.result != 'success'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      # Run repo checks and capture logs
-      - name: Repo checks (no VM access)
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p ci/logs
-          make checks 2>&1 | tee ci/logs/checks.log
-
-      # Upload logs even if checks fail
-      - name: Upload checks logs (always)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checks-logs
-          path: ci/logs/
-          if-no-files-found: warn
-          retention-days: 14
