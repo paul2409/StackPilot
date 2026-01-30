@@ -65,6 +65,10 @@ OPS_DIR     := $(SCRIPTS_DIR)/ops
 CHECKS_DIR  := $(SCRIPTS_DIR)/checks
 DRILLS_DIR  := $(SCRIPTS_DIR)/drills
 
+# Phase 2 (Milestone 04) - Terraform Structure Authority
+TF_DIR      := $(ROOT_DIR)/infra/terraform
+CI_LOGS_DIR := $(ROOT_DIR)/ci/logs
+
 # ----------------------------------------------------------
 # Runtime parameters (overridable)
 # ----------------------------------------------------------
@@ -77,7 +81,8 @@ APP_IMAGE ?= infra-api:local
 # ----------------------------------------------------------
 .PHONY: help preflight-host preflight-repo up demo demo-reviewer \
         checks check-policy check-secrets check-guarantees check-build \
-        check-python check-immutable-tags \
+        check-python check-immutable-tags check-terraform \
+        tf-fmt tf-fmt-check tf-init tf-validate tf-plan \
         verify verify-host verify-cluster verify-build \
         logs down clean destroy \
         vm-up vm-halt vm-destroy ssh status provision \
@@ -101,6 +106,12 @@ help:
 	@echo "  make check-policy    Run repo structure/policy gate"
 	@echo "  make check-secrets   Run secrets safety gate (demo env allowlisted)"
 	@echo "  make check-guarantees Run guarantees map gate"
+	@echo ""
+	@echo "Terraform checks (Milestone 04 Phase 2 - structure authority)"
+	@echo "  make check-terraform Run Terraform fmt-check + validate (CI-safe: no apply/destroy)"
+	@echo "  make tf-fmt-check    Terraform fmt check (diff output to ci/logs/)"
+	@echo "  make tf-validate     Terraform validate (output to ci/logs/)"
+	@echo "  make tf-plan         Terraform plan (optional local discipline; output to ci/logs/)"
 	@echo ""
 	@echo "Reviewer proof"
 	@echo "  make demo-reviewer   Clean-room -> demo -> verify (anti-stale proof)"
@@ -137,9 +148,11 @@ help:
 #   - preflight-host: requires VM tooling
 # ----------------------------------------------------------
 preflight-host:
+	@echo "== PREFLIGHT: host (scripts/core/preflight-host.sh) =="
 	@bash "$(CORE_DIR)/preflight-host.sh"
 
 preflight-repo:
+	@echo "== PREFLIGHT: repo (scripts/core/preflight-repo.sh) =="
 	@bash "$(CORE_DIR)/preflight-repo.sh"
 
 
@@ -149,6 +162,7 @@ preflight-repo:
 up: preflight-host vm-up demo
 
 demo: preflight-host
+	@echo "== DEMO: service up (scripts/core/service-up.sh) =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(CORE_DIR)/service-up.sh"
 
 demo-reviewer:
@@ -165,36 +179,84 @@ demo-reviewer:
 #   Checks are non-destructive and must never run drills.
 # ----------------------------------------------------------
 check-policy: preflight-repo
+	@echo "== CHECK: policy | scripts/checks/policy.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/policy.sh"
 
 check-secrets: preflight-repo
+	@echo "== CHECK: secrets | scripts/checks/secrets.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/secrets.sh"
 
 check-guarantees: preflight-repo
+	@echo "== CHECK: guarantees | scripts/checks/guarantees-map.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/guarantees-map.sh"
 
 check-build: preflight-repo
+	@echo "== CHECK: build | scripts/checks/build.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/build.sh"
 
 check-python: preflight-repo
+	@echo "== CHECK: python | scripts/checks/python.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/python.sh"
 
 check-immutable-tags: preflight-repo
+	@echo "== CHECK: immutable-tags | scripts/checks/immutable-tags.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/immutable-tags.sh"
 
-checks: check-policy check-secrets check-guarantees check-build check-python check-immutable-tags
+# ----------------------------------------------------------
+# Terraform gates (Milestone 04 Phase 2 - Structure Authority)
+#
+# Rule:
+#   - CI must be able to run these without VirtualBox/Vagrant.
+#   - No apply/destroy in CI (humans run the truth cycle).
+#   - Outputs must be readable and land in ci/logs/.
+# ----------------------------------------------------------
+tf-fmt:
+	@echo "== TF: fmt (write) | infra/terraform =="
+	@terraform -chdir="$(TF_DIR)" fmt
+
+tf-fmt-check:
+	@echo "== TF: fmt (check) | infra/terraform =="
+	@mkdir -p "$(CI_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" fmt -check -diff | tee "$(CI_LOGS_DIR)/terraform-fmt.txt"
+
+tf-init:
+	@echo "== TF: init | infra/terraform =="
+	@mkdir -p "$(CI_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" init -upgrade | tee "$(CI_LOGS_DIR)/terraform-init.txt"
+
+tf-validate: tf-init
+	@echo "== TF: validate | infra/terraform =="
+	@mkdir -p "$(CI_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" validate | tee "$(CI_LOGS_DIR)/terraform-validate.txt"
+
+# Optional local-only discipline. Keep it in the golden path, but it must remain CI-safe.
+tf-plan: tf-init
+	@echo "== TF: plan | infra/terraform =="
+	@mkdir -p "$(CI_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" plan -no-color | tee "$(CI_LOGS_DIR)/terraform-plan.txt"
+
+check-terraform: preflight-repo
+	@echo "== CHECK: terraform (fmt-check + validate) =="
+	@$(MAKE) tf-fmt-check
+	@$(MAKE) tf-validate
+	@echo "PASS: terraform checks"
+
+checks: check-policy check-secrets check-guarantees check-build check-python check-immutable-tags check-terraform
 
 
 # ----------------------------------------------------------
 # Verification (runtime proof)
 # ----------------------------------------------------------
 verify-host: preflight-host
+	@echo "== VERIFY: host | scripts/verify/verify-host.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-host.sh"
 
 verify-cluster: preflight-host
+	@echo "== VERIFY: cluster | scripts/verify/verify-cluster.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-cluster.sh"
 
 verify-build: preflight-host
+	@echo "== VERIFY: build/runtime | scripts/verify/verify-build.sh =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(VERIFY_DIR)/verify-build.sh"
 
 # ----------------------------------------------------------
@@ -243,6 +305,7 @@ drills:
 	@echo "  make drill-db-ready   (DB down readiness honesty + recovery proof)"
 
 drill-db-ready: preflight-host
+	@echo "== DRILL: db-ready | scripts/drills/db-ready.sh =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(DRILLS_DIR)/db-ready.sh"
 
 
@@ -250,9 +313,11 @@ drill-db-ready: preflight-host
 # Service lifecycle targets
 # ----------------------------------------------------------
 down: preflight-host
+	@echo "== DOWN: service down (scripts/core/service-down.sh) =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(CORE_DIR)/service-down.sh"
 
 clean: preflight-host
+	@echo "== CLEAN: clean-room (scripts/core/clean-room.sh) =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)" bash "$(CORE_DIR)/clean-room.sh"
 
 destroy: preflight-host clean vm-destroy
@@ -262,12 +327,15 @@ destroy: preflight-host clean vm-destroy
 # VM lifecycle (infrastructure layer)
 # ----------------------------------------------------------
 vm-up: preflight-host
+	@echo "== VM: up (vagrant up) =="
 	@cd "$(VAGRANT_DIR)" && vagrant up
 
 vm-halt: preflight-host
+	@echo "== VM: halt (vagrant halt) =="
 	@cd "$(VAGRANT_DIR)" && vagrant halt
 
 vm-destroy: preflight-host
+	@echo "== VM: destroy (vagrant destroy -f) =="
 	@cd "$(VAGRANT_DIR)" && vagrant destroy -f
 
 
@@ -275,13 +343,17 @@ vm-destroy: preflight-host
 # Helpers (non-golden-path, still supported)
 # ----------------------------------------------------------
 logs: preflight-host
+	@echo "== LOGS: tail | scripts/ops/logs.sh =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(OPS_DIR)/logs.sh"
 
 ssh: preflight-host
+	@echo "== SSH: node=$(NODE) | vagrant ssh $(NODE) =="
 	@cd "$(VAGRANT_DIR)" && vagrant ssh "$(NODE)"
 
 status: preflight-host
+	@echo "== STATUS: vagrant status =="
 	@cd "$(VAGRANT_DIR)" && vagrant status
 
 provision: preflight-host
+	@echo "== PROVISION: vagrant provision =="
 	@cd "$(VAGRANT_DIR)" && vagrant provision
