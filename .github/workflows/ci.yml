@@ -1,40 +1,20 @@
 # ==========================================================
 # CI WORKFLOW — SINGLE SOURCE OF TRUTH (TEACHING VERSION)
 #
-# Goal:
+# Goal (Milestone 04 - Hosted CI only):
 # - ONE workflow file
-# - If self-hosted runner is available:
-#     → bring up VMs (via Makefile switch)
-#     → run full verification (make verify)
-#     → destroy lab (cleanup)
-# - If self-hosted runner is NOT available:
-#     → do NOT attempt VMs
-#     → run repo checks only (make checks)
+# - GitHub-hosted runner only
+# - Enforce repo correctness + Terraform discipline
+# - NO VM ownership, NO runtime truth in CI
+#
+# What this workflow does:
+# - Installs Terraform explicitly (hosted runners do not guarantee it)
+# - Runs `make checks` (includes terraform fmt-check + validate)
+# - Uploads ci/logs/ as artifacts even on failure
 #
 # Log rule:
 # - All logs MUST be created under: ci/logs/
 # - We capture stdout/stderr with `tee` so reviewers can read failures.
-#
-# Important reality:
-# - GitHub chooses runners BEFORE steps run.
-# - So we cannot "detect runner" inside the same job.
-#
-# What changed in this version (so you don't wait):
-# - Hosted checks run ALWAYS and IMMEDIATELY (no dependency on self-hosted).
-# - Self-hosted lab job is "best-effort":
-#     • if runner exists, it runs
-#     • if runner does not exist, it will sit queued, but it will NOT block your
-#       hosted checks from completing or your PR from becoming mergeable
-#       (as long as branch protection requires ONLY the hosted checks job).
-#
-# Phase 2 addition:
-# - Hosted runners do not guarantee Terraform is installed.
-# - We install Terraform explicitly so `make check-terraform` can run.
-#
-# Phase 3 update (Terraform exec + VM ensure):
-# - Self-hosted job ALWAYS sets CI_LAB_BOOTSTRAP=1.
-# - Self-hosted job ensures VMs are up only if needed (no restart).
-# - Self-hosted job runs `make tf-exec` (init/validate/plan) before runtime.
 # ==========================================================
 
 name: ci
@@ -61,9 +41,6 @@ permissions:
 # Concurrency (repo-level):
 # - Prevents overlapping CI runs stepping on each other per ref.
 # - If you push new commits quickly, older runs get cancelled.
-#
-# Note:
-# - This is separate from "lab concurrency" below.
 # ----------------------------------------------------------
 concurrency:
   group: stackpilot-ci-${{ github.ref }}
@@ -71,28 +48,21 @@ concurrency:
 
 jobs:
   # ======================================================
-  # JOB 1 — HOSTED CHECKS (ALWAYS RUNS, NEVER WAITS)
+  # JOB — HOSTED CHECKS (ALWAYS RUNS)
   #
   # Runs on:
   # - GitHub-hosted runner ubuntu-latest
-  #
-  # When will this job run?
-  # - ALWAYS (every PR/push), immediately.
   #
   # What does it do?
   # - Runs `make checks` only (no VM attempts)
   # - Saves output to ci/logs/checks.log
   #
-  # Why do we do checks only here?
-  # - Hosted runners cannot run your VirtualBox/Vagrant VMs.
-  # - So we enforce repo correctness, not runtime correctness.
-  #
-  # Phase 1 rule (recommended):
-  # - In branch protection, require THIS job to pass.
-  # - Do NOT require the self-hosted lab job yet.
+  # Why checks only?
+  # - Hosted runners cannot run your VirtualBox/Vagrant VMs reliably.
+  # - Milestone 04 scope is repo correctness + Terraform discipline.
   # ======================================================
   checks_only:
-    name: Hosted Checks (No VM Access)
+    name: Hosted Checks (Repo + Terraform Gates)
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -101,17 +71,17 @@ jobs:
       - uses: actions/checkout@v4
 
       # --------------------------------------------------
-      # Phase 2 requirement:
+      # Milestone 04 requirement:
       # - Terraform must exist on the runner for fmt/validate gates.
       # - This does NOT touch infra. It only installs the CLI binary.
       # --------------------------------------------------
-      - name: Setup Terraform (Phase 2 gates)
+      - name: Setup Terraform (Milestone 04 gates)
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.14.0
 
       # Run repo checks and capture logs
-      - name: Repo checks (no VM access)
+      - name: Repo checks (hosted)
         shell: bash
         run: |
           set -euo pipefail
@@ -124,116 +94,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: checks-logs
-          path: ci/logs/
-          if-no-files-found: warn
-          retention-days: 14
-
-  # ======================================================
-  # JOB 2 — SELF-HOSTED LAB PATH (BEST-EFFORT)
-  #
-  # Runs on:
-  # - a self-hosted runner that has label: stackpilot-vmhost
-  #
-  # When will this job run?
-  # - Only when you have a self-hosted runner registered + online
-  # - If you do not, GitHub will NOT be able to schedule it and it may remain queued.
-  #
-  # What does it do?
-  # - Ensures VMs are running (boot only if needed).
-  # - Runs Terraform exec discipline (init/validate/plan) as CI-owned truth.
-  # - Owns runtime truth each push: clean-room -> demo -> verify.
-  #
-  # Cleanup:
-  # - CI_LAB_BOOTSTRAP=1 means CI is allowed to own VM lifecycle when needed.
-  #
-  # Why this does NOT block you anymore:
-  # - Hosted checks run independently (no needs/if gate).
-  # - Your PR can be mergeable based on hosted checks alone (Phase 1),
-  #   even if this job is queued waiting for a runner.
-  # ======================================================
-  lab_full:
-    name: Self-Hosted Lab (Ensure VM → TF Exec → Clean → Demo → Verify)
-
-    # This is the key:
-    # - GitHub will only schedule this job on a runner that matches these labels.
-    runs-on: [self-hosted, stackpilot-vmhost]
-
-    # Allow more time because VM lifecycle + verification can take time.
-    timeout-minutes: 60
-
-    # ----------------------------------------------------
-    # Lab-level concurrency:
-    # - Only ONE CI job is allowed to own the lab at a time.
-    # - Without this, two CI runs could both try to boot/destroy the same VMs.
-    # ----------------------------------------------------
-    concurrency:
-      group: stackpilot-lab
-      cancel-in-progress: true
-
-    # ----------------------------------------------------
-    # continue-on-error:
-    # - This is IMPORTANT for your design requirement.
-    # - It prevents the overall workflow from being "hard-blocked" by lab failures.
-    #
-    # Note:
-    # - You will still SEE a failure in this job if it actually runs and fails.
-    # - This is "best-effort lab proof" until Phase 3 is fully enforced.
-    # ----------------------------------------------------
-    continue-on-error: true
-
-    steps:
-      # Pull the repo onto the runner.
-      - uses: actions/checkout@v4
-
-      # --------------------------------------------------
-      # Phase 2 safety:
-      # - Ensure Terraform exists on self-hosted too (idempotent).
-      # - This keeps the job consistent across runners.
-      # --------------------------------------------------
-      - name: Setup Terraform (Phase 2 gates)
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.14.0
-
-
-      # --------------------------------------------------
-      # Terraform exec discipline (self-hosted only)
-      # - Proves init/validate/plan is runnable and deterministic in CI.
-      # - Still no apply/destroy.
-      # --------------------------------------------------
-      - name: Terraform exec discipline (self-hosted only)
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p ci/logs
-          make tf-exec 2>&1 | tee ci/logs/terraform-exec.log
-
-      # --------------------------------------------------
-      # Own runtime truth (service layer) each push:
-      # - Clean-room removes stale containers/images so verify reflects THIS commit.
-      # - Demo starts services in the canonical way.
-      # - Verify runs checks first, then runtime proofs.
-      # --------------------------------------------------
-      - name: Own runtime truth (clean-room -> demo -> verify)
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p ci/logs
-
-          make clean 2>&1 | tee ci/logs/clean.log
-          make demo  2>&1 | tee ci/logs/demo.log
-          make verify 2>&1 | tee ci/logs/verify.log
-
-      # --------------------------------------------------
-      # Artifact upload:
-      # - ALWAYS upload logs even if verify fails
-      # - This is critical: failure must be inspectable.
-      # --------------------------------------------------
-      - name: Upload lab logs (always)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lab-logs
           path: ci/logs/
           if-no-files-found: warn
           retention-days: 14

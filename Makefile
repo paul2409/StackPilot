@@ -85,7 +85,7 @@ APP_IMAGE ?= infra-api:local
         tf-fmt tf-fmt-check tf-init tf-validate tf-plan tf-ci tf-exec \
         verify verify-host verify-cluster verify-build \
         logs down clean destroy \
-        vm-up vm-halt vm-destroy vm-ensure-up ssh status provision \
+        vm-up vm-halt vm-destroy ssh status provision \
         drills drill-db-ready
 
 
@@ -238,7 +238,7 @@ tf-plan: tf-init
 	@mkdir -p "$(CI_LOGS_DIR)"
 	@terraform -chdir="$(TF_DIR)" plan -no-color | tee "$(CI_LOGS_DIR)/terraform-plan.txt"
 
-# Phase 3 helpers:
+# Terraform helper targets:
 # - tf-ci: CI-safe Terraform gates
 # - tf-exec: execution discipline (still no apply/destroy)
 tf-ci:
