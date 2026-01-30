@@ -30,6 +30,11 @@
 # Phase 2 addition:
 # - Hosted runners do not guarantee Terraform is installed.
 # - We install Terraform explicitly so `make check-terraform` can run.
+#
+# Phase 3 update (Terraform exec + VM ensure):
+# - Self-hosted job ALWAYS sets CI_LAB_BOOTSTRAP=1.
+# - Self-hosted job ensures VMs are up only if needed (no restart).
+# - Self-hosted job runs `make tf-exec` (init/validate/plan) before runtime.
 # ==========================================================
 
 name: ci
@@ -134,12 +139,12 @@ jobs:
   # - If you do not, GitHub will NOT be able to schedule it and it may remain queued.
   #
   # What does it do?
-  # - Calls `CI_LAB_BOOTSTRAP=1 make verify`
-  #   which (by your Makefile design) will:
-  #     1) vm-up (bring up VMs) because CI_LAB_BOOTSTRAP=1
-  #     2) run checks (policy/secrets/guarantees)
-  #     3) run runtime verification (verify-host/cluster/build)
-  # - Always destroys the lab afterward (cleanup guarantee).
+  # - Ensures VMs are running (boot only if needed).
+  # - Runs Terraform exec discipline (init/validate/plan) as CI-owned truth.
+  # - Owns runtime truth each push: clean-room -> demo -> verify.
+  #
+  # Cleanup:
+  # - CI_LAB_BOOTSTRAP=1 means CI is allowed to own VM lifecycle when needed.
   #
   # Why this does NOT block you anymore:
   # - Hosted checks run independently (no needs/if gate).
@@ -147,14 +152,19 @@ jobs:
   #   even if this job is queued waiting for a runner.
   # ======================================================
   lab_full:
-    name: Self-Hosted Lab (VM → Verify → Destroy)
+    name: Self-Hosted Lab (Ensure VM → TF Exec → Clean → Demo → Verify)
 
     # This is the key:
     # - GitHub will only schedule this job on a runner that matches these labels.
     runs-on: [self-hosted, stackpilot-vmhost]
 
-    # Allow more time because VM lifecycle can take time.
+    # Allow more time because VM lifecycle + verification can take time.
     timeout-minutes: 60
+
+    # Phase 3 policy:
+    # - CI always bootstraps the lab if it is down.
+    env:
+      CI_LAB_BOOTSTRAP: "1"
 
     # ----------------------------------------------------
     # Lab-level concurrency:
@@ -191,26 +201,47 @@ jobs:
           terraform_version: 1.14.0
 
       # --------------------------------------------------
-      # The main step:
-      # - Create ci/logs/ (your repo-root CI folder)
-      # - Run make verify with VM bootstrap enabled
-      # - Capture all output into ci/logs/verify.log
+      # Ensure VMs are up WITHOUT restarting them.
       #
-      # Why tee?
-      # - You see output live in Actions logs
-      # - You also save it to a file for artifact upload
-      #
-      # Why set -euo pipefail?
-      # - e: stop on first failure
-      # - u: error on unset variables
-      # - pipefail: if any command in a pipeline fails, the step fails
+      # Contract:
+      # - CI_LAB_BOOTSTRAP=1: CI may boot VMs if needed.
+      # - If VMs are already running, do nothing.
+      # - Use Makefile target so the repo remains the authority.
       # --------------------------------------------------
-      - name: Full verification (boot lab then verify)
+      - name: Ensure lab VMs are running (no restart)
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p ci/logs
-          CI_LAB_BOOTSTRAP=1 make verify 2>&1 | tee ci/logs/verify.log
+          make vm-ensure-up 2>&1 | tee ci/logs/vm-ensure.log
+
+      # --------------------------------------------------
+      # Terraform exec discipline (self-hosted only)
+      # - Proves init/validate/plan is runnable and deterministic in CI.
+      # - Still no apply/destroy.
+      # --------------------------------------------------
+      - name: Terraform exec discipline (self-hosted only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci/logs
+          make tf-exec 2>&1 | tee ci/logs/terraform-exec.log
+
+      # --------------------------------------------------
+      # Own runtime truth (service layer) each push:
+      # - Clean-room removes stale containers/images so verify reflects THIS commit.
+      # - Demo starts services in the canonical way.
+      # - Verify runs checks first, then runtime proofs.
+      # --------------------------------------------------
+      - name: Own runtime truth (clean-room -> demo -> verify)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci/logs
+
+          make clean 2>&1 | tee ci/logs/clean.log
+          make demo  2>&1 | tee ci/logs/demo.log
+          make verify 2>&1 | tee ci/logs/verify.log
 
       # --------------------------------------------------
       # Artifact upload:
@@ -225,15 +256,3 @@ jobs:
           path: ci/logs/
           if-no-files-found: warn
           retention-days: 14
-
-      # --------------------------------------------------
-      # Cleanup:
-      # - ALWAYS destroy the lab
-      # - This prevents leaked VMs, stuck containers, stale state.
-      # --------------------------------------------------
-      - name: Destroy lab (always)
-        if: always()
-        shell: bash
-        run: |
-          set -euo pipefail
-          make destroy

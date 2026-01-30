@@ -82,10 +82,10 @@ APP_IMAGE ?= infra-api:local
 .PHONY: help preflight-host preflight-repo up demo demo-reviewer \
         checks check-policy check-secrets check-guarantees check-build \
         check-python check-immutable-tags check-terraform \
-        tf-fmt tf-fmt-check tf-init tf-validate tf-plan \
+        tf-fmt tf-fmt-check tf-init tf-validate tf-plan tf-ci tf-exec \
         verify verify-host verify-cluster verify-build \
         logs down clean destroy \
-        vm-up vm-halt vm-destroy ssh status provision \
+        vm-up vm-halt vm-destroy vm-ensure-up ssh status provision \
         drills drill-db-ready
 
 
@@ -112,6 +112,8 @@ help:
 	@echo "  make tf-fmt-check    Terraform fmt check (diff output to ci/logs/)"
 	@echo "  make tf-validate     Terraform validate (output to ci/logs/)"
 	@echo "  make tf-plan         Terraform plan (optional local discipline; output to ci/logs/)"
+	@echo "  make tf-ci           Terraform CI gates (fmt-check + validate)"
+	@echo "  make tf-exec         Terraform exec discipline (init + validate + plan)"
 	@echo ""
 	@echo "Reviewer proof"
 	@echo "  make demo-reviewer   Clean-room -> demo -> verify (anti-stale proof)"
@@ -202,6 +204,7 @@ check-immutable-tags: preflight-repo
 	@echo "== CHECK: immutable-tags | scripts/checks/immutable-tags.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/immutable-tags.sh"
 
+
 # ----------------------------------------------------------
 # Terraform gates (Milestone 04 Phase 2 - Structure Authority)
 #
@@ -235,10 +238,23 @@ tf-plan: tf-init
 	@mkdir -p "$(CI_LOGS_DIR)"
 	@terraform -chdir="$(TF_DIR)" plan -no-color | tee "$(CI_LOGS_DIR)/terraform-plan.txt"
 
-check-terraform: preflight-repo
-	@echo "== CHECK: terraform (fmt-check + validate) =="
+# Phase 3 helpers:
+# - tf-ci: CI-safe Terraform gates
+# - tf-exec: execution discipline (still no apply/destroy)
+tf-ci:
+	@echo "== TF: ci (fmt-check + validate) =="
 	@$(MAKE) tf-fmt-check
 	@$(MAKE) tf-validate
+
+tf-exec:
+	@echo "== TF: exec (init + validate + plan) =="
+	@$(MAKE) tf-init
+	@$(MAKE) tf-validate
+	@$(MAKE) tf-plan
+
+check-terraform: preflight-repo
+	@echo "== CHECK: terraform (fmt-check + validate) =="
+	@$(MAKE) tf-ci
 	@echo "PASS: terraform checks"
 
 checks: check-policy check-secrets check-guarantees check-build check-python check-immutable-tags check-terraform
@@ -337,6 +353,22 @@ vm-halt: preflight-host
 vm-destroy: preflight-host
 	@echo "== VM: destroy (vagrant destroy -f) =="
 	@cd "$(VAGRANT_DIR)" && vagrant destroy -f
+
+# vm-ensure-up:
+# - Boots the lab only if it is not already running.
+# - Does NOT provision (no accidental re-provision each push).
+# - Writes machine-readable status to ci/logs/ for debugging.
+vm-ensure-up: preflight-host
+	@echo "== VM: ensure-up (boot only if needed) =="
+	@mkdir -p "$(CI_LOGS_DIR)"
+	@cd "$(VAGRANT_DIR)" && vagrant status --machine-readable | tee "$(CI_LOGS_DIR)/vagrant-status.txt" >/dev/null
+	@cd "$(VAGRANT_DIR)" && \
+	  if vagrant status --machine-readable | grep -E ",state,(running|saved)$$" >/dev/null; then \
+	    echo "PASS: VMs already running (no action)"; \
+	  else \
+	    echo "== VM: not running -> vagrant up (no provision) =="; \
+	    vagrant up --no-provision; \
+	  fi
 
 
 # ----------------------------------------------------------
