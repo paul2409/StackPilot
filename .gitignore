@@ -8,3 +8,6 @@ terraform.tfstate
 terraform.tfstate.backup
 *.tfstate
 *.tfstate.*
+
+ci/logs/*
+!ci/logs/.gitkeep

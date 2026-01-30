@@ -1,23 +1,27 @@
 GUARANTEE | ENFORCED_BY | PROOF_COMMAND | NOTES
+-------- | ----------- | ------------ | -----
+G-01-01 Lab network reachability | scripts/verify/verify-host.sh,Makefile | make verify-host | Host must reach VM IPs reliably; ping/ssh must not be “manual-only”
+G-01-02 SSH access to all nodes | Makefile | make ssh NODE=control | SSH access must work via vagrant-managed identity; no ad-hoc keys
+G-01-03 Hostname resolution is enforced | scripts/verify/verify-cluster.sh | make verify-cluster | control/worker1/worker2 must resolve consistently; no manual /etc/hosts edits
+G-01-04 Verification defines truth | scripts/verify/verify-host.sh,scripts/verify/verify-cluster.sh | make verify | Manual success does not override verify failures
 
-Golden_Path_Rebuild | Makefile, scripts/checks/policy.sh | make up && make verify | Clean repo clone must pass without manual fixes
+G-02-01 Health is liveness only | scripts/verify/verify-build.sh | make verify-build | /health must not depend on Postgres; DB down must not flip liveness
+G-02-02 Readiness depends on DB | scripts/verify/verify-build.sh | make verify-build | /ready must fail when DB is down and recover when DB returns
+G-02-03 Compose networking is correct | scripts/verify/verify-build.sh | make verify-build | App must reach DB using compose service name; no localhost assumptions
+G-02-04 Persistence is proven | scripts/verify/verify-build.sh | make verify-build | Data must survive container restart (named volume); volume removal must destroy data
+G-02-05 Image rebuild discipline | scripts/verify/verify-build.sh | make verify-build | Code changes require rebuild + restart; cached images are invalid proof
 
-Repo_Structure_Is_Enforced | scripts/checks/policy.sh | ./scripts/checks/policy.sh | Blocks missing files, wrong layout, non-executable scripts
+G-03-01 Execution context is /vagrant | scripts/verify/verify-build.sh | make verify-build | All ops scripts must operate in mounted repo context; no $HOME clones
+G-03-02 Clean-room removes stale runtime | scripts/core/clean-room.sh,Makefile | make clean | Clean must stop containers + remove locally built image; prevents stale proof
+G-03-03 down/clean/destroy separation | Makefile,scripts/core/service-down.sh,scripts/core/clean-room.sh | make down | down stops only; clean is destructive; destroy is full reset
+G-03-04 Checks run before runtime proof | Makefile,scripts/checks/policy.sh,scripts/checks/secrets.sh | make verify | Repo gates must pass before any runtime verification
+G-03-05 Secrets gate prevents leaks | scripts/checks/secrets.sh,Makefile | make check-secrets | Allowlist demo env files only; fail on accidental credential commits
+G-03-06 Guarantees map is present and referenced | scripts/checks/guarantees-map.sh,docs/guarantees-map.txt | make check-guarantees | Map must be machine-checkable; enforced_by paths must exist
+G-03-07 Failure drill: readiness honesty | scripts/drills/db-ready.sh,Makefile | make drill-db-ready | When DB is killed, /ready must fail; /health must remain OK; recovery without API restart
+G-03-08 Verification must not mutate system | scripts/verify/verify-host.sh,scripts/verify/verify-cluster.sh,scripts/verify/verify-build.sh | make verify | Verify inspects only; it must not start/stop/build services
 
-Checks_Run_Before_Runtime_Verification | scripts/checks/policy.sh | make verify | Checks execute before any verify scripts
-
-No_Silent_Failures_In_Gates | scripts/checks/policy.sh, scripts/checks/secrets.sh | make verify | Gates fail fast with explicit FAIL messages
-
-Secrets_Are_Not_Accidentally_Committed | scripts/checks/secrets.sh | ./scripts/checks/secrets.sh | Demo env files are intentionally allowlisted and documented
-
-Demo_Secrets_Are_Explicit_Not_Accidental | scripts/checks/secrets.sh | ./scripts/checks/secrets.sh | Allowlist documents intentional non-production secrets
-
-Verification_Defines_Reality | scripts/verify/verify-host.sh, scripts/verify/verify-cluster.sh | make verify | Runtime state is source of truth, not docs
-
-Host_To_VM_Connectivity_Is_Required | scripts/verify/verify-host.sh | ./scripts/verify/verify-host.sh | Host must reach control and workers
-
-Cluster_State_Is_Verified | scripts/verify/verify-cluster.sh | ./scripts/verify/verify-cluster.sh | Verifies containers/services are actually running
-
-Checks_Are_Non_Interactive | scripts/checks/ | make verify | No prompts, no shells, no user input
-
-Repo_Claims_Must_Be_Mapped | scripts/checks/guarantees-map.sh | ./scripts/checks/guarantees_map.sh | Every guarantee must reference a real enforcement hook
+G-04-01 CI is merge authority | .github/workflows/ci.yml | GitHub PR required checks | Protected main: failing CI blocks merge; no bypass via direct push
+G-04-02 CI produces inspectable logs | .github/workflows/ci.yml | GitHub Actions artifacts | ci/logs uploaded on failure (and success where applicable); failures must be readable
+G-04-03 Terraform layout is standard | infra/terraform/README.md,infra/terraform/main.tf | make check-terraform | Terraform project is discoverable with a single root; documented destroy/usage path
+G-04-04 Terraform version determinism | infra/terraform/versions.tf,.github/workflows/ci.yml | make check-terraform | required_version and provider constraints exist; CI installs pinned terraform
+G-04-05 Terraform CI gates enforce quality | Makefile,infra/terraform/versions.tf | make check-terraform | CI runs fmt-check + validate only; no apply/destroy; output lands in ci/logs

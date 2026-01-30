@@ -1,0 +1,99 @@
+# ==========================================================
+# CI WORKFLOW — SINGLE SOURCE OF TRUTH (TEACHING VERSION)
+#
+# Goal (Milestone 04 - Hosted CI only):
+# - ONE workflow file
+# - GitHub-hosted runner only
+# - Enforce repo correctness + Terraform discipline
+# - NO VM ownership, NO runtime truth in CI
+#
+# What this workflow does:
+# - Installs Terraform explicitly (hosted runners do not guarantee it)
+# - Runs `make checks` (includes terraform fmt-check + validate)
+# - Uploads ci/logs/ as artifacts even on failure
+#
+# Log rule:
+# - All logs MUST be created under: ci/logs/
+# - We capture stdout/stderr with `tee` so reviewers can read failures.
+# ==========================================================
+
+name: ci
+
+# ----------------------------------------------------------
+# Triggers:
+# - pull_request: every PR gets validated
+# - push to main: main stays protected/verified
+# ----------------------------------------------------------
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+# ----------------------------------------------------------
+# Permissions:
+# - contents: read is enough to checkout the repo.
+# - we are NOT using any API calls here, so no actions:read needed.
+# ----------------------------------------------------------
+permissions:
+  contents: read
+
+# ----------------------------------------------------------
+# Concurrency (repo-level):
+# - Prevents overlapping CI runs stepping on each other per ref.
+# - If you push new commits quickly, older runs get cancelled.
+# ----------------------------------------------------------
+concurrency:
+  group: stackpilot-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ======================================================
+  # JOB — HOSTED CHECKS (ALWAYS RUNS)
+  #
+  # Runs on:
+  # - GitHub-hosted runner ubuntu-latest
+  #
+  # What does it do?
+  # - Runs `make checks` only (no VM attempts)
+  # - Saves output to ci/logs/checks.log
+  #
+  # Why checks only?
+  # - Hosted runners cannot run your VirtualBox/Vagrant VMs reliably.
+  # - Milestone 04 scope is repo correctness + Terraform discipline.
+  # ======================================================
+  checks_only:
+    name: Hosted Checks (Repo + Terraform Gates)
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # Milestone 04 requirement:
+      # - Terraform must exist on the runner for fmt/validate gates.
+      # - This does NOT touch infra. It only installs the CLI binary.
+      # --------------------------------------------------
+      - name: Setup Terraform (Milestone 04 gates)
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.0
+
+      # Run repo checks and capture logs
+      - name: Repo checks (hosted)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci/logs
+          make checks 2>&1 | tee ci/logs/checks.log
+
+      # Upload logs even if checks fail
+      - name: Upload checks logs (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checks-logs
+          path: ci/logs/
+          if-no-files-found: warn
+          retention-days: 14

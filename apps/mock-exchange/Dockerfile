@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install dependencies first (better layer caching)
-COPY apps/mock-exchange/requirements.txt /app/requirements.txt
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Create a non-root user and group, then own the app directory
@@ -17,7 +17,7 @@ RUN groupadd -r app && useradd -r -g app -d /app -s /usr/sbin/nologin app \
     && chown -R app:app /app
 
 # Copy application code
-COPY apps/mock-exchange/app.py /app/app.py
+COPY app.py .
 
 # Switch to non-root user (this is the key line for “non-root container”)
 USER app
