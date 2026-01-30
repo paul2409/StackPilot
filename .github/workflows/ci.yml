@@ -164,7 +164,7 @@ jobs:
     # Phase 3 policy:
     # - CI always bootstraps the lab if it is down.
     env:
-      CI_LAB_BOOTSTRAP: "1"
+      VAGRANT_DOTFILE_PATH: C:/vagrant-dotfiles/stackpilot
 
     # ----------------------------------------------------
     # Lab-level concurrency:

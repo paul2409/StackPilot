@@ -290,11 +290,6 @@ verify: preflight-repo
 	@echo "== VERIFY: repo checks =="
 	@$(MAKE) checks
 
-	@if [[ "$${CI_LAB_BOOTSTRAP:-0}" == "1" ]]; then \
-		echo "== VERIFY: lab bootstrap =="; \
-		$(MAKE) up; \
-	fi
-
 	@if ! command -v vagrant >/dev/null 2>&1; then \
 		echo "== VERIFY: runtime skipped (no vagrant available) =="; \
 		echo "PASS: verification complete (checks-only)"; \
