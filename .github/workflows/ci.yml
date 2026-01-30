@@ -103,7 +103,7 @@ jobs:
       - name: Setup Terraform (Phase 2 gates)
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.7.5
+          terraform_version: 1.14.0
 
       # Run repo checks and capture logs
       - name: Repo checks (no VM access)
@@ -188,7 +188,7 @@ jobs:
       - name: Setup Terraform (Phase 2 gates)
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.7.5
+          terraform_version: 1.14.0
 
       # --------------------------------------------------
       # The main step:
