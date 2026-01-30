@@ -26,6 +26,10 @@
 #     • if runner does not exist, it will sit queued, but it will NOT block your
 #       hosted checks from completing or your PR from becoming mergeable
 #       (as long as branch protection requires ONLY the hosted checks job).
+#
+# Phase 2 addition:
+# - Hosted runners do not guarantee Terraform is installed.
+# - We install Terraform explicitly so `make check-terraform` can run.
 # ==========================================================
 
 name: ci
@@ -90,6 +94,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # Phase 2 requirement:
+      # - Terraform must exist on the runner for fmt/validate gates.
+      # - This does NOT touch infra. It only installs the CLI binary.
+      # --------------------------------------------------
+      - name: Setup Terraform (Phase 2 gates)
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
 
       # Run repo checks and capture logs
       - name: Repo checks (no VM access)
@@ -165,6 +179,16 @@ jobs:
     steps:
       # Pull the repo onto the runner.
       - uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # Phase 2 safety:
+      # - Ensure Terraform exists on self-hosted too (idempotent).
+      # - This keeps the job consistent across runners.
+      # --------------------------------------------------
+      - name: Setup Terraform (Phase 2 gates)
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
 
       # --------------------------------------------------
       # The main step:
