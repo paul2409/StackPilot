@@ -367,7 +367,8 @@ vm-ensure-up: preflight-host
 	@cd "$(VAGRANT_DIR)" && \
 	  need_up=0; \
 	  for m in control worker1 worker2; do \
-	    if vagrant status "$$m" | grep -qi "running"; then \
+	    out="$$(vagrant status "$$m" 2>&1 || true)"; \
+	    if echo "$$out" | grep -qi "running"; then \
 	      echo "PASS: $$m is running"; \
 	    else \
 	      echo "WARN: $$m is not running"; \
@@ -380,6 +381,7 @@ vm-ensure-up: preflight-host
 	  else \
 	    echo "PASS: all lab VMs running (no action)"; \
 	  fi
+
 
 
 
