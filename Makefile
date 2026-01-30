@@ -353,9 +353,6 @@ vm-destroy: preflight-host
 # - Boots the lab only if it is not already running.
 # - Does NOT provision (no accidental re-provision each push).
 # - Writes machine-readable status to ci/logs/ for debugging.
-vm-ensure-up: preflight-host
-	@echo "== VM: ensure-up (scripts/core/vm-ensure-up.sh) =="
-	@cd "$(ROOT_DIR)" && bash "$(CORE_DIR)/vm-ensure-up.sh"
 
 
 # ----------------------------------------------------------

@@ -161,11 +161,6 @@ jobs:
     # Allow more time because VM lifecycle + verification can take time.
     timeout-minutes: 60
 
-    # Phase 3 policy:
-    # - CI always bootstraps the lab if it is down.
-    env:
-      VAGRANT_DOTFILE_PATH: C:/vagrant-dotfiles/stackpilot
-
     # ----------------------------------------------------
     # Lab-level concurrency:
     # - Only ONE CI job is allowed to own the lab at a time.
@@ -200,20 +195,6 @@ jobs:
         with:
           terraform_version: 1.14.0
 
-      # --------------------------------------------------
-      # Ensure VMs are up WITHOUT restarting them.
-      #
-      # Contract:
-      # - CI_LAB_BOOTSTRAP=1: CI may boot VMs if needed.
-      # - If VMs are already running, do nothing.
-      # - Use Makefile target so the repo remains the authority.
-      # --------------------------------------------------
-      - name: Ensure lab VMs are running (no restart)
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p ci/logs
-          make vm-ensure-up 2>&1 | tee ci/logs/vm-ensure.log
 
       # --------------------------------------------------
       # Terraform exec discipline (self-hosted only)
