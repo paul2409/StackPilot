@@ -1,136 +1,216 @@
-Got it. Below is the edited M4 internal execution phases with those missing “glue” items placed exactly where they belong, and with self-hosted runner explicitly introduced at the right phase for VM bring-up.
+# Milestone 04 — CI Authority + Terraform Structure Discipline
 
-MILestone 04 — Internal Execution Phases (Operator View)
+## Purpose
 
-Phase 1 — CI Authority Without Provisioning
-Goal: CI becomes an authority over correctness, but does not create/destroy the lab.
+Milestone 04 establishes **CI as the enforcement authority** for repository correctness and **Terraform as the structural authority** for infrastructure definitions.
 
-What this phase proves:
-• CI is enforcing, not decorative
-• CI failure blocks merges (PR gate)
-• CI calls only supported interfaces (Make targets)
-• Exit codes define truth (no “manual override”)
+At this stage, CI does **not** own runtime environments or infrastructure lifecycle. Its job is to prevent bad changes from being merged and to enforce deterministic, reviewable infrastructure code.
 
-What CI does here:
-• actions/checkout
-• minimal tool bootstrap needed to run verification (make, bash)
-• run make verify
-• upload verification logs as artifacts (so failures are inspectable)
+This milestone intentionally avoids self-hosted runners, VM orchestration, or cloud resources. Stability and enforcement come first.
 
-New items introduced here (supporting pieces):
-• Artifact/log retention: upload verify.log and any generated reports (if present)
-• Tool installation hygiene (minimal): ensure make exists; print versions for debugging
-• Baseline CI safety: no secrets printed, no env dump
+---
 
-What CI does not do:
-• no Terraform apply/destroy
-• no VM bring-up / tear-down
-• no “rebuild the lab” responsibilities
+## Scope (What This Milestone Covers)
 
-Exit condition:
-• Breaking verification in a PR blocks merge
-• Fixing it makes CI green
-• CI produces artifacts that let a reviewer understand failures without rerunning locally
+* GitHub-hosted CI as the single required gate
+* Terraform project structure and version pinning
+* Deterministic Terraform formatting and validation
+* Makefile as the only supported operator interface
+* Mandatory branch protection and merge enforcement
+* CI artifacts captured for inspection on failure
 
-—
+---
 
-Phase 2 — Terraform as Structure Authority (Still Human-Run Apply)
-Goal: Terraform becomes the declared source of truth for lab structure, while humans still run apply/destroy.
+## Non-Goals (Explicitly Out of Scope)
 
-What this phase proves:
-• Lab structure is codified and reviewable
-• Terraform state is real and predictable
-• Destroy/recreate cycles are deterministic
-• CI can validate Terraform quality without provisioning
+* Terraform apply/destroy in CI
+* Runtime verification in CI
+* VM or container lifecycle ownership
+* AWS or cloud resources
+* Kubernetes execution
 
-What Terraform introduces here:
-• Terraform project structure conventions (e.g., infra/ or terraform/)
-• Standard commands wrapped by Make targets (example intent):
-– tf-fmt, tf-validate, tf-plan
-• Version pinning for Terraform (required):
-– fixed Terraform version (and provider versions if applicable)
-• State discipline (local-first is OK):
-– state file treated as authoritative
-– documented “clean destroy” behavior
+These are intentionally deferred to later milestones.
 
-What CI does here:
-• terraform fmt check
-• terraform validate
-• (optional) terraform plan (only if it’s safe in your local-first design)
-• upload plan/validate outputs as artifacts
+---
 
-New items introduced here (supporting pieces):
-• Tool version pinning: Terraform version locked (and documented)
-• Terraform structure discipline: folder layout + Make targets + consistent entrypoints
-• No provisioning in CI yet: CI enforces correctness of Terraform code, not execution
+## Terraform Structure Authority
 
-Exit condition:
-• terraform fmt/validate is clean in CI
-• Humans can destroy and recreate lab from Terraform intent reliably
-• Docs match the Terraform truth (no drift between “what we say” and “what it builds”)
+Terraform is introduced as a **first-class project**, not as ad-hoc scripts.
 
-—
+### Directory Layout
 
-Phase 3 — CI + Terraform End-to-End (Self-Hosted Runner, Full Lab Lifecycle)
-Goal: A machine can build, verify, and tear down the lab using only supported interfaces.
+```
+infra/terraform/
+├── README.md
+├── versions.tf
+├── main.tf
+├── variables.tf
+└── outputs.tf
+```
 
-Runner strategy (locked by you):
-• Use a self-hosted GitHub Actions runner on the same host that runs VirtualBox/Vagrant.
-• This phase is where VM bring-up becomes part of CI truth.
+### Guarantees
 
-What this phase proves:
-• System is automatable end-to-end
-• Clean-room is enforceable by a machine
-• No human trust is required to rebuild proof
+* Terraform core version is pinned (`required_version`)
+* Provider versions are pinned (`required_providers`)
+* No implicit or “latest” dependencies
+* Structure exists even if resources are minimal
 
-What CI does here (end-to-end):
-• checkout
-• tool bootstrap (pinned versions): Terraform + Vagrant/VirtualBox tooling + required utils
-• terraform apply (or vagrant bring-up if that’s still the substrate) via Make targets only
-• run make demo-reviewer
-• run make verify
-• always run terraform destroy (or make destroy)
+This prevents:
 
-New items introduced here (supporting pieces):
-• Runner strategy: self-hosted runner is mandatory for VM lifecycle
-• Concurrency control: one run owns the lab at a time (avoid collisions)
-• Log artifacts expanded: upload verify logs + terraform/apply logs + key state evidence
-• Strict entrypoints: CI must call only Make targets (no ad-hoc shell provisioning)
+* “Works on my machine” drift
+* Silent provider upgrades
+* Undocumented infra assumptions
 
-Exit condition:
-• CI can start from nothing and complete full cycle: create → demo-reviewer → verify → destroy
-• CI failure still results in teardown (no leaked state)
-• Re-running CI produces the same results (deterministic behavior)
+---
 
-—
+## CI Enforcement Model
 
-Phase 4 — Failure-Safe Enforcement (No Leaks, No Collisions, Honest Cleanup)
-Goal: Even under failure, the system remains safe, deterministic, and self-cleaning.
+### CI Runner
 
-What this phase proves:
-• CI doesn’t leak infra or leave VMs/containers running
-• Partial failures do not leave residue
-• Concurrent CI runs don’t corrupt lab state
-• Cleanup is guaranteed and observable
+* GitHub-hosted runner (`ubuntu-latest`)
+* No dependency on local machines
+* Always available
 
-What CI enforces here:
-• if: always() cleanup paths for destroy
-• concurrency groups to prevent simultaneous ownership
-• explicit state discipline checks (no “half-owned” Terraform/Vagrant state)
-• artifact proof of cleanup (logs show destroy executed even on failure)
+### CI Responsibilities
 
-New items introduced here (supporting pieces):
-• Cleanup guarantees become non-negotiable
-• Concurrency is hardened and tested (intentional collision attempts)
-• “Fail-on-purpose” tests: you deliberately break a step and confirm teardown still happens
+CI enforces:
 
-Exit condition:
-• Forced CI failures still tear down cleanly
-• Back-to-back CI runs always start clean
-• Collisions are prevented or safely canceled without corrupting state
+* Repository policy checks
+* Secrets safety
+* Guarantees map integrity
+* Python checks
+* Immutable image tagging rules
+* Terraform formatting and validation
 
-—
+CI explicitly does **not**:
 
-If you want, next I’ll produce the Phase 1 “exact checklist” that you’ll implement first (what files change, what targets exist, what artifacts to upload), and a Phase 1 pass/fail definition you can’t wiggle around.
+* Apply infrastructure
+* Destroy infrastructure
+* Manage runtime state
 
-One follow-up so I wire it correctly: in Phase 3, do you want CI to call “make up / make destroy” (Vagrant truth), or “make tf-apply / make tf-destroy” (Terraform truth), with Vagrant called only inside Terraform if needed?   lets begin with phase 1 
+---
+
+## Terraform CI Gates
+
+Terraform is enforced through Make targets, never direct CLI usage.
+
+### CI-Safe Targets
+
+```
+make check-terraform
+make tf-ci
+```
+
+These run:
+
+* `terraform fmt -check`
+* `terraform validate`
+
+Outputs are written to:
+
+```
+ci/logs/
+├── terraform-fmt.txt
+└── terraform-validate.txt
+```
+
+Failures are visible both in CI logs and as downloadable artifacts.
+
+---
+
+## Human Execution Discipline
+
+Terraform execution exists, but is **human-driven** at this stage.
+
+### Supported Manual Commands
+
+```
+make tf-init
+make tf-validate
+make tf-plan
+```
+
+These commands:
+
+* Prove Terraform can initialize and plan deterministically
+* Do not modify infrastructure
+* Are not run automatically by CI
+
+This establishes execution discipline without granting CI destructive authority.
+
+---
+
+## Makefile as the Single Interface
+
+All operations are exposed via the Makefile.
+
+Rules:
+
+* No raw `terraform` commands in documentation
+* No ad-hoc CI commands
+* If it’s not in `make help`, it’s not supported
+
+This ensures:
+
+* Reproducibility
+* Reviewer clarity
+* Operator safety
+
+---
+
+## Branch Protection & Enforcement
+
+### Required Protections
+
+* `main` branch is protected
+* Direct pushes to `main` are blocked
+* Pull requests are mandatory
+* Hosted CI job is required to pass before merge
+
+### Enforcement Proof
+
+Milestone 04 is considered complete only after confirming:
+
+* A failing CI run blocks merge
+* A passing CI run allows merge
+* Logs are always uploaded under `ci/logs/`
+
+---
+
+## Failure Handling
+
+* CI failures are intentional and blocking
+* Logs are uploaded even on failure
+* No silent or ignored errors
+* Failures must be fixed, not bypassed
+
+---
+
+## End State Guarantees
+
+After Milestone 04:
+
+* CI is authoritative for repo correctness
+* Terraform is structurally sound and pinned
+* Bad infrastructure code cannot be merged
+* Reviewers can inspect failures easily
+* The system is boring, predictable, and safe
+
+This milestone forms the **enforcement foundation** for all future cloud, Kubernetes, and SRE work.
+
+---
+
+## What Comes Next
+
+Milestone 05 will introduce **real infrastructure** (AWS) where Terraform execution becomes meaningful.
+
+At that point:
+
+* Terraform execution in CI becomes valuable
+* Plans target real resources
+* Infrastructure lifecycle discipline expands
+
+Milestone 04 intentionally stops before that boundary.
+
+This ensures a solid, reviewable foundation before complexity increases.
+---

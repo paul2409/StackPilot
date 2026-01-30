@@ -188,6 +188,7 @@ check-secrets: preflight-repo
 	@echo "== CHECK: secrets | scripts/checks/secrets.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/secrets.sh"
 
+# ADDED: guarantees map gate (Milestone 03 Item 5)
 check-guarantees: preflight-repo
 	@echo "== CHECK: guarantees | scripts/checks/guarantees-map.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/guarantees-map.sh"
@@ -257,6 +258,7 @@ check-terraform: preflight-repo
 	@$(MAKE) tf-ci
 	@echo "PASS: terraform checks"
 
+# UPDATED: checks now includes guarantees gate so CI can enforce it
 checks: check-policy check-secrets check-guarantees check-build check-python check-immutable-tags check-terraform
 
 
