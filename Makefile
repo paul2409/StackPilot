@@ -359,30 +359,8 @@ vm-destroy: preflight-host
 # - Does NOT provision (no accidental re-provision each push).
 # - Writes machine-readable status to ci/logs/ for debugging.
 vm-ensure-up: preflight-host
-	@echo "== VM: ensure-up (boot only if needed) =="
-	@mkdir -p "$(CI_LOGS_DIR)"
-
-	@cd "$(VAGRANT_DIR)" && vagrant status | tee "$(CI_LOGS_DIR)/vagrant-status.txt" >/dev/null
-
-	@cd "$(VAGRANT_DIR)" && \
-	  need_up=0; \
-	  for m in control worker1 worker2; do \
-	    out="$$(vagrant status "$$m" 2>&1 || true)"; \
-	    if echo "$$out" | grep -qi "running"; then \
-	      echo "PASS: $$m is running"; \
-	    else \
-	      echo "WARN: $$m is not running"; \
-	      need_up=1; \
-	    fi; \
-	  done; \
-	  if [[ "$$need_up" == "1" ]]; then \
-	    echo "== VM: boot missing machines (no provision) =="; \
-	    vagrant up --no-provision; \
-	  else \
-	    echo "PASS: all lab VMs running (no action)"; \
-	  fi
-
-
+	@echo "== VM: ensure-up (scripts/core/vm-ensure-up.sh) =="
+	@cd "$(ROOT_DIR)" && bash "$(CORE_DIR)/vm-ensure-up.sh"
 
 
 # ----------------------------------------------------------
