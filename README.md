@@ -56,11 +56,35 @@ Manual SSH success, ad-hoc Docker commands, or partial service health do **not**
 ## Repository Structure
 
 ```
-vagrant/   — VM definitions, networking, and node identity
-scripts/   — lifecycle, clean-room, provisioning, and verification logic
-docs/      — guarantees, runbooks, and failure recovery
-apps/      — sample services used to prove platform behavior
-ci/        — CI workflows (introduced after Milestone 03)
+.github/         — GitHub automation
+  workflows/     — CI workflows (Actions)
+
+apps/            — sample services used to prove platform behavior
+  mock-exchange/ — mock exchange API service (Dockerized)
+
+ci/              — CI artifacts + local CI-facing outputs
+  logs/          — CI log files (checks.log / verify.log via workflow tee)
+
+docs/            — guarantees, runbooks, and recovery docs
+  runbooks/      — milestone runbooks + troubleshooting workflow
+
+infra/           — infrastructure and delivery definitions
+  docker-compose.yml  — canonical service runtime definition
+  terraform/     — Terraform structure authority (introduced in Milestone 04+)
+
+scripts/         — lifecycle, clean-room, checks, and verification logic
+  access/        — SSH / access helpers for nodes
+  checks/        — repo-level contracts (policy/secrets/guarantees/build/etc.)
+  core/          — golden-path lifecycle (service up/down, clean-room)
+  drills/        — controlled failure injection + recovery proofs
+  ops/           — operational helpers (logs, diagnostics)
+  provision/     — provisioning/bootstrap logic for lab setup
+  verify/        — verification suite (host/cluster/build truth)
+
+tmp/             — scratch workspace (non-authoritative, safe to delete)
+
+vagrant/         — VM definitions, networking, and node identity
+
 ```
 
 Scripts are organized by responsibility:
@@ -156,27 +180,23 @@ The system is considered working only if all of the following are true:
 
 ### Goal
 
-Transform the lab from “it runs correctly” into a system that **enforces correctness**, prevents stale state, and proves rebuildability through mandatory clean-room execution.
+Enforce a single, deterministic operational path for building, running, and verifying services.
 
-This milestone introduces **delivery discipline**, not new features.
+This milestone removes ambiguity from delivery by making **clean-room rebuilds mandatory** and by refusing to operate on stale or implicit state.
 
 ### What This Milestone Demonstrates
 
-* A **single enforced golden path** for service operation
-* Local image builds as the **only supported delivery mechanism**
-* Explicit refusal to operate outside `/vagrant`
-* Failure-fast behavior when execution context is incorrect
-* Hard separation between:
+* A single supported operator interface (Makefile)
+* Refusal to run outside the expected execution context
+* Clean separation between:
 
-  * service stop
-  * clean-room teardown
-  * infrastructure destruction
-* Mandatory clean-room rebuilds that do not rely on cached images
-* Proof that rebuilds occur when images are deleted
-* Deterministic lifecycle across multiple VMs
+  * stopping services
+  * removing runtime state
+  * destroying infrastructure
+* Mandatory clean-room rebuilds before verification
+* Deterministic behavior across multiple VMs
 * Verification that inspects **actual runtime and build state**
 * A reviewer-grade demo flow that cannot bypass rebuild guarantees
-* Makefile as the **only supported operator interface**
 
 ### What “Working” Means
 
@@ -186,13 +206,13 @@ The system is considered working only if all of the following are true:
 
   * all compose-managed containers
   * all locally built application images
-* `make demo` **forces** an image rebuild via the golden path
+* `make demo` forces a rebuild through the golden path
 * `make verify` passes after a clean-room rebuild
 * Verification confirms:
 
-  * image rebuild occurred
-  * containers are running expected images
-  * services are reachable and truthful
+  * the service is running
+  * the expected image is used
+  * the image was rebuilt, not reused
 * Scripts refuse to run when the repo is not mounted at `/vagrant`
 * No manual Docker or SSH intervention is required
 * The same guarantees hold on more than one VM
@@ -226,7 +246,56 @@ If this command passes, the system is considered reproducible and operationally 
 
 ---
 
+## Milestone 04 — CI Authority & Enforced Contracts (v0.4)
+
+### Goal
+
+Shift enforcement of system guarantees from the human operator to automated CI.
+
+This milestone proves that correctness is enforced **before merge**, not assumed after.
+
+### What This Milestone Demonstrates
+
+* CI as a required gate for all changes
+* A single CI workflow governing all validation paths
+* CI invoking only Makefile targets (no inline logic)
+* Clear separation between:
+
+  * repo-level verification
+  * runtime verification
+* Capability-aware CI behavior (no false claims of verification)
+* Deterministic cleanup even when CI fails
+* Inspectable CI logs for every run
+
+### What “Working” Means
+
+The system is considered working only if all of the following are true:
+
+* A pull request automatically triggers CI
+* CI blocks merge when any enforced contract fails
+* CI runs repo-level checks on hosted runners
+* CI runs full runtime verification only when VM capability exists
+* CI never attempts to boot infrastructure when capability is absent
+* CI artifacts clearly show:
+
+  * which checks ran
+  * which checks were skipped
+  * why any failure occurred
+* CI teardown executes even when verification fails
+
+### Runbooks
+
+* `docs/runbooks/milestone04.md`
+* `docs/runbooks/troubleshooting.md`
+
+### Tag
+
+**v0.4 — CI Authority & Enforced Contracts**
+
+---
+
 ## Guarantees Map
+
 See `docs/guarantees-map.txt` for a complete list of enforced guarantees and their verification status.
 
 ---
@@ -238,4 +307,3 @@ StackPilot prioritizes **operational correctness over feature scope**.
 The applications are intentionally simple.
 The value of the project lies in guarantees, verification, failure behavior, rebuildability, and recovery — not in application complexity.
 
----
