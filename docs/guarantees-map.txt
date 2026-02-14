@@ -25,8 +25,6 @@ G-04-03 Terraform layout is standard | infra/terraform/README.md,infra/terraform
 G-04-04 Terraform version determinism | infra/terraform/versions.tf,.github/workflows/ci.yml | make check-terraform | required_version and provider constraints exist; CI installs pinned terraform
 G-04-05 Terraform CI gates enforce quality | Makefile,infra/terraform/versions.tf | make check-terraform | CI runs fmt-check + validate only; no apply/destroy; output lands in ci/logs
 
-⸻
-
 G-05-01 AWS identity is validated before execution | scripts/aws/sts-checks.sh,Makefile | make aws-sts | AWS_PROFILE and region must be correct before any Terraform operation
 G-05-02 Operator IP is explicitly controlled | scripts/ops/update-ip.sh,infra/aws/tf/variables.tf | make aws-ip | Security group ingress must restrict SSH/API to operator /32 CIDR; no 0.0.0.0/0
 G-05-03 Cloud target is artifact-driven | scripts/aws/target-env.sh,artifacts/aws/target.env | make verify-aws | Verification must rely only on target.env; no terraform output calls during verify
