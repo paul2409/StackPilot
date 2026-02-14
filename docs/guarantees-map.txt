@@ -35,7 +35,7 @@ G-05-07 Cloud persistence is proven | scripts/aws/verify-aws.sh | make verify-aw
 G-05-08 Terraform destroy leaves no residue | scripts/aws/tf-destroy.sh,scripts/aws/cleanup-check.sh | make aws-destroy | No EC2 instances or tagged volumes remain after destroy
 G-05-09 No console drift allowed | docs/runbooks/milestone05.md | make aws-run | Infrastructure must be managed exclusively via Terraform; console edits invalidate proof
 G-05-10 AWS verification is explicit, not implicit | Makefile | make verify-aws | Local verify remains default; AWS verify is separate command
-G-05-11 Scripts self-source required env | scripts/aws/*.sh | make verify-aws | No manual export of BASE_URL, SSH vars, or AWS vars required
+G-05-11 Scripts self-source required env | scripts/aws/target-env.sh | make verify-aws | No manual export of BASE_URL, SSH vars, or AWS vars required
 G-05-12 Schema existence is validated | scripts/aws/verify-aws.sh | make verify-aws | orders table must exist before persistence tests; schema drift is detectable
 G-05-13 Re-apply after destroy is deterministic | Makefile,scripts/aws/aws-run-safe.sh | make aws-run | apply → verify → destroy cycle must be repeatable without manual intervention
 G-05-14 Cloud failure drills behave honestly | scripts/aws/drills/kill-db-midflight.sh | run drill | DB outage must flip readiness only; recovery must restore readiness
