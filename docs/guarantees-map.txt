@@ -40,5 +40,3 @@ G-05-12 Schema existence is validated | scripts/aws/verify-aws.sh | make verify-
 G-05-13 Re-apply after destroy is deterministic | Makefile,scripts/aws/aws-run-safe.sh | make aws-run | apply → verify → destroy cycle must be repeatable without manual intervention
 G-05-14 Cloud failure drills behave honestly | scripts/aws/drills/kill-db-midflight.sh | run drill | DB outage must flip readiness only; recovery must restore readiness
 G-05-15 Lifecycle safety enforces destroy | scripts/aws/aws-run-safe.sh | make aws-run | Destroy must execute even if verify fails; no orphaned infrastructure
-
-⸻
