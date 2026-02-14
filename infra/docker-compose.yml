@@ -8,8 +8,7 @@ services:
       POSTGRES_PASSWORD: stackpilot
     volumes:
       - stackpilot_pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - ./db/init:/infra/db/init:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U stackpilot -d stackpilot"]
       interval: 5s

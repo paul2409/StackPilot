@@ -1,9 +1,8 @@
-GUARANTEE | ENFORCED_BY | PROOF_COMMAND | NOTES
--------- | ----------- | ------------ | -----
-G-01-01 Lab network reachability | scripts/verify/verify-host.sh,Makefile | make verify-host | Host must reach VM IPs reliably; ping/ssh must not be “manual-only”
-G-01-02 SSH access to all nodes | Makefile | make ssh NODE=control | SSH access must work via vagrant-managed identity; no ad-hoc keys
-G-01-03 Hostname resolution is enforced | scripts/verify/verify-cluster.sh | make verify-cluster | control/worker1/worker2 must resolve consistently; no manual /etc/hosts edits
-G-01-04 Verification defines truth | scripts/verify/verify-host.sh,scripts/verify/verify-cluster.sh | make verify | Manual success does not override verify failures
+GUARANTEE	ENFORCED_BY	PROOF_COMMAND	NOTES
+G-01-01 Lab network reachability	scripts/verify/verify-host.sh,Makefile	make verify-host	Host must reach VM IPs reliably; ping/ssh must not be “manual-only”
+G-01-02 SSH access to all nodes	Makefile	make ssh NODE=control	SSH access must work via vagrant-managed identity; no ad-hoc keys
+G-01-03 Hostname resolution is enforced	scripts/verify/verify-cluster.sh	make verify-cluster	control/worker1/worker2 must resolve consistently; no manual /etc/hosts edits
+G-01-04 Verification defines truth	scripts/verify/verify-host.sh,scripts/verify/verify-cluster.sh	make verify	Manual success does not override verify failures
 
 G-02-01 Health is liveness only | scripts/verify/verify-build.sh | make verify-build | /health must not depend on Postgres; DB down must not flip liveness
 G-02-02 Readiness depends on DB | scripts/verify/verify-build.sh | make verify-build | /ready must fail when DB is down and recover when DB returns
@@ -25,3 +24,23 @@ G-04-02 CI produces inspectable logs | .github/workflows/ci.yml | GitHub Actions
 G-04-03 Terraform layout is standard | infra/terraform/README.md,infra/terraform/main.tf | make check-terraform | Terraform project is discoverable with a single root; documented destroy/usage path
 G-04-04 Terraform version determinism | infra/terraform/versions.tf,.github/workflows/ci.yml | make check-terraform | required_version and provider constraints exist; CI installs pinned terraform
 G-04-05 Terraform CI gates enforce quality | Makefile,infra/terraform/versions.tf | make check-terraform | CI runs fmt-check + validate only; no apply/destroy; output lands in ci/logs
+
+⸻
+
+G-05-01 AWS identity is validated before execution | scripts/aws/sts-checks.sh,Makefile | make aws-sts | AWS_PROFILE and region must be correct before any Terraform operation
+G-05-02 Operator IP is explicitly controlled | scripts/ops/update-ip.sh,infra/aws/tf/variables.tf | make aws-ip | Security group ingress must restrict SSH/API to operator /32 CIDR; no 0.0.0.0/0
+G-05-03 Cloud target is artifact-driven | scripts/aws/target-env.sh,artifacts/aws/target.env | make verify-aws | Verification must rely only on target.env; no terraform output calls during verify
+G-05-04 EC2 host converges deterministically | Terraform user_data,scripts/aws/bootstrap_check.sh | make aws-run | Fresh apply must yield Docker-ready host without manual SSH configuration
+G-05-05 Only API port is publicly exposed | infra/aws/tf/main.tf | make verify-aws | Postgres must not be exposed externally; only API port reachable from operator CIDR
+G-05-06 Cloud readiness mirrors local readiness | scripts/aws/verify-aws.sh | make verify-aws | /health and /ready semantics must match local behavior exactly
+G-05-07 Cloud persistence is proven | scripts/aws/verify-aws.sh | make verify-aws | Create order → restart containers → record must persist
+G-05-08 Terraform destroy leaves no residue | scripts/aws/tf-destroy.sh,scripts/aws/cleanup-check.sh | make aws-destroy | No EC2 instances or tagged volumes remain after destroy
+G-05-09 No console drift allowed | docs/m5-aws.md | make aws-run | Infrastructure must be managed exclusively via Terraform; console edits invalidate proof
+G-05-10 AWS verification is explicit, not implicit | Makefile | make verify-aws | Local verify remains default; AWS verify is separate command
+G-05-11 Scripts self-source required env | scripts/aws/*.sh | make verify-aws | No manual export of BASE_URL, SSH vars, or AWS vars required
+G-05-12 Schema existence is validated | scripts/aws/verify-aws.sh | make verify-aws | orders table must exist before persistence tests; schema drift is detectable
+G-05-13 Re-apply after destroy is deterministic | Makefile,scripts/aws/aws-run-safe.sh | make aws-run | apply → verify → destroy cycle must be repeatable without manual intervention
+G-05-14 Cloud failure drills behave honestly | scripts/aws/drills/kill-db-midflight.sh | run drill | DB outage must flip readiness only; recovery must restore readiness
+G-05-15 Lifecycle safety enforces destroy | scripts/aws/aws-run-safe.sh | make aws-run | Destroy must execute even if verify fails; no orphaned infrastructure
+
+⸻

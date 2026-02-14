@@ -1,0 +1,15 @@
+[2026-02-14T20:22:09Z] DB-stop readiness drill starting
+[2026-02-14T20:22:09Z] BASE_URL=http://3.235.67.209:8000
+[2026-02-14T20:22:10Z] OK:   baseline /health -> 200
+[2026-02-14T20:22:11Z] OK:   baseline /ready -> 200
+[2026-02-14T20:22:11Z] OK:   baseline /version -> 200
+[2026-02-14T20:22:11Z] Stopping DB service (db)
+[2026-02-14T20:22:16Z] OK:   DB down /health (must stay 200) -> 200
+[2026-02-14T20:22:16Z] Waiting for /ready to flip to 503
+[2026-02-14T20:22:17Z] OK:   DB down /ready (must be 503) -> 503
+[2026-02-14T20:22:18Z] OK:   DB down POST /order (must be 503) -> 503
+[2026-02-14T20:22:18Z] Starting DB service (db)
+[2026-02-14T20:22:22Z] Waiting for /ready to recover to 200
+[2026-02-14T20:22:23Z] OK:   DB recovered /ready -> 200
+[2026-02-14T20:22:24Z] OK:   DB recovered POST /order (must be 200) -> 200
+[2026-02-14T20:22:24Z] PASS: DB-stop readiness drill complete
