@@ -1,8 +1,8 @@
-GUARANTEE	ENFORCED_BY	PROOF_COMMAND	NOTES
-G-01-01 Lab network reachability	scripts/verify/verify-host.sh,Makefile	make verify-host	Host must reach VM IPs reliably; ping/ssh must not be “manual-only”
-G-01-02 SSH access to all nodes	Makefile	make ssh NODE=control	SSH access must work via vagrant-managed identity; no ad-hoc keys
-G-01-03 Hostname resolution is enforced	scripts/verify/verify-cluster.sh	make verify-cluster	control/worker1/worker2 must resolve consistently; no manual /etc/hosts edits
-G-01-04 Verification defines truth	scripts/verify/verify-host.sh,scripts/verify/verify-cluster.sh	make verify	Manual success does not override verify failures
+GUARANTEE | ENFORCED_BY | PROOF_COMMAND | NOTES
+G-01-01 Lab network reachability | scripts/verify/verify-host.sh,Makefile | make verify-host | Host must reach VM IPs reliably; ping/ssh must not be manual-only
+G-01-02 SSH access to all nodes | Makefile | make ssh NODE=control | SSH access must work via vagrant-managed identity; no ad-hoc keys
+G-01-03 Hostname resolution is enforced | scripts/verify/verify-cluster.sh | make verify-cluster | control/worker1/worker2 must resolve consistently; no manual /etc/hosts edits
+G-01-04 Verification defines truth | scripts/verify/verify-host.sh,scripts/verify/verify-cluster.sh | make verify | Manual success does not override verify failures
 
 G-02-01 Health is liveness only | scripts/verify/verify-build.sh | make verify-build | /health must not depend on Postgres; DB down must not flip liveness
 G-02-02 Readiness depends on DB | scripts/verify/verify-build.sh | make verify-build | /ready must fail when DB is down and recover when DB returns
