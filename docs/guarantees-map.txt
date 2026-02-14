@@ -27,7 +27,7 @@ G-04-05 Terraform CI gates enforce quality | Makefile,infra/terraform/versions.t
 
 G-05-01 AWS identity is validated before execution | scripts/aws/sts-checks.sh,Makefile | make aws-sts | AWS_PROFILE and region must be correct before any Terraform operation
 G-05-02 Operator IP is explicitly controlled | scripts/ops/update-ip.sh,infra/aws/tf/variables.tf | make aws-ip | Security group ingress must restrict SSH/API to operator /32 CIDR; no 0.0.0.0/0
-G-05-03 Cloud target is artifact-driven | scripts/aws/target-env.sh,artifacts/aws/target.env | make verify-aws | Verification must rely only on target.env; no terraform output calls during verify
+G-05-03 Cloud target is artifact-driven | scripts/aws/target-env.sh | make verify-aws | Verification must rely only on target.env; no terraform output calls during verify
 G-05-04 EC2 host converges deterministically | Terraform user_data,scripts/aws/bootstrap_check.sh | make aws-run | Fresh apply must yield Docker-ready host without manual SSH configuration
 G-05-05 Only API port is publicly exposed | infra/aws/tf/main.tf | make verify-aws | Postgres must not be exposed externally; only API port reachable from operator CIDR
 G-05-06 Cloud readiness mirrors local readiness | scripts/aws/verify-aws.sh | make verify-aws | /health and /ready semantics must match local behavior exactly
