@@ -11,3 +11,6 @@ terraform.tfstate.backup
 
 ci/logs/*
 !ci/logs/.gitkeep
+
+artifacts/aws
+infra/aws/tf/operator.auto.tfvars

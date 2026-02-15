@@ -25,11 +25,11 @@
 #   make down      -> stops services (keeps images/volumes)
 #
 # Reviewer flow:
-#   make demo-reviewer -> clean-room -> demo -> verify
+#   make reviewer -> clean-room -> demo -> verify
 #
-# Failure drills (Milestone 03 Phase 2):
-#   make drill-db-ready          -> controlled DB outage proof (host-driven)
-#   NODE=worker1 make drill-db-ready
+# Failure drills:
+#   make drill-db
+#   NODE=worker1 make drill-db
 #
 # Multi-node usage:
 #   NODE=worker1 make demo
@@ -37,14 +37,22 @@
 #   NODE=worker2 make logs
 #
 # Clean-room / reviewer proof:
-#   make demo-reviewer
-#   NODE=worker1 make demo-reviewer
-#
-# Image override (only if your compose `image:` differs):
-#   APP_IMAGE=infra-api:local make clean
+#   make reviewer
+#   NODE=worker1 make reviewer
 #
 # Full reset:
 #   make destroy
+#
+# AWS usage:
+#   make aws-sts
+#   make aws-ip
+#   make aws-plan-guarded
+#   make aws-apply
+#   make aws-target
+#   make deploy-aws
+#   make verify-aws
+#   make aws-destroy
+#   make aws-run
 # ==========================================================
 
 .DEFAULT_GOAL := help
@@ -54,7 +62,6 @@ SHELL := /usr/bin/env bash
 # ----------------------------------------------------------
 # Paths (resolved from this Makefile location)
 # ----------------------------------------------------------
-
 ROOT_DIR    := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 VAGRANT_DIR := $(ROOT_DIR)/vagrant
 SCRIPTS_DIR := $(ROOT_DIR)/scripts
@@ -64,33 +71,39 @@ VERIFY_DIR  := $(SCRIPTS_DIR)/verify
 OPS_DIR     := $(SCRIPTS_DIR)/ops
 CHECKS_DIR  := $(SCRIPTS_DIR)/checks
 DRILLS_DIR  := $(SCRIPTS_DIR)/drills
+AWS_DIR     := $(SCRIPTS_DIR)/aws
 
-# Phase 2 (Milestone 04) - Terraform Structure Authority
+# Terraform (local lab)
 TF_DIR      := $(ROOT_DIR)/infra/terraform
 CI_LOGS_DIR := $(ROOT_DIR)/ci/logs
+
+# AWS (terraform in AWS)
+AWS_ENV      := $(ROOT_DIR)/infra/aws/aws.env
+AWS_TF_DIR   := $(ROOT_DIR)/infra/aws/tf
+AWS_LOGS_DIR := $(ROOT_DIR)/ci/logs/aws
 
 # ----------------------------------------------------------
 # Runtime parameters (overridable)
 # ----------------------------------------------------------
-
 NODE ?= control
 APP_IMAGE ?= infra-api:local
 
 # ----------------------------------------------------------
-# Phony targets (these are commands, not files)
+# Phony targets
 # ----------------------------------------------------------
-.PHONY: help preflight-host preflight-repo up demo demo-reviewer \
-        checks check-policy check-secrets check-guarantees check-build \
-        check-python check-immutable-tags check-terraform \
-        tf-fmt tf-fmt-check tf-init tf-validate tf-plan tf-ci tf-exec \
-        verify verify-host verify-cluster verify-build \
+.PHONY: help preflight repo-preflight up demo reviewer \
+        checks policy secrets guarantees build python tags terraform \
+        terraform-fmt terraform-fmtcheck terraform-init terraform-validate terraform-plan terraform-ci terraform-exec \
+        verify host-verify cluster-verify runtime-verify \
         logs down clean destroy \
         vm-up vm-halt vm-destroy ssh status provision \
-        drills drill-db-ready
+        drills drill-db \
+        aws-sts aws-ip aws-init aws-validate aws-plan aws-plan-guarded aws-apply aws-destroy aws-cycle aws-clean-check \
+        aws-target deploy-aws verify-aws aws-run
 
 
 # ----------------------------------------------------------
-# help: prints the supported commands and how to use them
+# help
 # ----------------------------------------------------------
 help:
 	@echo "StackPilot (Golden Path)"
@@ -101,59 +114,42 @@ help:
 	@echo "  make verify          Run checks first, then run verification suite"
 	@echo "  make down            Stop services on NODE (containers removed, images/volumes kept)"
 	@echo ""
-	@echo "Repo checks (Milestone 03 gates)"
-	@echo "  make checks          Run all repo gates (policy + secrets + guarantees map + build)"
-	@echo "  make check-policy    Run repo structure/policy gate"
-	@echo "  make check-secrets   Run secrets safety gate (demo env allowlisted)"
-	@echo "  make check-guarantees Run guarantees map gate"
-	@echo ""
-	@echo "Terraform checks (Milestone 04 Phase 2 - structure authority)"
-	@echo "  make check-terraform Run Terraform fmt-check + validate (CI-safe: no apply/destroy)"
-	@echo "  make tf-fmt-check    Terraform fmt check (diff output to ci/logs/)"
-	@echo "  make tf-validate     Terraform validate (output to ci/logs/)"
-	@echo "  make tf-plan         Terraform plan (optional local discipline; output to ci/logs/)"
-	@echo "  make tf-ci           Terraform CI gates (fmt-check + validate)"
-	@echo "  make tf-exec         Terraform exec discipline (init + validate + plan)"
-	@echo ""
 	@echo "Reviewer proof"
-	@echo "  make demo-reviewer   Clean-room -> demo -> verify (anti-stale proof)"
+	@echo "  make reviewer        Clean-room -> demo -> verify (anti-stale proof)"
 	@echo ""
-	@echo "Failure drills (Milestone 03 Phase 2)"
-	@echo "  make drills          List available drills"
-	@echo "  make drill-db-ready  Controlled DB outage drill (readiness honesty + recovery proof)"
+	@echo "Repo gates"
+	@echo "  make checks          Run all repo gates (policy + secrets + guarantees map + build)"
 	@echo ""
-	@echo "Ops helpers"
-	@echo "  make logs            Tail service logs on NODE"
-	@echo "  make clean           Clean-room teardown on NODE (remove containers + app image + prune build cache)"
-	@echo "  make destroy         Clean-room + destroy VMs (clean slate)"
+	@echo "Terraform gates (local lab)"
+	@echo "  make terraform       Terraform gates (fmt-check + validate)"
 	@echo ""
-	@echo "VM helpers"
-	@echo "  make ssh             SSH into NODE (NODE=control|worker1|worker2)"
-	@echo "  make status          Vagrant status"
-	@echo "  make provision       Vagrant provision (Week 1 path; later replaced by Ansible)"
+	@echo "AWS helpers"
+	@echo "  make aws-sts         Validate AWS identity/profile/region (scripts/aws/sts-checks.sh)"
+	@echo "  make aws-ip          Refresh operator IP (scripts/ops/update-ip.sh)"
+	@echo "  make aws-plan        Terraform plan (AWS)"
+	@echo "  make aws-plan-guarded Plan + forbid expensive resources"
+	@echo "  make aws-apply       Terraform apply (AWS)"
+	@echo "  make aws-target      Write artifacts/aws/target.env (scripts/aws/target-env.sh)"
+	@echo "  make deploy-aws      Rsync repo + docker compose up on EC2 (scripts/aws/deploy-aws.sh)"
+	@echo "  make verify-aws      External verification + persistence (scripts/aws/verify-aws.sh)"
+	@echo "  make aws-destroy     Terraform destroy (AWS)"
+	@echo "  make aws-clean-check Prove no leftover AWS resources (scripts/aws/cleanup-check.sh)"
+	@echo "  make aws-run         apply -> target -> deploy -> verify -> destroy -> clean-check"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make up"
-	@echo "  NODE=worker1 make demo"
-	@echo "  NODE=worker1 make verify"
-	@echo "  make demo-reviewer"
-	@echo "  NODE=worker1 make demo-reviewer"
-	@echo "  make drill-db-ready"
-	@echo "  NODE=worker1 make drill-db-ready"
-	@echo "  APP_IMAGE=infra-api:local make clean"
-	@echo "  make destroy"
+	@echo "  make reviewer"
+	@echo "  make aws-run"
 
 
 # ----------------------------------------------------------
-# preflight: prerequisite checks
-#   - preflight-repo: CI-safe (no vagrant/virtualbox requirement)
-#   - preflight-host: requires VM tooling
+# preflight
 # ----------------------------------------------------------
-preflight-host:
+preflight:
 	@echo "== PREFLIGHT: host (scripts/core/preflight-host.sh) =="
 	@bash "$(CORE_DIR)/preflight-host.sh"
 
-preflight-repo:
+repo-preflight:
 	@echo "== PREFLIGHT: repo (scripts/core/preflight-repo.sh) =="
 	@bash "$(CORE_DIR)/preflight-repo.sh"
 
@@ -161,134 +157,109 @@ preflight-repo:
 # ----------------------------------------------------------
 # Golden path targets
 # ----------------------------------------------------------
-up: preflight-host vm-up demo
+up: preflight vm-up demo
 
-demo: preflight-host
+demo: preflight
 	@echo "== DEMO: service up (scripts/core/service-up.sh) =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(CORE_DIR)/service-up.sh"
 
-demo-reviewer:
+reviewer:
 	@$(MAKE) clean  NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)"
 	@$(MAKE) demo   NODE="$(NODE)"
 	@$(MAKE) verify NODE="$(NODE)"
 
 
 # ----------------------------------------------------------
-# Checks (Milestone 03 Item 4 + Item 5)
-#
-# Rule:
-#   Checks must run BEFORE runtime verification.
-#   Checks are non-destructive and must never run drills.
+# Checks
 # ----------------------------------------------------------
-check-policy: preflight-repo
+policy: repo-preflight
 	@echo "== CHECK: policy | scripts/checks/policy.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/policy.sh"
 
-check-secrets: preflight-repo
+secrets: repo-preflight
 	@echo "== CHECK: secrets | scripts/checks/secrets.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/secrets.sh"
 
-# ADDED: guarantees map gate (Milestone 03 Item 5)
-check-guarantees: preflight-repo
+guarantees: repo-preflight
 	@echo "== CHECK: guarantees | scripts/checks/guarantees-map.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/guarantees-map.sh"
 
-check-build: preflight-repo
+build: repo-preflight
 	@echo "== CHECK: build | scripts/checks/build.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/build.sh"
 
-check-python: preflight-repo
+python: repo-preflight
 	@echo "== CHECK: python | scripts/checks/python.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/python.sh"
 
-check-immutable-tags: preflight-repo
+tags: repo-preflight
 	@echo "== CHECK: immutable-tags | scripts/checks/immutable-tags.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/immutable-tags.sh"
 
 
 # ----------------------------------------------------------
-# Terraform gates (Milestone 04 Phase 2 - Structure Authority)
-#
-# Rule:
-#   - CI must be able to run these without VirtualBox/Vagrant.
-#   - No apply/destroy in CI (humans run the truth cycle).
-#   - Outputs must be readable and land in ci/logs/.
+# Terraform gates (local lab)
 # ----------------------------------------------------------
-tf-fmt:
+terraform-fmt:
 	@echo "== TF: fmt (write) | infra/terraform =="
 	@terraform -chdir="$(TF_DIR)" fmt
 
-tf-fmt-check:
+terraform-fmtcheck:
 	@echo "== TF: fmt (check) | infra/terraform =="
 	@mkdir -p "$(CI_LOGS_DIR)"
 	@terraform -chdir="$(TF_DIR)" fmt -check -diff | tee "$(CI_LOGS_DIR)/terraform-fmt.txt"
 
-tf-init:
+terraform-init:
 	@echo "== TF: init | infra/terraform =="
 	@mkdir -p "$(CI_LOGS_DIR)"
 	@terraform -chdir="$(TF_DIR)" init -upgrade | tee "$(CI_LOGS_DIR)/terraform-init.txt"
 
-tf-validate: tf-init
+terraform-validate: terraform-init
 	@echo "== TF: validate | infra/terraform =="
 	@mkdir -p "$(CI_LOGS_DIR)"
 	@terraform -chdir="$(TF_DIR)" validate | tee "$(CI_LOGS_DIR)/terraform-validate.txt"
 
-# Optional local-only discipline. Keep it in the golden path, but it must remain CI-safe.
-tf-plan: tf-init
+terraform-plan: terraform-init
 	@echo "== TF: plan | infra/terraform =="
 	@mkdir -p "$(CI_LOGS_DIR)"
 	@terraform -chdir="$(TF_DIR)" plan -no-color | tee "$(CI_LOGS_DIR)/terraform-plan.txt"
 
-# Terraform helper targets:
-# - tf-ci: CI-safe Terraform gates
-# - tf-exec: execution discipline (still no apply/destroy)
-tf-ci:
+terraform-ci:
 	@echo "== TF: ci (fmt-check + validate) =="
-	@$(MAKE) tf-fmt-check
-	@$(MAKE) tf-validate
+	@$(MAKE) terraform-fmtcheck
+	@$(MAKE) terraform-validate
 
-tf-exec:
+terraform-exec:
 	@echo "== TF: exec (init + validate + plan) =="
-	@$(MAKE) tf-init
-	@$(MAKE) tf-validate
-	@$(MAKE) tf-plan
+	@$(MAKE) terraform-init
+	@$(MAKE) terraform-validate
+	@$(MAKE) terraform-plan
 
-check-terraform: preflight-repo
+terraform: repo-preflight
 	@echo "== CHECK: terraform (fmt-check + validate) =="
-	@$(MAKE) tf-ci
+	@$(MAKE) terraform-ci
 	@echo "PASS: terraform checks"
 
-# UPDATED: checks now includes guarantees gate so CI can enforce it
-checks: check-policy check-secrets check-guarantees check-build check-python check-immutable-tags check-terraform
+checks: policy secrets guarantees build python tags terraform
 
 
 # ----------------------------------------------------------
 # Verification (runtime proof)
 # ----------------------------------------------------------
-verify-host: preflight-host
+host-verify: preflight
 	@echo "== VERIFY: host | scripts/verify/verify-host.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-host.sh"
 
-verify-cluster: preflight-host
+cluster-verify: preflight
 	@echo "== VERIFY: cluster | scripts/verify/verify-cluster.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-cluster.sh"
 
-verify-build: preflight-host
+runtime-verify: preflight
 	@echo "== VERIFY: build/runtime | scripts/verify/verify-build.sh =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(VERIFY_DIR)/verify-build.sh"
 
-# ----------------------------------------------------------
-# verify:
-#   Phase 1 rule:
-#     - In GitHub-hosted CI (no VMs), verify runs repo gates only.
-#     - Locally (or on a self-hosted runner with VMs), verify runs full suite.
-#
-# Detection:
-#   - Full runtime requires Vagrant + running VMs, which hosted runners won't have.
-# ----------------------------------------------------------
-verify: preflight-repo
+verify: repo-preflight
 	@echo "== VERIFY: start =="
-
 	@echo "== VERIFY: repo checks =="
 	@$(MAKE) checks
 
@@ -299,25 +270,25 @@ verify: preflight-repo
 	fi
 
 	@echo "== VERIFY: host verification =="
-	@$(MAKE) verify-host
+	@$(MAKE) host-verify
 
 	@echo "== VERIFY: cluster verification =="
-	@$(MAKE) verify-cluster
+	@$(MAKE) cluster-verify
 
 	@echo "== VERIFY: build/runtime verification =="
-	@$(MAKE) verify-build
+	@$(MAKE) runtime-verify
 
 	@echo "== VERIFY: PASS =="
 
 
 # ----------------------------------------------------------
-# Failure drills (Milestone 03 Phase 2)
+# Failure drills
 # ----------------------------------------------------------
 drills:
 	@echo "Available drills:"
-	@echo "  make drill-db-ready   (DB down readiness honesty + recovery proof)"
+	@echo "  make drill-db"
 
-drill-db-ready: preflight-host
+drill-db: preflight
 	@echo "== DRILL: db-ready | scripts/drills/db-ready.sh =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(DRILLS_DIR)/db-ready.sh"
 
@@ -325,53 +296,110 @@ drill-db-ready: preflight-host
 # ----------------------------------------------------------
 # Service lifecycle targets
 # ----------------------------------------------------------
-down: preflight-host
+down: preflight
 	@echo "== DOWN: service down (scripts/core/service-down.sh) =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(CORE_DIR)/service-down.sh"
 
-clean: preflight-host
+clean: preflight
 	@echo "== CLEAN: clean-room (scripts/core/clean-room.sh) =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)" bash "$(CORE_DIR)/clean-room.sh"
 
-destroy: preflight-host clean vm-destroy
+destroy: preflight clean vm-destroy
 
 
 # ----------------------------------------------------------
-# VM lifecycle (infrastructure layer)
+# VM lifecycle
 # ----------------------------------------------------------
-vm-up: preflight-host
+vm-up: preflight
 	@echo "== VM: up (vagrant up) =="
 	@cd "$(VAGRANT_DIR)" && vagrant up
 
-vm-halt: preflight-host
+vm-halt: preflight
 	@echo "== VM: halt (vagrant halt) =="
 	@cd "$(VAGRANT_DIR)" && vagrant halt
 
-vm-destroy: preflight-host
+vm-destroy: preflight
 	@echo "== VM: destroy (vagrant destroy -f) =="
 	@cd "$(VAGRANT_DIR)" && vagrant destroy -f
 
-# vm-ensure-up:
-# - Boots the lab only if it is not already running.
-# - Does NOT provision (no accidental re-provision each push).
-# - Writes machine-readable status to ci/logs/ for debugging.
-
 
 # ----------------------------------------------------------
-# Helpers (non-golden-path, still supported)
+# Helpers
 # ----------------------------------------------------------
-logs: preflight-host
+logs: preflight
 	@echo "== LOGS: tail | scripts/ops/logs.sh =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(OPS_DIR)/logs.sh"
 
-ssh: preflight-host
+ssh: preflight
 	@echo "== SSH: node=$(NODE) | vagrant ssh $(NODE) =="
 	@cd "$(VAGRANT_DIR)" && vagrant ssh "$(NODE)"
 
-status: preflight-host
+status: preflight
 	@echo "== STATUS: vagrant status =="
 	@cd "$(VAGRANT_DIR)" && vagrant status
 
-provision: preflight-host
+provision: preflight
 	@echo "== PROVISION: vagrant provision =="
 	@cd "$(VAGRANT_DIR)" && vagrant provision
+
+
+# ----------------------------------------------------------
+# AWS commands (no console clicking)
+# ----------------------------------------------------------
+aws-sts:
+	@echo "== AWS: STS identity check =="
+	@bash "$(AWS_DIR)/sts-checks.sh"
+
+aws-ip:
+	@echo "== AWS: update operator IP =="
+	@bash "$(OPS_DIR)/update-ip.sh"
+
+aws-init: aws-sts
+	@echo "== AWS: terraform init =="
+	@bash "$(AWS_DIR)/tf-init.sh"
+
+aws-validate: aws-init
+	@echo "== AWS: terraform validate =="
+	@bash "$(AWS_DIR)/tf-validate.sh"
+
+aws-plan: aws-ip aws-validate
+	@echo "== AWS: terraform plan =="
+	@bash "$(AWS_DIR)/tf-plan.sh"
+
+aws-plan-guarded: aws-plan
+	@echo "== AWS: plan guard =="
+	@bash "$(AWS_DIR)/plan-guard.sh"
+
+aws-apply: aws-plan
+	@echo "== AWS: terraform apply =="
+	@bash "$(AWS_DIR)/tf-apply.sh"
+
+aws-destroy: aws-sts
+	@echo "== AWS: terraform destroy =="
+	@bash "$(AWS_DIR)/tf-destroy.sh"
+
+aws-clean-check:
+	@echo "== AWS: cleanup verification =="
+	@bash "$(AWS_DIR)/cleanup-check.sh"
+
+aws-cycle:
+	@echo "== AWS: full cycle (apply -> destroy -> clean-check) =="
+	@bash "$(AWS_DIR)/tf-apply.sh"
+	@bash "$(AWS_DIR)/tf-destroy.sh"
+	@bash "$(AWS_DIR)/cleanup-check.sh"
+	@echo "PASS: aws-cycle"
+
+aws-target: aws-apply
+	@echo "== AWS: write target.env =="
+	@bash "$(AWS_DIR)/target-env.sh"
+
+deploy-aws: aws-target
+	@echo "== AWS: deploy stackpilot to EC2 =="
+	@bash "$(AWS_DIR)/deploy-aws.sh"
+
+verify-aws:
+	@echo "== AWS: verify external endpoints + persistence =="
+	@bash "$(AWS_DIR)/verify-aws.sh"
+
+aws-run:
+	@bash "$(SCRIPTS_DIR)/aws/aws-run-safe.sh"

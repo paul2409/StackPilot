@@ -1,0 +1,11 @@
+          List of relations
+ Schema |  Name  | Type  |   Owner    
+--------+--------+-------+------------
+ public | orders | table | stackpilot
+(1 row)
+
+ count 
+-------
+     8
+(1 row)
+

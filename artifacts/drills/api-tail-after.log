@@ -1,0 +1,300 @@
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+stackpilot-api  |     return await run_in_threadpool(dependant.call, **values)
+stackpilot-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+stackpilot-api  |     return await anyio.to_thread.run_sync(func, *args)
+stackpilot-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
+stackpilot-api  |     return await get_async_backend().run_sync_in_worker_thread(
+stackpilot-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+stackpilot-api  |     return await future
+stackpilot-api  |            ^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+stackpilot-api  |     result = context.run(func, *args)
+stackpilot-api  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/app/app.py", line 376, in create_order
+stackpilot-api  |     cur.execute(
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/psycopg/cursor.py", line 97, in execute
+stackpilot-api  |     raise ex.with_traceback(None)
+stackpilot-api  | psycopg.errors.UndefinedTable: relation "orders" does not exist
+stackpilot-api  | LINE 2:                 INSERT INTO orders (id, symbol, side, qty, s...
+stackpilot-api  |                                     ^
+stackpilot-api  | event='error' ts=1771098894 method='POST' path='/order' latency_ms=14 error='UndefinedTable'
+stackpilot-api  | INFO:     102.88.54.169:2228 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 500 Internal Server Error
+stackpilot-api  | ERROR:    Exception in ASGI application
+stackpilot-api  |   + Exception Group Traceback (most recent call last):
+stackpilot-api  |   |   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 77, in collapse_excgroups
+stackpilot-api  |   |     yield
+stackpilot-api  |   |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 186, in __call__
+stackpilot-api  |   |     async with anyio.create_task_group() as task_group:
+stackpilot-api  |   |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 783, in __aexit__
+stackpilot-api  |   |     raise BaseExceptionGroup(
+stackpilot-api  |   | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+stackpilot-api  |   +-+---------------- 1 ----------------
+stackpilot-api  |     | Traceback (most recent call last):
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+stackpilot-api  |     |     result = await app(  # type: ignore[func-returns-value]
+stackpilot-api  |     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+stackpilot-api  |     |     return await self.app(scope, receive, send)
+stackpilot-api  |     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+stackpilot-api  |     |     await super().__call__(scope, receive, send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+stackpilot-api  |     |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+stackpilot-api  |     |     raise exc
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+stackpilot-api  |     |     await self.app(scope, receive, _send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 185, in __call__
+stackpilot-api  |     |     with collapse_excgroups():
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+stackpilot-api  |     |     self.gen.throw(typ, value, traceback)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+stackpilot-api  |     |     raise exc
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 187, in __call__
+stackpilot-api  |     |     response = await self.dispatch_func(request, call_next)
+stackpilot-api  |     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/app/app.py", line 160, in request_logger
+stackpilot-api  |     |     response = await call_next(request)
+stackpilot-api  |     |                ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 163, in call_next
+stackpilot-api  |     |     raise app_exc
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 149, in coro
+stackpilot-api  |     |     await self.app(scope, receive_or_disconnect, send_no_error)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+stackpilot-api  |     |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  |     |     raise exc
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  |     |     await app(scope, receive, sender)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+stackpilot-api  |     |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+stackpilot-api  |     |     await route.handle(scope, receive, send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+stackpilot-api  |     |     await self.app(scope, receive, send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+stackpilot-api  |     |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  |     |     raise exc
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  |     |     await app(scope, receive, sender)
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+stackpilot-api  |     |     response = await f(request)
+stackpilot-api  |     |                ^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+stackpilot-api  |     |     raw_response = await run_endpoint_function(
+stackpilot-api  |     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+stackpilot-api  |     |     return await run_in_threadpool(dependant.call, **values)
+stackpilot-api  |     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+stackpilot-api  |     |     return await anyio.to_thread.run_sync(func, *args)
+stackpilot-api  |     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
+stackpilot-api  |     |     return await get_async_backend().run_sync_in_worker_thread(
+stackpilot-api  |     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+stackpilot-api  |     |     return await future
+stackpilot-api  |     |            ^^^^^^^^^^^^
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+stackpilot-api  |     |     result = context.run(func, *args)
+stackpilot-api  |     |              ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |     |   File "/app/app.py", line 376, in create_order
+stackpilot-api  |     |     cur.execute(
+stackpilot-api  |     |   File "/usr/local/lib/python3.11/site-packages/psycopg/cursor.py", line 97, in execute
+stackpilot-api  |     |     raise ex.with_traceback(None)
+stackpilot-api  |     | psycopg.errors.UndefinedTable: relation "orders" does not exist
+stackpilot-api  |     | LINE 2:                 INSERT INTO orders (id, symbol, side, qty, s...
+stackpilot-api  |     |                                     ^
+stackpilot-api  |     +------------------------------------
+stackpilot-api  | 
+stackpilot-api  | During handling of the above exception, another exception occurred:
+stackpilot-api  | 
+stackpilot-api  | Traceback (most recent call last):
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+stackpilot-api  |     result = await app(  # type: ignore[func-returns-value]
+stackpilot-api  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+stackpilot-api  |     return await self.app(scope, receive, send)
+stackpilot-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+stackpilot-api  |     await super().__call__(scope, receive, send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+stackpilot-api  |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+stackpilot-api  |     raise exc
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+stackpilot-api  |     await self.app(scope, receive, _send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 185, in __call__
+stackpilot-api  |     with collapse_excgroups():
+stackpilot-api  |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+stackpilot-api  |     self.gen.throw(typ, value, traceback)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+stackpilot-api  |     raise exc
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 187, in __call__
+stackpilot-api  |     response = await self.dispatch_func(request, call_next)
+stackpilot-api  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/app/app.py", line 160, in request_logger
+stackpilot-api  |     response = await call_next(request)
+stackpilot-api  |                ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 163, in call_next
+stackpilot-api  |     raise app_exc
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 149, in coro
+stackpilot-api  |     await self.app(scope, receive_or_disconnect, send_no_error)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+stackpilot-api  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  |     raise exc
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  |     await app(scope, receive, sender)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+stackpilot-api  |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+stackpilot-api  |     await route.handle(scope, receive, send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+stackpilot-api  |     await self.app(scope, receive, send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+stackpilot-api  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  |     raise exc
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  |     await app(scope, receive, sender)
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+stackpilot-api  |     response = await f(request)
+stackpilot-api  |                ^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+stackpilot-api  |     raw_response = await run_endpoint_function(
+stackpilot-api  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+stackpilot-api  |     return await run_in_threadpool(dependant.call, **values)
+stackpilot-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+stackpilot-api  |     return await anyio.to_thread.run_sync(func, *args)
+stackpilot-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
+stackpilot-api  |     return await get_async_backend().run_sync_in_worker_thread(
+stackpilot-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+stackpilot-api  |     return await future
+stackpilot-api  |            ^^^^^^^^^^^^
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+stackpilot-api  |     result = context.run(func, *args)
+stackpilot-api  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  |   File "/app/app.py", line 376, in create_order
+stackpilot-api  |     cur.execute(
+stackpilot-api  |   File "/usr/local/lib/python3.11/site-packages/psycopg/cursor.py", line 97, in execute
+stackpilot-api  |     raise ex.with_traceback(None)
+stackpilot-api  | psycopg.errors.UndefinedTable: relation "orders" does not exist
+stackpilot-api  | LINE 2:                 INSERT INTO orders (id, symbol, side, qty, s...
+stackpilot-api  |                                     ^
+stackpilot-api  | INFO:     Shutting down
+stackpilot-api  | INFO:     Waiting for application shutdown.
+stackpilot-api  | INFO:     Application shutdown complete.
+stackpilot-api  | INFO:     Finished server process [1]
+stackpilot-api  | INFO:     Started server process [1]
+stackpilot-api  | INFO:     Waiting for application startup.
+stackpilot-api  | event='startup' ts=1771099141 service='mock-exchange' version='0.2.0' env='dev' git_sha='unknown'
+stackpilot-api  | INFO:     Application startup complete.
+stackpilot-api  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+stackpilot-api  | event='request' ts=1771099175 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:21859 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099176 method='GET' path='/ready' status=200 latency_ms=15
+stackpilot-api  | INFO:     102.88.54.169:25298 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099178 method='GET' path='/version' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:9091 - "GET /version HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771099179 order_id='a53d6ad8-1efd-4e5b-b24a-bcdd7d7099d3' symbol='BTC' side='buy' qty=1.0
+stackpilot-api  | event='request' ts=1771099179 method='POST' path='/order' status=200 latency_ms=18
+stackpilot-api  | INFO:     102.88.54.169:4331 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771099180 order_id='3bb9c91b-95dd-4d8a-a126-4716ca5fc17b' symbol='ETH' side='sell' qty=2.0
+stackpilot-api  | event='request' ts=1771099180 method='POST' path='/order' status=200 latency_ms=17
+stackpilot-api  | INFO:     102.88.54.169:2190 - "POST /order?symbol=ETH&side=sell&qty=2 HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099313 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:4532 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099314 method='GET' path='/ready' status=200 latency_ms=12
+stackpilot-api  | INFO:     102.88.54.169:8052 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099315 method='GET' path='/version' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:21516 - "GET /version HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771099316 order_id='eaa9e419-d8b9-4f72-8c8a-dfbfab3c8346' symbol='BTC' side='buy' qty=1.0
+stackpilot-api  | event='request' ts=1771099316 method='POST' path='/order' status=200 latency_ms=18
+stackpilot-api  | INFO:     102.88.54.169:3877 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771099317 order_id='ad10aab6-84d1-44d1-82cf-798e825573b4' symbol='ETH' side='sell' qty=2.0
+stackpilot-api  | event='request' ts=1771099317 method='POST' path='/order' status=200 latency_ms=17
+stackpilot-api  | INFO:     102.88.54.169:8053 - "POST /order?symbol=ETH&side=sell&qty=2 HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771099318 order_id='b72dc48f-6e92-4a90-9a1d-a0943d893873' symbol='BTC' side='sell' qty=0.5
+stackpilot-api  | event='request' ts=1771099318 method='POST' path='/order' status=200 latency_ms=16
+stackpilot-api  | INFO:     102.88.54.169:2255 - "POST /order?symbol=BTC&side=sell&qty=0.5 HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099320 method='GET' path='/orders/eaa9e419-d8b9-4f72-8c8a-dfbfab3c8346' status=200 latency_ms=15
+stackpilot-api  | INFO:     102.88.54.169:6790 - "GET /orders/eaa9e419-d8b9-4f72-8c8a-dfbfab3c8346 HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099321 method='GET' path='/orders/ad10aab6-84d1-44d1-82cf-798e825573b4' status=200 latency_ms=16
+stackpilot-api  | INFO:     102.88.54.169:7026 - "GET /orders/ad10aab6-84d1-44d1-82cf-798e825573b4 HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771099322 method='GET' path='/orders/b72dc48f-6e92-4a90-9a1d-a0943d893873' status=200 latency_ms=15
+stackpilot-api  | INFO:     102.88.54.169:7026 - "GET /orders/b72dc48f-6e92-4a90-9a1d-a0943d893873 HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100179 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:3177 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100180 method='GET' path='/ready' status=200 latency_ms=12
+stackpilot-api  | INFO:     102.88.54.169:8940 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100181 method='GET' path='/version' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:3492 - "GET /version HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100185 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:1477 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100186 method='GET' path='/ready' status=503 latency_ms=4
+stackpilot-api  | INFO:     102.88.54.169:1620 - "GET /ready HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='request' ts=1771100186 method='GET' path='/ready' status=503 latency_ms=3
+stackpilot-api  | INFO:     102.88.54.169:3493 - "GET /ready HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='db_connect_failed' ts=1771100187
+stackpilot-api  | event='request' ts=1771100187 method='POST' path='/order' status=503 latency_ms=3
+stackpilot-api  | INFO:     102.88.54.169:9140 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='request' ts=1771100192 method='GET' path='/ready' status=200 latency_ms=24
+stackpilot-api  | INFO:     102.88.54.169:4269 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100193 method='GET' path='/ready' status=200 latency_ms=13
+stackpilot-api  | INFO:     102.88.54.169:4544 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771100193 order_id='cd4276f4-3d67-4ab3-8326-e2a210c1a56a' symbol='BTC' side='buy' qty=1.0
+stackpilot-api  | event='request' ts=1771100193 method='POST' path='/order' status=200 latency_ms=18
+stackpilot-api  | INFO:     102.88.54.169:7336 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100284 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:2043 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100284 method='GET' path='/ready' status=200 latency_ms=14
+stackpilot-api  | INFO:     102.88.54.169:8795 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100285 method='GET' path='/version' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:7899 - "GET /version HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100289 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:7013 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100290 method='GET' path='/ready' status=503 latency_ms=3
+stackpilot-api  | INFO:     102.88.54.169:7013 - "GET /ready HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='request' ts=1771100291 method='GET' path='/ready' status=503 latency_ms=2
+stackpilot-api  | INFO:     102.88.54.169:21648 - "GET /ready HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='db_connect_failed' ts=1771100291
+stackpilot-api  | event='request' ts=1771100291 method='POST' path='/order' status=503 latency_ms=3
+stackpilot-api  | INFO:     102.88.54.169:2924 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='request' ts=1771100296 method='GET' path='/ready' status=200 latency_ms=23
+stackpilot-api  | INFO:     102.88.54.169:2287 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100297 method='GET' path='/ready' status=200 latency_ms=14
+stackpilot-api  | INFO:     102.88.54.169:2842 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771100297 order_id='d524c582-71e6-459b-9d8e-8d0ed5c6f694' symbol='BTC' side='buy' qty=1.0
+stackpilot-api  | event='request' ts=1771100297 method='POST' path='/order' status=200 latency_ms=16
+stackpilot-api  | INFO:     102.88.54.169:1131 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100530 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:1425 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100531 method='GET' path='/ready' status=200 latency_ms=13
+stackpilot-api  | INFO:     102.88.54.169:7169 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100532 method='GET' path='/version' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:8184 - "GET /version HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100536 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | INFO:     102.88.54.169:7324 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100537 method='GET' path='/ready' status=503 latency_ms=3
+stackpilot-api  | INFO:     102.88.54.169:2954 - "GET /ready HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='request' ts=1771100538 method='GET' path='/ready' status=503 latency_ms=3
+stackpilot-api  | INFO:     102.88.54.169:25176 - "GET /ready HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='db_connect_failed' ts=1771100538
+stackpilot-api  | event='request' ts=1771100538 method='POST' path='/order' status=503 latency_ms=3
+stackpilot-api  | INFO:     102.88.54.169:2047 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 503 Service Unavailable
+stackpilot-api  | event='request' ts=1771100543 method='GET' path='/ready' status=200 latency_ms=21
+stackpilot-api  | INFO:     102.88.54.169:1454 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='request' ts=1771100544 method='GET' path='/ready' status=200 latency_ms=15
+stackpilot-api  | INFO:     102.88.54.169:4361 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | event='order_created' ts=1771100544 order_id='4a3b8ff3-aedc-4191-aaed-31ff3b50fcb7' symbol='BTC' side='buy' qty=1.0
+stackpilot-api  | event='request' ts=1771100544 method='POST' path='/order' status=200 latency_ms=17
+stackpilot-api  | INFO:     102.88.54.169:7625 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 200 OK

@@ -122,3 +122,70 @@ Milestone 04 — Failure Matrix (CI + Terraform Layer)
 | T04-12 | G-04-01 | False confidence | Manual plan works, CI fails | CI logs | Fix until CI passes | CI run |
 
 ---
+
+
+Good. This needs to follow the exact same structure and tone: authoritative, mapped, invariant-driven, no ambiguity.
+
+Below is Milestone 05 — Failure Matrix (Cloud Deployment & Explicit Verification Layer) written in the same format.
+
+⸻
+
+Milestone 05 — AWS Host Deployment & Explicit Verification
+
+This section covers cloud deployment failures only.
+
+If any issue here exists, cloud verification is invalid.
+Local success does not imply AWS correctness.
+
+Verification must rely only on:
+
+artifacts/aws/target.env
+
+Terraform outputs must not be queried during verification.
+
+⸻
+
+Milestone 05 — Failure Matrix (Mapped)
+
+ID	Guarantee	Issue	Symptom	Checks	Fix	Verify
+T05-01	| G-05-01	| AWS identity invalid	| make aws-sts fails  | aws sts get-caller-identity	| Reconfigure AWS credentials |	make aws-sts
+T05-02	| G-05-02	| Security group blocks SSH	| ssh: connection timed out	| nc -zv <ip> 22	| Update operator IP via make aws-ip + reapply	| make aws-run
+T05-03	| G-05-02	| Security group blocks API	| TCP to 8000 fails	| nc -zv <ip> 8000	| Ensure port 8000 open from operator CIDR	| make verify-aws
+T05-04	| G-05-03	| target.env missing	| verify-aws exits immediately	| ls artifacts/aws/target.env	| Regenerate via target-env script	| make verify-aws
+T05-05	| G-05-03	| target.env stale	Wrong IP used	| Compare with AWS console / aws ec2 describe-instances	| Re-run target-env generation	| make verify-aws
+T05-06	| G-05-04	| Docker not installed on host	| Compose fails remotely	| SSH → docker --version	| Fix cloud-init provisioning	| make aws-run
+T05-07	| G-05-04	| Containers not running	| /health fails	SSH → docker compose ps	| Inspect logs, fix compose config	| make verify-aws
+T05-08	| G-05-05	| API binds wrong address	| Works via localhost, not public IP	| SSH → ss -lntp	| Bind API to 0.0.0.0	make verify-aws
+T05-09	| G-05-06	| Readiness dishonest in AWS	| /ready returns 200 when DB stopped	| Stop DB + curl	| Fix readiness DB check	make verify-aws
+T05-11	| G-05-07   | Persistence broken in cloud	| Data lost after restart	| Restart containers + query DB	| Fix volume declaration	make verify-aws
+T05-12	| G-05-08	| Terraform destroy incomplete	| Resources remain after destroy	| aws ec2 describe-instances	Fix terraform state / lifecycle	make aws-destroy
+T05-13	| G-05-09	| verify-aws queries terraform	| Verification depends on outputs	| Inspect verify script	Remove terraform output usage	make verify-aws
+T05-14	| G-05-10	| Manual console drift	|Console changes infra | AWS console audit | Re-apply Terraform; no console edits allowed  | make aws-run
+T05-15	| G-05-11	| Script depends on exported vars	| verify-aws fails unless manual export	| Inspect script header	| Source target.env internally	| make verify-aws
+T05-16	| G-05-12	| DB schema missing in cloud	| 500 on order create	| SSH → psql \dt	| Ensure schema creation step exists in deployment	| make verify-aws
+T05-17	| G-05-13	| Instance recreated, IP changed	| SSH fails unexpectedly	| Compare IP vs target.env	| Regenerate target.env after apply	| make verify-aws
+T05-18	| G-05-14	| Failure drill invalid	| /ready never flips during DB kill	| Run drill + monitor	| Fix dependency handling	| Run drill again
+T05-19	| G-05-15	| Destroy inside aws-run breaks flow	| make aws-run ends with error 127	| Inspect Makefile sequence	| Ensure destroy occurs in correct stage	| make aws-run
+T05-20	| G-05-03	| BASE_URL undefined in drill	| Script errors: BASE_URL required	| echo $BASE_URL	| Source target.env inside drill script	| Run drill
+
+
+⸻
+
+Milestone 05 Exit Check
+
+A reviewer must be able to run:
+
+make aws-sts
+make aws-run
+make verify-aws
+make aws-destroy
+
+Without:
+	•	Manual exports
+	•	Console clicking
+	•	Manual SSH patching
+	•	Direct terraform output queries
+	•	Editing cloud resources by hand
+
+If any of the above is required, Milestone 05 is not complete.
+
