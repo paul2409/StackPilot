@@ -40,3 +40,18 @@ G-05-12 Schema existence is validated | scripts/aws/verify-aws.sh | make verify-
 G-05-13 Re-apply after destroy is deterministic | Makefile,scripts/aws/aws-run-safe.sh | make aws-run | apply → verify → destroy cycle must be repeatable without manual intervention
 G-05-14 Cloud failure drills behave honestly | scripts/aws/drills/kill-db-midflight.sh | run drill | DB outage must flip readiness only; recovery must restore readiness
 G-05-15 Lifecycle safety enforces destroy | scripts/aws/aws-run-safe.sh | make aws-run | Destroy must execute even if verify fails; no orphaned infrastructure
+
+G-06-01 CI delivery blocks on validation | .github/workflows/stackpilot-delivery.yml | GitHub Actions run | Deliver job must use needs: validate; infra must never provision if repo gates fail
+G-06-02 Delivery is manual and serialized | .github/workflows/stackpilot-delivery.yml | GitHub Actions concurrency view | Workflow must run via workflow_dispatch; concurrency lock must allow only one active delivery
+G-06-03 Destroy is unconditional | scripts/aws/aws-cycle-debug.sh | make aws-cycle | Terraform destroy must run via EXIT trap even if deploy or verify fails
+G-06-04 Cleanup proof is mandatory | scripts/aws/cleanup-check.sh | make aws-clean-check | After destroy, no tagged EC2, volumes, or security groups may remain
+G-06-05 CI AWS identity is explicit | scripts/aws/sts-checks.sh,.github/workflows/stackpilot-delivery.yml | make aws-sts | CI must use GitHub Secrets credentials; sts-check must pass without AWS_PROFILE assumption
+G-06-06 SSH key handling is non-leaking | scripts/aws/aws-keygen.sh,.github/workflows/stackpilot-delivery.yml | GitHub Actions logs | Private key must never appear in logs; no set -x around key material
+G-06-07 target.env is artifact authority | scripts/aws/target-env.sh | make aws-cycle | deploy and verify must source artifacts/aws/target.env; no manual exports
+G-06-08 Deployment success requires runtime health | scripts/aws/deploy-aws.sh | make deploy-aws | deploy must poll /health with deadline; false-success (container up but app dead) is invalid
+G-06-09 Logs are always inspectable | .github/workflows/stackpilot-delivery.yml | GitHub Actions artifacts | artifacts/ must upload on success and failure using if: always()
+G-06-10 Destroy order is dependency-safe | infra/aws/tf/main.tf,scripts/aws/tf-destroy.sh | make aws-destroy | EC2 must be destroyed before security groups; Terraform graph must prevent dependency errors
+G-06-11 Makefile remains authoritative | Makefile,.github/workflows/stackpilot-delivery.yml | make aws-cycle | Workflow must not call raw terraform; all operations routed through Make targets
+G-06-12 No console drift allowed in CI lifecycle | docs/runbooks/milestone06.md | make aws-run | Infrastructure state must be exclusively Terraform-managed; console edits invalidate proof
+G-06-13 Human interaction is not required | scripts/aws/aws-cycle-debug.sh | GitHub Actions run | Delivery must complete without manual SSH, console edits, or interactive prompts
+

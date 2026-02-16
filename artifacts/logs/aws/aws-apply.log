@@ -1,7 +1,7 @@
-data.aws_ssm_parameter.ubuntu_2204_ami: Reading...
 data.aws_vpc.default: Reading...
-data.aws_ssm_parameter.ubuntu_2204_ami: Read complete after 2s [id=/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id]
-data.aws_vpc.default: Read complete after 3s [id=vpc-063790f15fa202b1f]
+data.aws_ssm_parameter.ubuntu_2204_ami: Reading...
+data.aws_ssm_parameter.ubuntu_2204_ami: Read complete after 1s [id=/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id]
+data.aws_vpc.default: Read complete after 2s [id=vpc-063790f15fa202b1f]
 data.aws_subnets.default_vpc_subnets: Reading...
 data.aws_subnets.default_vpc_subnets: Read complete after 0s [id=us-east-1]
 
@@ -34,7 +34,7 @@ Terraform will perform the following actions:
       + instance_type                        = "t2.micro"
       + ipv6_address_count                   = (known after apply)
       + ipv6_addresses                       = (known after apply)
-      + key_name                             = "stackpilot-ephemeral-20260216T132846Z"
+      + key_name                             = "stackpilot-ephemeral-20260216T151823Z"
       + monitoring                           = (known after apply)
       + outpost_arn                          = (known after apply)
       + password_data                        = (known after apply)
@@ -104,11 +104,11 @@ Terraform will perform the following actions:
       + arn             = (known after apply)
       + fingerprint     = (known after apply)
       + id              = (known after apply)
-      + key_name        = "stackpilot-ephemeral-20260216T132846Z"
+      + key_name        = "stackpilot-ephemeral-20260216T151823Z"
       + key_name_prefix = (known after apply)
       + key_pair_id     = (known after apply)
       + key_type        = (known after apply)
-      + public_key      = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICy6SHDp3zaWs2clhzd1qur1wQ/ShYm5PxXePTBmIQeI HP@DESKTOP-UCAJTP1"
+      + public_key      = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL6FcFwAWC3QUTae0+bdlO177Qh60oqGjHxGLpFX+qM6 HP@DESKTOP-UCAJTP1"
       + tags            = {
           + "Name" = "stackpilot-key"
         }
@@ -195,22 +195,21 @@ Changes to Outputs:
   + ssh_user          = "ubuntu"
 aws_key_pair.stackpilot: Creating...
 aws_security_group.stackpilot: Creating...
-aws_key_pair.stackpilot: Creation complete after 2s [id=stackpilot-ephemeral-20260216T132846Z]
-aws_security_group.stackpilot: Creation complete after 6s [id=sg-0c2a7511810363cd4]
+aws_key_pair.stackpilot: Creation complete after 2s [id=stackpilot-ephemeral-20260216T151823Z]
+aws_security_group.stackpilot: Creation complete after 7s [id=sg-0385bc41d93951570]
 aws_instance.stackpilot: Creating...
 aws_instance.stackpilot: Still creating... [00m10s elapsed]
 aws_instance.stackpilot: Still creating... [00m20s elapsed]
 aws_instance.stackpilot: Still creating... [00m30s elapsed]
-aws_instance.stackpilot: Still creating... [00m40s elapsed]
-aws_instance.stackpilot: Creation complete after 45s [id=i-02cab588b486f0e0e]
+aws_instance.stackpilot: Creation complete after 36s [id=i-0e51c80f93f85d194]
 
 Apply complete! Resources: 3 added, 0 changed, 0 destroyed.
 
 Outputs:
 
 api_port = 8000
-instance_id = "i-02cab588b486f0e0e"
-public_dns = "ec2-3-235-173-222.compute-1.amazonaws.com"
-public_ip = "3.235.173.222"
-security_group_id = "sg-0c2a7511810363cd4"
+instance_id = "i-0e51c80f93f85d194"
+public_dns = "ec2-44-221-62-88.compute-1.amazonaws.com"
+public_ip = "44.221.62.88"
+security_group_id = "sg-0385bc41d93951570"
 ssh_user = "ubuntu"

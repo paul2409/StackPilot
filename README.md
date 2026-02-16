@@ -277,3 +277,125 @@ The applications are intentionally simple.
 The value of the project lies in guarantees, verification, failure behavior, rebuildability, and recovery — not in application complexity.
 
 ⸻
+
+
+## Milestone 05 — AWS Host Deployment & Explicit Cloud Verification (v0.5)
+
+# Goal
+
+Extend StackPilot beyond the local lab and prove that the same guarantees hold on real cloud infrastructure.
+
+This milestone introduces AWS-backed infrastructure managed exclusively through Terraform and verified through explicit, artifact-driven scripts.
+
+Cloud success is not defined by “instance running.”
+It is defined by executable verification.
+
+⸻
+
+# What This Milestone Demonstrates
+
+• Terraform-managed AWS infrastructure (no console edits)
+• Explicit AWS identity validation before execution
+• Operator IP-restricted security groups (no 0.0.0.0/0 exposure)
+• Deterministic EC2 convergence via bootstrap
+• Deployment of the Dockerized service onto a real EC2 host
+• Cloud verification driven only by artifacts (target.env)
+• Separation between local verify and cloud verify
+• Cloud readiness semantics identical to local semantics
+• Proven data persistence across container restart in cloud
+• Terraform destroy leaves no tagged residue
+• Apply → Verify → Destroy cycle is repeatable
+
+⸻
+
+# What “Working” Means
+
+The system is considered working only if all of the following are true:
+
+• make aws-sts validates AWS identity before any Terraform operation
+• make aws-run provisions infrastructure without manual console steps
+• artifacts/aws/target.env is generated and used as the single source of cloud truth
+• make verify-aws passes without manual exports
+• /health and /ready behave identically to local lab semantics
+• Data persists across container restarts in cloud
+• make aws-destroy removes all EC2 instances and tagged volumes
+• No AWS console modifications are required
+• Re-running apply after destroy behaves deterministically
+
+If any manual console intervention is required, the milestone is not complete.
+
+⸻
+
+# Runbooks
+
+• docs/runbooks/milestone05.md
+• docs/runbooks/troubleshooting.md
+
+⸻
+
+# Tag
+
+v0.5 — AWS Host Deployment & Explicit Cloud Verification
+
+⸻
+
+## Milestone 06 — CI Delivery Authority & Deterministic Lifecycle (v0.6)
+
+# Goal
+
+Transfer infrastructure lifecycle authority from the human operator to CI.
+
+This milestone proves that provisioning, deployment, verification, and destruction can execute deterministically without human involvement.
+
+CI becomes the delivery authority.
+
+⸻
+
+# What This Milestone Demonstrates
+
+• CI-driven Terraform apply
+• CI-driven remote deployment
+• CI-driven runtime verification
+• Unconditional destroy execution (even on failure)
+• Cleanup verification after destroy
+• Manual-only trigger policy for budget control
+• Concurrency lock (one delivery at a time)
+• Timeout enforcement to prevent budget burn
+• Artifact-driven cloud targeting inside CI
+• No interactive prompts during delivery
+• Makefile remains the single execution interface
+
+⸻
+
+# What “Working” Means
+
+The system is considered working only if all of the following are true:
+
+• The delivery workflow can be triggered manually in GitHub
+• Validation runs before any infrastructure provisioning
+• Infrastructure provisions successfully
+• Deployment completes successfully
+• Verification passes against the live endpoint
+• Destroy executes even if verification fails
+• Cleanup check confirms zero tagged resources remain
+• No manual SSH is required
+• No AWS console edits are required
+• No manual environment exports are required
+• Logs are inspectable via GitHub Actions artifacts
+
+If infrastructure remains after workflow completion, the milestone is not complete.
+
+⸻
+
+# Runbooks
+
+• docs/runbooks/milestone06.md
+• docs/runbooks/troubleshooting.md
+
+⸻
+
+# Tag
+
+v0.6 — CI Delivery Authority & Deterministic Lifecycle
+
+⸻

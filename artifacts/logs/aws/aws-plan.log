@@ -1,9 +1,9 @@
-data.aws_ssm_parameter.ubuntu_2204_ami: Reading...
 data.aws_vpc.default: Reading...
+data.aws_ssm_parameter.ubuntu_2204_ami: Reading...
 data.aws_ssm_parameter.ubuntu_2204_ami: Read complete after 1s [id=/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id]
 data.aws_vpc.default: Read complete after 3s [id=vpc-063790f15fa202b1f]
 data.aws_subnets.default_vpc_subnets: Reading...
-data.aws_subnets.default_vpc_subnets: Read complete after 0s [id=us-east-1]
+data.aws_subnets.default_vpc_subnets: Read complete after 1s [id=us-east-1]
 
 Terraform used the selected providers to generate the following execution
 plan. Resource actions are indicated with the following symbols:
@@ -34,7 +34,7 @@ Terraform will perform the following actions:
       + instance_type                        = "t2.micro"
       + ipv6_address_count                   = (known after apply)
       + ipv6_addresses                       = (known after apply)
-      + key_name                             = "stackpilot-ephemeral-20260216T132846Z"
+      + key_name                             = "stackpilot-ephemeral-20260216T151823Z"
       + monitoring                           = (known after apply)
       + outpost_arn                          = (known after apply)
       + password_data                        = (known after apply)
@@ -104,11 +104,11 @@ Terraform will perform the following actions:
       + arn             = (known after apply)
       + fingerprint     = (known after apply)
       + id              = (known after apply)
-      + key_name        = "stackpilot-ephemeral-20260216T132846Z"
+      + key_name        = "stackpilot-ephemeral-20260216T151823Z"
       + key_name_prefix = (known after apply)
       + key_pair_id     = (known after apply)
       + key_type        = (known after apply)
-      + public_key      = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICy6SHDp3zaWs2clhzd1qur1wQ/ShYm5PxXePTBmIQeI HP@DESKTOP-UCAJTP1"
+      + public_key      = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL6FcFwAWC3QUTae0+bdlO177Qh60oqGjHxGLpFX+qM6 HP@DESKTOP-UCAJTP1"
       + tags            = {
           + "Name" = "stackpilot-key"
         }

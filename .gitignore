@@ -16,3 +16,6 @@ artifacts/aws
 infra/aws/tf/operator.auto.tfvars
 
 venv
+artifacts/aws/stackpilot_ci_key
+artifacts/aws/stackpilot_ci_key.pub
+artifacts/aws/run.tfvars

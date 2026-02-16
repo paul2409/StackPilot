@@ -22,7 +22,7 @@ jobs:
       - name: Setup Terraform (pin 1.5.x)
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.7
+          terraform_version: 1.5.0
           terraform_wrapper: false
 
       - name: Repo checks
@@ -56,7 +56,7 @@ jobs:
       - name: Setup Terraform (pin 1.5.x)
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.7
+          terraform_version: 1.5.0
           terraform_wrapper: false
 
       # Single entrypoint. Makefile + orchestrator handle everything:
@@ -75,3 +75,10 @@ jobs:
           path: artifacts/
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Remove private key before artifact upload (always)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f artifacts/aws/stackpilot_ci_key || true
