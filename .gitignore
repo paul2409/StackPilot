@@ -14,3 +14,5 @@ ci/logs/*
 
 artifacts/aws
 infra/aws/tf/operator.auto.tfvars
+
+venv

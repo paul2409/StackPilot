@@ -23,8 +23,46 @@ SCHEMA_HOST_PATH="$REMOTE_DIR/infra/db/init/001_schema.sql"
 # Where we put it INSIDE the db container
 SCHEMA_CONTAINER_PATH="/tmp/001_schema.sql"
 
-fail() { echo "FAIL: $*" >&2; exit 1; }
+ART_DIR="$ROOT_DIR/artifacts/logs/aws"
+REMOTE_LOG_FILE="${ART_DIR}/remote-docker.log"
+
+fail() { echo "FAIL: $*" >&2; collect_remote_logs || true; exit 1; }
 pass() { echo "PASS: $*"; }
+
+collect_remote_logs() {
+  mkdir -p "${ART_DIR}"
+  echo "== collecting remote docker logs ==" | tee "${REMOTE_LOG_FILE}" >/dev/null
+
+  ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "bash -lc '
+set -euo pipefail
+cd \"${REMOTE_DIR}\" 2>/dev/null || true
+
+echo \"=== date ===\"
+date || true
+echo
+
+echo \"=== whoami ===\"
+whoami || true
+echo
+
+echo \"=== docker ps ===\"
+sudo docker ps || true
+echo
+
+echo \"=== docker compose ps ===\"
+sudo docker compose -f \"${COMPOSE_FILE}\" ps || true
+echo
+
+echo \"=== docker compose logs (tail) ===\"
+sudo docker compose -f \"${COMPOSE_FILE}\" logs --no-color --tail=400 || true
+echo
+
+echo \"=== journalctl docker (tail) ===\"
+sudo journalctl -u docker --no-pager -n 200 || true
+'" >> "${REMOTE_LOG_FILE}" 2>&1 || true
+
+  echo "== remote logs saved: ${REMOTE_LOG_FILE} ==" >> "${REMOTE_LOG_FILE}" 2>/dev/null || true
+}
 
 echo "== target =="
 echo "BASE_URL=$BASE_URL"
@@ -39,23 +77,23 @@ fi
 pass "tcp reachable"
 
 echo "== ensure schema (idempotent) =="
-ssh -i "$SSH_KEY_PATH" "$SSH_USER@$TARGET_HOST" "
+ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "bash -lc '
 set -euo pipefail
-cd '$REMOTE_DIR'
+cd \"${REMOTE_DIR}\"
 
-test -f '$SCHEMA_HOST_PATH' || { echo 'schema file missing at $SCHEMA_HOST_PATH'; exit 2; }
+test -f \"${SCHEMA_HOST_PATH}\" || { echo \"schema file missing at ${SCHEMA_HOST_PATH}\"; exit 2; }
 
 # copy schema into db container
-docker compose -f '$COMPOSE_FILE' cp '$SCHEMA_HOST_PATH' db:$SCHEMA_CONTAINER_PATH
+sudo docker compose -f \"${COMPOSE_FILE}\" cp \"${SCHEMA_HOST_PATH}\" db:\"${SCHEMA_CONTAINER_PATH}\"
 
 # apply schema (safe to re-run if SQL uses IF NOT EXISTS / or create table guarded)
-docker compose -f '$COMPOSE_FILE' exec -T db \
-  psql -U stackpilot -d stackpilot -v ON_ERROR_STOP=1 -f '$SCHEMA_CONTAINER_PATH'
+sudo docker compose -f \"${COMPOSE_FILE}\" exec -T db \
+  psql -U stackpilot -d stackpilot -v ON_ERROR_STOP=1 -f \"${SCHEMA_CONTAINER_PATH}\"
 
-# prove table exists
-docker compose -f '$COMPOSE_FILE' exec -T db \
+# prove tables exist
+sudo docker compose -f \"${COMPOSE_FILE}\" exec -T db \
   psql -U stackpilot -d stackpilot -v ON_ERROR_STOP=1 -c \"\\dt public.*\"
-" || fail "schema ensure failed"
+'" || fail "schema ensure failed"
 pass "schema ensured"
 
 echo "== http checks =="
@@ -70,16 +108,17 @@ curl -fsS --max-time 5 "$BASE_URL/ready" >/dev/null || fail "/ready failed"
 pass "/ready ok"
 
 echo "== persistence check =="
-ORDER_ID="$(curl -fsS --max-time 10 -X POST "$BASE_URL/order?symbol=BTC&side=buy&qty=1" | python -c "import sys,json; print(json.load(sys.stdin)['order_id'])")"
+ORDER_ID="$(curl -fsS --max-time 10 -X POST "$BASE_URL/order?symbol=BTC&side=buy&qty=1" \
+  | python -c "import sys,json; print(json.load(sys.stdin).get('order_id',''))")"
 test -n "$ORDER_ID" || fail "order_id missing"
 pass "order created id=$ORDER_ID"
 
 # restart API container and ensure order still exists
-ssh -i "$SSH_KEY_PATH" "$SSH_USER@$TARGET_HOST" "
+ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "bash -lc '
 set -euo pipefail
-cd '$REMOTE_DIR'
-docker compose -f '$COMPOSE_FILE' restart api
-" || fail "api restart failed"
+cd \"${REMOTE_DIR}\"
+sudo docker compose -f \"${COMPOSE_FILE}\" restart api
+'" || fail "api restart failed"
 pass "api restarted"
 
 curl -fsS --max-time 10 "$BASE_URL/orders/$ORDER_ID" >/dev/null || fail "order fetch failed after restart"

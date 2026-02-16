@@ -19,14 +19,10 @@ data "aws_ssm_parameter" "ubuntu_2204_ami" {
   name = "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
 }
 
-# Read public key from local filesystem
-data "local_file" "ssh_pub" {
-  filename = var.ssh_public_key_path
-}
 
 resource "aws_key_pair" "stackpilot" {
   key_name   = var.ssh_key_name
-  public_key = trimspace(data.local_file.ssh_pub.content)
+  public_key = var.ssh_public_key
 
   tags = {
     Name = "stackpilot-key"
@@ -84,37 +80,58 @@ resource "aws_instance" "stackpilot" {
   }
 
   user_data = <<-EOF
-    #!/usr/bin/env bash
-    set -euo pipefail
+  #!/usr/bin/env bash
+  set -euo pipefail
 
-    export DEBIAN_FRONTEND=noninteractive
+  export DEBIAN_FRONTEND=noninteractive
 
-    # Basic tooling
-    apt-get update -y
-    apt-get install -y ca-certificates curl jq gnupg lsb-release rsync
+  # ----- wait for apt lock (first-boot race protection) -----
+  wait_for_apt() {
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+      sleep 3
+    done
+  }
 
-    # Docker official repo
-    install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    chmod a+r /etc/apt/keyrings/docker.gpg
+  # Basic tooling
+  wait_for_apt
+  apt-get update -y
+  wait_for_apt
+  apt-get install -y ca-certificates curl jq gnupg lsb-release rsync
 
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list
+  # Docker official repo
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+    | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  chmod a+r /etc/apt/keyrings/docker.gpg
 
-    apt-get update -y
+  echo "deb [arch=$(dpkg --print-architecture) \
+    signed-by=/etc/apt/keyrings/docker.gpg] \
+    https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    > /etc/apt/sources.list.d/docker.list
 
-    # Docker engine + compose plugin
-    apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  wait_for_apt
+  apt-get update -y
 
-    systemctl enable docker
-    systemctl start docker
+  # Docker engine + compose plugin
+  wait_for_apt
+  apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-    # Optional: allow ubuntu user to run docker without sudo
-    usermod -aG docker ubuntu || true
+  systemctl enable docker
+  systemctl start docker
 
-    # Marker file for bootstrap completion
-    echo "ok" > /opt/stackpilot_bootstrap_done.txt
-  EOF
+  # Allow ubuntu user to run docker without sudo
+  usermod -aG docker ubuntu || true
+
+  # Ensure docker is actually responsive before continuing
+  until docker info >/dev/null 2>&1; do
+    sleep 2
+  done
+
+  # Marker file for bootstrap completion
+  mkdir -p /opt
+  echo "ok" > /opt/stackpilot_bootstrap_done.txt
+EOF
 
   tags = {
     Name = "stackpilot"

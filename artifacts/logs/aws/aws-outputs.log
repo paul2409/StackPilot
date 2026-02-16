@@ -1,0 +1,6 @@
+api_port = 8000
+instance_id = "i-02cab588b486f0e0e"
+public_dns = "ec2-3-235-173-222.compute-1.amazonaws.com"
+public_ip = "3.235.173.222"
+security_group_id = "sg-0c2a7511810363cd4"
+ssh_user = "ubuntu"
