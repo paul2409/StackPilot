@@ -56,7 +56,6 @@ This section covers only service-level failures introduced by Docker, Compose, r
 
 Milestone 02 — Failure Matrix (Service Layer, Mapped)
 
-## Milestone 02 — Failure Matrix (Mapped)
 
 | ID | Guarantee | Issue | Symptom | Checks | Fix | Verify |
 | -- | --------- | ----- | ------- | ------ | --- | ------ |
@@ -78,7 +77,6 @@ Milestone 03 — Operational Hardening & Delivery Discipline
 
 Milestone 03 — Failure Matrix (Hardening Layer, Mapped)
 
-## Milestone 03 — Failure Matrix (Mapped)
 
 | ID | Guarantee | Issue | Symptom | Checks | Fix | Verify |
 | -- | --------- | ----- | ------- | ------ | --- | ------ |
@@ -104,7 +102,6 @@ Milestone 04 — CI Authority & Terraform Structure Enforcement
 
 Milestone 04 — Failure Matrix (CI + Terraform Layer)
 
-## Milestone 04 — Failure Matrix (Mapped)
 
 | ID | Guarantee | Issue | Symptom | Checks | Fix | Verify |
 | -- | --------- | ----- | ------- | ------ | --- | ------ |
@@ -124,11 +121,6 @@ Milestone 04 — Failure Matrix (CI + Terraform Layer)
 ---
 
 
-Good. This needs to follow the exact same structure and tone: authoritative, mapped, invariant-driven, no ambiguity.
-
-Below is Milestone 05 — Failure Matrix (Cloud Deployment & Explicit Verification Layer) written in the same format.
-
-⸻
 
 Milestone 05 — AWS Host Deployment & Explicit Verification
 
@@ -188,4 +180,62 @@ Without:
 	•	Editing cloud resources by hand
 
 If any of the above is required, Milestone 05 is not complete.
+
+
+
+Milestone 06 — CI Delivery Authority & Deterministic Lifecycle
+
+This section covers CI-driven lifecycle failures only.
+
+If any issue here exists, CI is not authoritative and lifecycle guarantees are invalid.
+
+Verification inside CI is the source of truth.
+
+⸻
+
+Milestone 06 — Failure Matrix (CI Lifecycle Layer, Mapped)
+
+ID | Guarantee | Issue | Symptom | Checks | Fix | Verify
+T06-01 | G-06-01 | Delivery runs without validation | Infra provisions despite repo failure | Inspect workflow job order | Ensure deliver uses needs: validate | GitHub Actions
+T06-02 | G-06-02 | Workflow auto-triggers | AWS infra spins up on push | Inspect workflow triggers | Restrict to workflow_dispatch only | GitHub Actions
+T06-03 | G-06-02 | Concurrency missing | Two deliveries run simultaneously | Inspect workflow concurrency block | Add concurrency group lock | GitHub Actions
+T06-04 | G-06-02 | No timeout enforcement | Job hangs and burns budget | Inspect workflow job config | Add timeout-minutes to jobs | GitHub Actions
+T06-05 | G-06-03 | Destroy not guaranteed | Verify fails and infra remains | Inspect orchestrator trap | Ensure destroy runs in EXIT trap | CI run
+T06-06 | G-06-03 | Cleanup not executed | Destroy runs but no cleanup proof | Inspect orchestrator sequence | Ensure cleanup runs after destroy | CI run
+T06-07 | G-06-04 | Cleanup script lies | Script prints PASS but resources exist | Manually run AWS describe queries | Fail if any resources returned | make aws-clean-check
+T06-08 | G-06-05 | CI uses wrong AWS identity | make aws-sts fails in CI | Inspect STS output | Ensure CI uses GitHub Secrets env creds | CI run
+T06-09 | G-06-05 | sts-check assumes profile | CI fails: AWS_PROFILE missing | Inspect sts-checks.sh | Allow env creds when AWS_ACCESS_KEY_ID set | make aws-sts
+T06-10 | G-06-06 | SSH key leaks in logs | Private key visible in CI logs | Inspect CI logs | Remove echo, avoid set -x | CI run
+T06-11 | G-06-06 | Per-run key not applied | SSH fails during deploy | Inspect run.tfvars | Ensure keygen + tfvars before plan | make aws-run
+T06-12 | G-06-07 | target.env missing | deploy fails: TARGET_HOST missing | ls artifacts/aws/target.env | Ensure aws-target runs in cycle | CI run
+T06-13 | G-06-07 | target.env not sourced | verify-aws requires manual export | Inspect script header | Source target.env internally | make verify-aws
+T06-14 | G-06-08 | Deploy false success | deploy passes but health fails | Inspect health polling logic | Enforce deadline + non-zero exit | make verify-aws
+T06-15 | G-06-09 | Logs not uploaded | CI fails without artifacts | Inspect upload step | Use if: always() for artifacts | CI run
+T06-16 | G-06-10 | Destroy order incorrect | SG destroy fails dependency | Inspect terraform graph | Ensure EC2 destroyed before SG | make aws-destroy
+T06-17 | G-06-10 | Terraform state drift | Destroy reports success but resource exists | terraform state list | Reconcile state, re-apply then destroy | make aws-destroy
+T06-18 | G-06-11 | Makefile bypassed | Raw terraform in workflow | Audit workflow YAML | Route all actions through Make targets | CI run
+T06-19 | G-06-12 | Console drift | Manual console edits break apply | AWS console audit | Re-apply Terraform, avoid console edits | make aws-run
+T06-20 | G-06-13 | Human required mid-run | CI pauses waiting for input | Inspect workflow steps | Remove interactive prompts | CI run
+
+⸻
+
+Milestone 06 Exit Check
+
+A reviewer must be able to:
+	1.	Trigger the workflow manually
+	2.	Observe provisioning
+	3.	Observe deployment
+	4.	Observe verification
+	5.	Observe destroy
+	6.	Observe cleanup confirmation
+
+Without:
+
+Manual SSH
+Console clicking
+Manual environment exports
+Editing CI secrets mid-run
+Running local fallback commands
+
+If any of the above is required, Milestone 06 is not complete.
 

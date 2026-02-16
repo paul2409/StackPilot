@@ -1,0 +1,117 @@
+== docker version ==
+Docker version 29.2.1, build a5c7197
+== docker info (short) ==
+Client: Docker Engine - Community
+ Version:    29.2.1
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.31.1
+    Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v5.0.2
+    Path:     /usr/libexec/docker/cli-plugins/docker-compose
+
+Server:
+ Containers: 2
+  Running: 2
+  Paused: 0
+  Stopped: 0
+ Images: 2
+ Server Version: 29.2.1
+ Storage Driver: overlayfs
+  driver-type: io.containerd.snapshotter.v1
+ Logging Driver: json-file
+ Cgroup Driver: systemd
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+ CDI spec directories:
+  /etc/cdi
+  /var/run/cdi
+ Swarm: inactive
+ Runtimes: runc io.containerd.runc.v2
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: dea7da592f5d1d2b7755e3a161be07f43fad8f75
+ runc version: v1.3.4-0-gd6d73eb8
+ init version: de40ad0
+ Security Options:
+  apparmor
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.8.0-1044-aws
+ Operating System: Ubuntu 22.04.5 LTS
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 1
+ Total Memory: 957.3MiB
+ Name: ip-172-31-75-51
+ ID: a7dfe083-9400-4d0a-9153-e854c60314e1
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Experimental: false
+ Insecure Registries:
+  ::1/128
+  127.0.0.0/8
+ Live Restore Enabled: false
+ Firewall Backend: iptables
+
+== systemctl docker status ==
+● docker.service - Docker Application Container Engine
+     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
+     Active: active (running) since Mon 2026-02-16 15:20:59 UTC; 1min 50s ago
+TriggeredBy: ● docker.socket
+       Docs: https://docs.docker.com
+   Main PID: 2590 (dockerd)
+      Tasks: 21
+     Memory: 125.4M
+        CPU: 4.735s
+     CGroup: /system.slice/docker.service
+             ├─2590 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+             ├─3543 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 8000 -container-ip 172.18.0.3 -container-port 8000 -use-listen-fd
+             └─3547 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 8000 -container-ip 172.18.0.3 -container-port 8000 -use-listen-fd
+
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.534684988Z" level=info msg="API listen on /run/docker.sock"
+Feb 16 15:20:59 ip-172-31-75-51 systemd[1]: Started Docker Application Container Engine.
+Feb 16 15:21:12 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:12.531330301Z" level=info msg="image pulled" digest="sha256:5660c2cbfea50c7a9127d17dc4e48543eedd3d7a41a595a2dfa572471e37e64c" remote="docker.io/library/postgres:16.4-alpine" spanID=5d940ac2f73e8e7b traceID=cab68a44c8eaf3912e7a46ed2c68d723
+Feb 16 15:21:17 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:17.312870463Z" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+Feb 16 15:21:17 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:17.883541184Z" level=info msg="sbJoin: gwep4 ''->'f601cb0858f5', gwep6 ''->''"
+Feb 16 15:21:25 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:25.601241338Z" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+Feb 16 15:21:25 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:25.836550971Z" level=info msg="sbJoin: gwep4 ''->'818baedaef37', gwep6 ''->''"
+Feb 16 15:21:26 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:26.185077116Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" span="exporting to image" spanID=55525866ff02fed9 traceID=211dbf30a8964af73bdc3bf91b65cb11
+Feb 16 15:21:31 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:31.335522920Z" level=info msg="sbJoin: gwep4 ''->'4671e88002be', gwep6 ''->''" eid=4671e88002be ep=stackpilot-db net=infra_default nid=be1e6d4ed327 spanID=2f2f8e14d8ff8a24 traceID=cab68a44c8eaf3912e7a46ed2c68d723
+Feb 16 15:21:37 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:37.091327762Z" level=info msg="sbJoin: gwep4 ''->'8b9025a60942', gwep6 ''->''" eid=8b9025a60942 ep=stackpilot-api net=infra_default nid=be1e6d4ed327 spanID=5e16ca7f6a5822c3 traceID=cab68a44c8eaf3912e7a46ed2c68d723
+== journalctl docker (tail 200) ==
+Feb 16 15:20:58 ip-172-31-75-51 systemd[1]: Starting Docker Application Container Engine...
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.720974866Z" level=info msg="Starting up"
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.722073566Z" level=info msg="OTEL tracing is not configured, using no-op tracer provider"
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.722158085Z" level=info msg="CDI directory does not exist, skipping: failed to monitor for changes: no such file or directory" dir=/etc/cdi
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.722172870Z" level=info msg="CDI directory does not exist, skipping: failed to monitor for changes: no such file or directory" dir=/var/run/cdi
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.722264734Z" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.885182119Z" level=info msg="Creating a containerd client" address=/run/containerd/containerd.sock timeout=1m0s
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.898598899Z" level=info msg="Loading containers: start."
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.898889631Z" level=info msg="NRI is disabled"
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.899062788Z" level=info msg="Starting daemon with containerd snapshotter integration enabled"
+Feb 16 15:20:58 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:58.904114898Z" level=info msg="Restoring containers: start."
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.006270385Z" level=info msg="Deleting nftables IPv4 rules" error="exit status 1"
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.011816022Z" level=info msg="Deleting nftables IPv6 rules" error="exit status 1"
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.469387767Z" level=info msg="Loading containers: done."
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.478139962Z" level=info msg="Docker daemon" commit=6bc6209 containerd-snapshotter=true storage-driver=overlayfs version=29.2.1
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.478450986Z" level=info msg="Initializing buildkit"
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.518762181Z" level=info msg="Completed buildkit initialization"
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.534641584Z" level=info msg="Daemon has completed initialization"
+Feb 16 15:20:59 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:20:59.534684988Z" level=info msg="API listen on /run/docker.sock"
+Feb 16 15:20:59 ip-172-31-75-51 systemd[1]: Started Docker Application Container Engine.
+Feb 16 15:21:12 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:12.531330301Z" level=info msg="image pulled" digest="sha256:5660c2cbfea50c7a9127d17dc4e48543eedd3d7a41a595a2dfa572471e37e64c" remote="docker.io/library/postgres:16.4-alpine" spanID=5d940ac2f73e8e7b traceID=cab68a44c8eaf3912e7a46ed2c68d723
+Feb 16 15:21:17 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:17.312870463Z" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+Feb 16 15:21:17 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:17.883541184Z" level=info msg="sbJoin: gwep4 ''->'f601cb0858f5', gwep6 ''->''"
+Feb 16 15:21:25 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:25.601241338Z" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+Feb 16 15:21:25 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:25.836550971Z" level=info msg="sbJoin: gwep4 ''->'818baedaef37', gwep6 ''->''"
+Feb 16 15:21:26 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:26.185077116Z" level=warning msg="forcibly turning on oci-mediatype mode for attestations" span="exporting to image" spanID=55525866ff02fed9 traceID=211dbf30a8964af73bdc3bf91b65cb11
+Feb 16 15:21:31 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:31.335522920Z" level=info msg="sbJoin: gwep4 ''->'4671e88002be', gwep6 ''->''" eid=4671e88002be ep=stackpilot-db net=infra_default nid=be1e6d4ed327 spanID=2f2f8e14d8ff8a24 traceID=cab68a44c8eaf3912e7a46ed2c68d723
+Feb 16 15:21:37 ip-172-31-75-51 dockerd[2590]: time="2026-02-16T15:21:37.091327762Z" level=info msg="sbJoin: gwep4 ''->'8b9025a60942', gwep6 ''->''" eid=8b9025a60942 ep=stackpilot-api net=infra_default nid=be1e6d4ed327 spanID=5e16ca7f6a5822c3 traceID=cab68a44c8eaf3912e7a46ed2c68d723

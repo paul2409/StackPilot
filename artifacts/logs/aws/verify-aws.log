@@ -1,0 +1,31 @@
+== AWS: verify external endpoints + persistence ==
+== target ==
+BASE_URL=http://3.235.173.222:8000
+TARGET_HOST=3.235.173.222
+API_PORT=8000
+== tcp check ==
+PASS: tcp reachable
+== ensure schema (idempotent) ==
+ stackpilot-db Copying /home/ubuntu/stackpilot/infra/db/init/001_schema.sql to stackpilot-db:/tmp/001_schema.sql
+ stackpilot-db Copied /home/ubuntu/stackpilot/infra/db/init/001_schema.sql to stackpilot-db:/tmp/001_schema.sql
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+          List of relations
+ Schema |  Name  | Type  |   Owner    
+--------+--------+-------+------------
+ public | orders | table | stackpilot
+(1 row)
+
+PASS: schema ensured
+== http checks ==
+PASS: /health ok
+PASS: /version ok
+PASS: /ready ok
+== persistence check ==
+PASS: order created id=846389b2-c423-46f5-a7f7-f2ca2de6275c
+ Container stackpilot-api Restarting 
+ Container stackpilot-api Started 
+PASS: api restarted
+PASS: persistence ok
+PASS: verify-aws

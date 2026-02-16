@@ -1,0 +1,9 @@
+make[1]: Entering directory 'C:/Projects/StackPilot'
+== AWS: cleanup verification ==
+== CLEANUP CHECK ==
+-- Instances --
+-- Volumes --
+-- Security Groups --
+NOTE: tables should be empty.
+PASS: cleanup-check
+make[1]: Leaving directory 'C:/Projects/StackPilot'

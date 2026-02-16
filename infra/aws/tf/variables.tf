@@ -19,13 +19,15 @@ variable "my_ip_cidr" {
   type        = string
 }
 
-variable "ssh_public_key_path" {
-  description = "Path to your SSH public key"
-  type        = string
-}
 
 variable "ssh_key_name" {
   description = "Name for EC2 key pair"
+  type        = string
+  default     = "stackpilot"
+
+}
+
+variable "ssh_public_key" {
   type        = string
   default     = "stackpilot"
 

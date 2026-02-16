@@ -74,13 +74,20 @@ DRILLS_DIR  := $(SCRIPTS_DIR)/drills
 AWS_DIR     := $(SCRIPTS_DIR)/aws
 
 # Terraform (local lab)
-TF_DIR      := $(ROOT_DIR)/infra/terraform
-CI_LOGS_DIR := $(ROOT_DIR)/ci/logs
+TF_DIR := $(ROOT_DIR)/infra/terraform
+
+# ----------------------------------------------------------
+# Unified artifact root (single CI forensic bundle)
+# ----------------------------------------------------------
+ARTIFACTS_DIR := $(ROOT_DIR)/artifacts
+AWS_ART_DIR   := $(ARTIFACTS_DIR)/aws
+AWS_LOGS_DIR  := $(ARTIFACTS_DIR)/logs/aws
+TF_LOGS_DIR   := $(ARTIFACTS_DIR)/logs/terraform
+CI_LOGS_DIR   := $(ARTIFACTS_DIR)/logs/ci
 
 # AWS (terraform in AWS)
-AWS_ENV      := $(ROOT_DIR)/infra/aws/aws.env
-AWS_TF_DIR   := $(ROOT_DIR)/infra/aws/tf
-AWS_LOGS_DIR := $(ROOT_DIR)/ci/logs/aws
+AWS_ENV    := $(ROOT_DIR)/infra/aws/aws.env
+AWS_TF_DIR := $(ROOT_DIR)/infra/aws/tf
 
 # ----------------------------------------------------------
 # Runtime parameters (overridable)
@@ -99,7 +106,7 @@ APP_IMAGE ?= infra-api:local
         vm-up vm-halt vm-destroy ssh status provision \
         drills drill-db \
         aws-sts aws-ip aws-init aws-validate aws-plan aws-plan-guarded aws-apply aws-destroy aws-cycle aws-clean-check \
-        aws-target deploy-aws verify-aws aws-run
+        aws-target deploy-aws verify-aws aws-run aws-remote-logs
 
 
 # ----------------------------------------------------------
@@ -136,6 +143,8 @@ help:
 	@echo "  make aws-clean-check Prove no leftover AWS resources (scripts/aws/cleanup-check.sh)"
 	@echo "  make aws-run         apply -> target -> deploy -> verify -> destroy -> clean-check"
 	@echo ""
+	@echo "Artifacts (single root):"
+	@echo "  $(ARTIFACTS_DIR)/"
 	@echo "Examples:"
 	@echo "  make up"
 	@echo "  make reviewer"
@@ -206,23 +215,23 @@ terraform-fmt:
 
 terraform-fmtcheck:
 	@echo "== TF: fmt (check) | infra/terraform =="
-	@mkdir -p "$(CI_LOGS_DIR)"
-	@terraform -chdir="$(TF_DIR)" fmt -check -diff | tee "$(CI_LOGS_DIR)/terraform-fmt.txt"
+	@mkdir -p "$(TF_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" fmt -check -diff | tee "$(TF_LOGS_DIR)/fmt.txt"
 
 terraform-init:
 	@echo "== TF: init | infra/terraform =="
-	@mkdir -p "$(CI_LOGS_DIR)"
-	@terraform -chdir="$(TF_DIR)" init -upgrade | tee "$(CI_LOGS_DIR)/terraform-init.txt"
+	@mkdir -p "$(TF_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" init -upgrade | tee "$(TF_LOGS_DIR)/init.txt"
 
 terraform-validate: terraform-init
 	@echo "== TF: validate | infra/terraform =="
-	@mkdir -p "$(CI_LOGS_DIR)"
-	@terraform -chdir="$(TF_DIR)" validate | tee "$(CI_LOGS_DIR)/terraform-validate.txt"
+	@mkdir -p "$(TF_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" validate | tee "$(TF_LOGS_DIR)/validate.txt"
 
 terraform-plan: terraform-init
 	@echo "== TF: plan | infra/terraform =="
-	@mkdir -p "$(CI_LOGS_DIR)"
-	@terraform -chdir="$(TF_DIR)" plan -no-color | tee "$(CI_LOGS_DIR)/terraform-plan.txt"
+	@mkdir -p "$(TF_LOGS_DIR)"
+	@terraform -chdir="$(TF_DIR)" plan -no-color | tee "$(TF_LOGS_DIR)/plan.txt"
 
 terraform-ci:
 	@echo "== TF: ci (fmt-check + validate) =="
@@ -346,6 +355,14 @@ provision: preflight
 # ----------------------------------------------------------
 # AWS commands (no console clicking)
 # ----------------------------------------------------------
+aws-keygen:
+	@echo "== AWS: generate ephemeral keypair =="
+	@bash "$(AWS_DIR)/keygen.sh"
+
+aws-run-tfvars: aws-keygen
+	@echo "== AWS: write run.tfvars (ephemeral key) =="
+	@bash "$(AWS_DIR)/write-run-tfvars.sh"
+
 aws-sts:
 	@echo "== AWS: STS identity check =="
 	@bash "$(AWS_DIR)/sts-checks.sh"
@@ -362,7 +379,7 @@ aws-validate: aws-init
 	@echo "== AWS: terraform validate =="
 	@bash "$(AWS_DIR)/tf-validate.sh"
 
-aws-plan: aws-ip aws-validate
+aws-plan: aws-run-tfvars aws-ip aws-validate
 	@echo "== AWS: terraform plan =="
 	@bash "$(AWS_DIR)/tf-plan.sh"
 
@@ -370,7 +387,8 @@ aws-plan-guarded: aws-plan
 	@echo "== AWS: plan guard =="
 	@bash "$(AWS_DIR)/plan-guard.sh"
 
-aws-apply: aws-plan
+# Note: keep as-is unless you want to enforce guarded plan in the chain:
+aws-apply: aws-plan-guarded
 	@echo "== AWS: terraform apply =="
 	@bash "$(AWS_DIR)/tf-apply.sh"
 
@@ -382,15 +400,9 @@ aws-clean-check:
 	@echo "== AWS: cleanup verification =="
 	@bash "$(AWS_DIR)/cleanup-check.sh"
 
-aws-cycle:
-	@echo "== AWS: full cycle (apply -> destroy -> clean-check) =="
-	@bash "$(AWS_DIR)/tf-apply.sh"
-	@bash "$(AWS_DIR)/tf-destroy.sh"
-	@bash "$(AWS_DIR)/cleanup-check.sh"
-	@echo "PASS: aws-cycle"
-
 aws-target: aws-apply
 	@echo "== AWS: write target.env =="
+	@mkdir -p "$(AWS_ART_DIR)"
 	@bash "$(AWS_DIR)/target-env.sh"
 
 deploy-aws: aws-target
@@ -401,5 +413,14 @@ verify-aws:
 	@echo "== AWS: verify external endpoints + persistence =="
 	@bash "$(AWS_DIR)/verify-aws.sh"
 
+aws-cycle:
+	@echo "== AWS: full lifecycle =="
+	@bash scripts/aws/aws-cycle.sh
+
 aws-run:
 	@bash "$(SCRIPTS_DIR)/aws/aws-run-safe.sh"
+
+aws-remote-logs:
+	@echo "== AWS: collect remote docker logs =="
+	@bash "$(AWS_DIR)/remote-logs.sh"
+

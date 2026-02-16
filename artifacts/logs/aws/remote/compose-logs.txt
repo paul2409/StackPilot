@@ -1,0 +1,472 @@
+stackpilot-api  | 2026-02-16T15:21:52.803943678Z event='request' ts=1771255312 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | 2026-02-16T15:21:52.803975356Z INFO:     102.67.23.92:63080 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:21:53.416574646Z event='request' ts=1771255313 method='GET' path='/ready' status=200 latency_ms=19
+stackpilot-api  | 2026-02-16T15:21:53.416597393Z INFO:     102.67.23.92:63081 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:21:54.017574796Z event='error' ts=1771255314 method='POST' path='/order' latency_ms=16 error='UndefinedTable'
+stackpilot-api  | 2026-02-16T15:21:54.017591229Z INFO:     102.67.23.92:63082 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 500 Internal Server Error
+stackpilot-api  | 2026-02-16T15:21:54.026294017Z ERROR:    Exception in ASGI application
+stackpilot-api  | 2026-02-16T15:21:54.026309014Z   + Exception Group Traceback (most recent call last):
+stackpilot-api  | 2026-02-16T15:21:54.026313716Z   |   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 77, in collapse_excgroups
+stackpilot-api  | 2026-02-16T15:21:54.026317814Z   |     yield
+stackpilot-api  | 2026-02-16T15:21:54.026321402Z   |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 186, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026325312Z   |     async with anyio.create_task_group() as task_group:
+stackpilot-api  | 2026-02-16T15:21:54.026329351Z   |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 783, in __aexit__
+stackpilot-api  | 2026-02-16T15:21:54.026333559Z   |     raise BaseExceptionGroup(
+stackpilot-api  | 2026-02-16T15:21:54.026354709Z   | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+stackpilot-api  | 2026-02-16T15:21:54.026358479Z   +-+---------------- 1 ----------------
+stackpilot-api  | 2026-02-16T15:21:54.026362005Z     | Traceback (most recent call last):
+stackpilot-api  | 2026-02-16T15:21:54.026365619Z     |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+stackpilot-api  | 2026-02-16T15:21:54.026369511Z     |     result = await app(  # type: ignore[func-returns-value]
+stackpilot-api  | 2026-02-16T15:21:54.026373101Z     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026376511Z     |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026380098Z     |     return await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026383492Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026400390Z     |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026404493Z     |     await super().__call__(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026407933Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026411507Z     |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026414982Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026418917Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026422323Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026425904Z     |     await self.app(scope, receive, _send)
+stackpilot-api  | 2026-02-16T15:21:54.026429363Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 185, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026432912Z     |     with collapse_excgroups():
+stackpilot-api  | 2026-02-16T15:21:54.026436293Z     |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+stackpilot-api  | 2026-02-16T15:21:54.026439784Z     |     self.gen.throw(typ, value, traceback)
+stackpilot-api  | 2026-02-16T15:21:54.026444311Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+stackpilot-api  | 2026-02-16T15:21:54.026447992Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026451373Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026454919Z     |     response = await self.dispatch_func(request, call_next)
+stackpilot-api  | 2026-02-16T15:21:54.026458426Z     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026461847Z     |   File "/app/app.py", line 160, in request_logger
+stackpilot-api  | 2026-02-16T15:21:54.026489182Z     |     response = await call_next(request)
+stackpilot-api  | 2026-02-16T15:21:54.026496248Z     |                ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026499728Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 163, in call_next
+stackpilot-api  | 2026-02-16T15:21:54.026503312Z     |     raise app_exc
+stackpilot-api  | 2026-02-16T15:21:54.026507043Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 149, in coro
+stackpilot-api  | 2026-02-16T15:21:54.026510601Z     |     await self.app(scope, receive_or_disconnect, send_no_error)
+stackpilot-api  | 2026-02-16T15:21:54.026514014Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026517587Z     |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026521107Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026524694Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026533185Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026536937Z     |     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:21:54.026540397Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026543925Z     |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026547325Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+stackpilot-api  | 2026-02-16T15:21:54.026550839Z     |     await route.handle(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026554284Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+stackpilot-api  | 2026-02-16T15:21:54.026557817Z     |     await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026561204Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+stackpilot-api  | 2026-02-16T15:21:54.026564753Z     |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026568307Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026571868Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026575740Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026579379Z     |     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:21:54.026582836Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+stackpilot-api  | 2026-02-16T15:21:54.026586334Z     |     response = await f(request)
+stackpilot-api  | 2026-02-16T15:21:54.026589724Z     |                ^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026593076Z     |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+stackpilot-api  | 2026-02-16T15:21:54.026596711Z     |     raw_response = await run_endpoint_function(
+stackpilot-api  | 2026-02-16T15:21:54.026600112Z     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026603475Z     |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+stackpilot-api  | 2026-02-16T15:21:54.026607059Z     |     return await run_in_threadpool(dependant.call, **values)
+stackpilot-api  | 2026-02-16T15:21:54.026610563Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026613957Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+stackpilot-api  | 2026-02-16T15:21:54.026617500Z     |     return await anyio.to_thread.run_sync(func, *args)
+stackpilot-api  | 2026-02-16T15:21:54.026620942Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026624377Z     |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
+stackpilot-api  | 2026-02-16T15:21:54.026627886Z     |     return await get_async_backend().run_sync_in_worker_thread(
+stackpilot-api  | 2026-02-16T15:21:54.026631286Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026637689Z     |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+stackpilot-api  | 2026-02-16T15:21:54.026641362Z     |     return await future
+stackpilot-api  | 2026-02-16T15:21:54.026644705Z     |            ^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026648044Z     |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+stackpilot-api  | 2026-02-16T15:21:54.026651589Z     |     result = context.run(func, *args)
+stackpilot-api  | 2026-02-16T15:21:54.026654990Z     |              ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026658361Z     |   File "/app/app.py", line 376, in create_order
+stackpilot-api  | 2026-02-16T15:21:54.026661833Z     |     cur.execute(
+stackpilot-api  | 2026-02-16T15:21:54.026665154Z     |   File "/usr/local/lib/python3.11/site-packages/psycopg/cursor.py", line 97, in execute
+stackpilot-api  | 2026-02-16T15:21:54.026668709Z     |     raise ex.with_traceback(None)
+stackpilot-api  | 2026-02-16T15:21:54.026672079Z     | psycopg.errors.UndefinedTable: relation "orders" does not exist
+stackpilot-api  | 2026-02-16T15:21:54.026675591Z     | LINE 2:                 INSERT INTO orders (id, symbol, side, qty, s...
+stackpilot-api  | 2026-02-16T15:21:54.026679110Z     |                                     ^
+stackpilot-api  | 2026-02-16T15:21:54.026684741Z     +------------------------------------
+stackpilot-api  | 2026-02-16T15:21:54.026688175Z 
+stackpilot-api  | 2026-02-16T15:21:54.026692031Z During handling of the above exception, another exception occurred:
+stackpilot-api  | 2026-02-16T15:21:54.026695513Z 
+stackpilot-api  | 2026-02-16T15:21:54.026698803Z Traceback (most recent call last):
+stackpilot-api  | 2026-02-16T15:21:54.026702154Z   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+stackpilot-api  | 2026-02-16T15:21:54.026705802Z     result = await app(  # type: ignore[func-returns-value]
+stackpilot-api  | 2026-02-16T15:21:54.026709222Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026712666Z   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026716229Z     return await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026719663Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026723029Z   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026726549Z     await super().__call__(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026729943Z   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026733546Z     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026736981Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026740581Z     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026743907Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026750321Z     await self.app(scope, receive, _send)
+stackpilot-api  | 2026-02-16T15:21:54.026753759Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 185, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026757311Z     with collapse_excgroups():
+stackpilot-api  | 2026-02-16T15:21:54.026760682Z   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+stackpilot-api  | 2026-02-16T15:21:54.026764161Z     self.gen.throw(typ, value, traceback)
+stackpilot-api  | 2026-02-16T15:21:54.026767498Z   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+stackpilot-api  | 2026-02-16T15:21:54.026771071Z     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026774349Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026777863Z     response = await self.dispatch_func(request, call_next)
+stackpilot-api  | 2026-02-16T15:21:54.026781250Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026784647Z   File "/app/app.py", line 160, in request_logger
+stackpilot-api  | 2026-02-16T15:21:54.026788170Z     response = await call_next(request)
+stackpilot-api  | 2026-02-16T15:21:54.026791528Z                ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026794905Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 163, in call_next
+stackpilot-api  | 2026-02-16T15:21:54.026798467Z     raise app_exc
+stackpilot-api  | 2026-02-16T15:21:54.026801861Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 149, in coro
+stackpilot-api  | 2026-02-16T15:21:54.026805706Z     await self.app(scope, receive_or_disconnect, send_no_error)
+stackpilot-api  | 2026-02-16T15:21:54.026809109Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026812645Z     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026816152Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026819719Z     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026822998Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026826595Z     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:21:54.026830040Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+stackpilot-api  | 2026-02-16T15:21:54.026833570Z     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026836964Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+stackpilot-api  | 2026-02-16T15:21:54.026840483Z     await route.handle(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026843957Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+stackpilot-api  | 2026-02-16T15:21:54.026847497Z     await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026850844Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+stackpilot-api  | 2026-02-16T15:21:54.026858827Z     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:21:54.026862467Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026866063Z     raise exc
+stackpilot-api  | 2026-02-16T15:21:54.026869342Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:21:54.026872863Z     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:21:54.026876220Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+stackpilot-api  | 2026-02-16T15:21:54.026879712Z     response = await f(request)
+stackpilot-api  | 2026-02-16T15:21:54.026883089Z                ^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026886480Z   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+stackpilot-api  | 2026-02-16T15:21:54.026889990Z     raw_response = await run_endpoint_function(
+stackpilot-api  | 2026-02-16T15:21:54.026893352Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026896716Z   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+stackpilot-api  | 2026-02-16T15:21:54.026900300Z     return await run_in_threadpool(dependant.call, **values)
+stackpilot-api  | 2026-02-16T15:21:54.026903806Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026907203Z   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+stackpilot-api  | 2026-02-16T15:21:54.026910750Z     return await anyio.to_thread.run_sync(func, *args)
+stackpilot-api  | 2026-02-16T15:21:54.026914462Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026917918Z   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
+stackpilot-api  | 2026-02-16T15:21:54.026921428Z     return await get_async_backend().run_sync_in_worker_thread(
+stackpilot-api  | 2026-02-16T15:21:54.026924798Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026928197Z   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+stackpilot-api  | 2026-02-16T15:21:54.026931759Z     return await future
+stackpilot-api  | 2026-02-16T15:21:54.026935097Z            ^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026938431Z   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+stackpilot-api  | 2026-02-16T15:21:54.026941983Z     result = context.run(func, *args)
+stackpilot-api  | 2026-02-16T15:21:54.026945308Z              ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:21:54.026948649Z   File "/app/app.py", line 376, in create_order
+stackpilot-api  | 2026-02-16T15:21:54.026952063Z     cur.execute(
+stackpilot-api  | 2026-02-16T15:21:54.026955388Z   File "/usr/local/lib/python3.11/site-packages/psycopg/cursor.py", line 97, in execute
+stackpilot-api  | 2026-02-16T15:21:54.026958915Z     raise ex.with_traceback(None)
+stackpilot-api  | 2026-02-16T15:21:54.026962258Z psycopg.errors.UndefinedTable: relation "orders" does not exist
+stackpilot-api  | 2026-02-16T15:21:54.026968341Z LINE 2:                 INSERT INTO orders (id, symbol, side, qty, s...
+stackpilot-api  | 2026-02-16T15:21:54.026971863Z                                     ^
+stackpilot-api  | 2026-02-16T15:22:37.196433369Z event='request' ts=1771255357 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | 2026-02-16T15:22:37.196466917Z INFO:     102.67.23.92:65258 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:22:37.706950872Z event='request' ts=1771255357 method='GET' path='/ready' status=200 latency_ms=14
+stackpilot-api  | 2026-02-16T15:22:37.706979295Z INFO:     102.67.23.92:65259 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:22:38.209520829Z event='error' ts=1771255358 method='POST' path='/order' latency_ms=14 error='UndefinedTable'
+stackpilot-api  | 2026-02-16T15:22:38.209594529Z INFO:     102.67.23.92:65260 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 500 Internal Server Error
+stackpilot-api  | 2026-02-16T15:22:38.213947050Z ERROR:    Exception in ASGI application
+stackpilot-api  | 2026-02-16T15:22:38.213962263Z   + Exception Group Traceback (most recent call last):
+stackpilot-api  | 2026-02-16T15:22:38.213967645Z   |   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 77, in collapse_excgroups
+stackpilot-api  | 2026-02-16T15:22:38.213972435Z   |     yield
+stackpilot-api  | 2026-02-16T15:22:38.213977150Z   |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 186, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.213981848Z   |     async with anyio.create_task_group() as task_group:
+stackpilot-api  | 2026-02-16T15:22:38.213986443Z   |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 783, in __aexit__
+stackpilot-api  | 2026-02-16T15:22:38.213990968Z   |     raise BaseExceptionGroup(
+stackpilot-api  | 2026-02-16T15:22:38.213995071Z   | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+stackpilot-api  | 2026-02-16T15:22:38.213999354Z   +-+---------------- 1 ----------------
+stackpilot-api  | 2026-02-16T15:22:38.214003419Z     | Traceback (most recent call last):
+stackpilot-api  | 2026-02-16T15:22:38.214022391Z     |   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+stackpilot-api  | 2026-02-16T15:22:38.214028150Z     |     result = await app(  # type: ignore[func-returns-value]
+stackpilot-api  | 2026-02-16T15:22:38.214032419Z     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214036592Z     |   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214041013Z     |     return await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214045141Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214049439Z     |   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214054044Z     |     await super().__call__(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214058401Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214062855Z     |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214074521Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214078579Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214081980Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214085604Z     |     await self.app(scope, receive, _send)
+stackpilot-api  | 2026-02-16T15:22:38.214089007Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 185, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214092557Z     |     with collapse_excgroups():
+stackpilot-api  | 2026-02-16T15:22:38.214096073Z     |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+stackpilot-api  | 2026-02-16T15:22:38.214099570Z     |     self.gen.throw(typ, value, traceback)
+stackpilot-api  | 2026-02-16T15:22:38.214103921Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+stackpilot-api  | 2026-02-16T15:22:38.214107604Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214111006Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214114553Z     |     response = await self.dispatch_func(request, call_next)
+stackpilot-api  | 2026-02-16T15:22:38.214118031Z     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214121446Z     |   File "/app/app.py", line 160, in request_logger
+stackpilot-api  | 2026-02-16T15:22:38.214125036Z     |     response = await call_next(request)
+stackpilot-api  | 2026-02-16T15:22:38.214128431Z     |                ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214131825Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 163, in call_next
+stackpilot-api  | 2026-02-16T15:22:38.214135435Z     |     raise app_exc
+stackpilot-api  | 2026-02-16T15:22:38.214138836Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 149, in coro
+stackpilot-api  | 2026-02-16T15:22:38.214142385Z     |     await self.app(scope, receive_or_disconnect, send_no_error)
+stackpilot-api  | 2026-02-16T15:22:38.214145803Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214149375Z     |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214152831Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214156458Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214159876Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214163479Z     |     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:22:38.214166844Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214170377Z     |     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214176533Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+stackpilot-api  | 2026-02-16T15:22:38.214180210Z     |     await route.handle(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214183599Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+stackpilot-api  | 2026-02-16T15:22:38.214187114Z     |     await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214190498Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+stackpilot-api  | 2026-02-16T15:22:38.214194053Z     |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214197530Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214201117Z     |     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214204712Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214208246Z     |     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:22:38.214211626Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+stackpilot-api  | 2026-02-16T15:22:38.214215122Z     |     response = await f(request)
+stackpilot-api  | 2026-02-16T15:22:38.214218488Z     |                ^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214221899Z     |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+stackpilot-api  | 2026-02-16T15:22:38.214225438Z     |     raw_response = await run_endpoint_function(
+stackpilot-api  | 2026-02-16T15:22:38.214228834Z     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214232226Z     |   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+stackpilot-api  | 2026-02-16T15:22:38.214235851Z     |     return await run_in_threadpool(dependant.call, **values)
+stackpilot-api  | 2026-02-16T15:22:38.214239293Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214242845Z     |   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+stackpilot-api  | 2026-02-16T15:22:38.214246586Z     |     return await anyio.to_thread.run_sync(func, *args)
+stackpilot-api  | 2026-02-16T15:22:38.214250013Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214253500Z     |   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
+stackpilot-api  | 2026-02-16T15:22:38.214257082Z     |     return await get_async_backend().run_sync_in_worker_thread(
+stackpilot-api  | 2026-02-16T15:22:38.214260532Z     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214264083Z     |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+stackpilot-api  | 2026-02-16T15:22:38.214267736Z     |     return await future
+stackpilot-api  | 2026-02-16T15:22:38.214271105Z     |            ^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214274408Z     |   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+stackpilot-api  | 2026-02-16T15:22:38.214279765Z     |     result = context.run(func, *args)
+stackpilot-api  | 2026-02-16T15:22:38.214283280Z     |              ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214286659Z     |   File "/app/app.py", line 376, in create_order
+stackpilot-api  | 2026-02-16T15:22:38.214290155Z     |     cur.execute(
+stackpilot-api  | 2026-02-16T15:22:38.214293498Z     |   File "/usr/local/lib/python3.11/site-packages/psycopg/cursor.py", line 97, in execute
+stackpilot-api  | 2026-02-16T15:22:38.214297123Z     |     raise ex.with_traceback(None)
+stackpilot-api  | 2026-02-16T15:22:38.214300539Z     | psycopg.errors.UndefinedTable: relation "orders" does not exist
+stackpilot-api  | 2026-02-16T15:22:38.214304048Z     | LINE 2:                 INSERT INTO orders (id, symbol, side, qty, s...
+stackpilot-api  | 2026-02-16T15:22:38.214307521Z     |                                     ^
+stackpilot-api  | 2026-02-16T15:22:38.214310995Z     +------------------------------------
+stackpilot-api  | 2026-02-16T15:22:38.214314361Z 
+stackpilot-api  | 2026-02-16T15:22:38.214318008Z During handling of the above exception, another exception occurred:
+stackpilot-api  | 2026-02-16T15:22:38.214321491Z 
+stackpilot-api  | 2026-02-16T15:22:38.214324771Z Traceback (most recent call last):
+stackpilot-api  | 2026-02-16T15:22:38.214328117Z   File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+stackpilot-api  | 2026-02-16T15:22:38.214331702Z     result = await app(  # type: ignore[func-returns-value]
+stackpilot-api  | 2026-02-16T15:22:38.214335129Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214338603Z   File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214342209Z     return await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214345603Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214348979Z   File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214352526Z     await super().__call__(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214355904Z   File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214359451Z     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214362894Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214366464Z     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214369814Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214373384Z     await self.app(scope, receive, _send)
+stackpilot-api  | 2026-02-16T15:22:38.214376793Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 185, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214380323Z     with collapse_excgroups():
+stackpilot-api  | 2026-02-16T15:22:38.214383729Z   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+stackpilot-api  | 2026-02-16T15:22:38.214389115Z     self.gen.throw(typ, value, traceback)
+stackpilot-api  | 2026-02-16T15:22:38.214392649Z   File "/usr/local/lib/python3.11/site-packages/starlette/_utils.py", line 83, in collapse_excgroups
+stackpilot-api  | 2026-02-16T15:22:38.214401168Z     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214404575Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 187, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214408097Z     response = await self.dispatch_func(request, call_next)
+stackpilot-api  | 2026-02-16T15:22:38.214411544Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214414959Z   File "/app/app.py", line 160, in request_logger
+stackpilot-api  | 2026-02-16T15:22:38.214418414Z     response = await call_next(request)
+stackpilot-api  | 2026-02-16T15:22:38.214421764Z                ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214425179Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 163, in call_next
+stackpilot-api  | 2026-02-16T15:22:38.214428734Z     raise app_exc
+stackpilot-api  | 2026-02-16T15:22:38.214432132Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/base.py", line 149, in coro
+stackpilot-api  | 2026-02-16T15:22:38.214435997Z     await self.app(scope, receive_or_disconnect, send_no_error)
+stackpilot-api  | 2026-02-16T15:22:38.214439457Z   File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214443060Z     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214446541Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214450142Z     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214453493Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214457081Z     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:22:38.214460484Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 715, in __call__
+stackpilot-api  | 2026-02-16T15:22:38.214464060Z     await self.middleware_stack(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214492676Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 735, in app
+stackpilot-api  | 2026-02-16T15:22:38.214496460Z     await route.handle(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214499994Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+stackpilot-api  | 2026-02-16T15:22:38.214503495Z     await self.app(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214506884Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+stackpilot-api  | 2026-02-16T15:22:38.214510396Z     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+stackpilot-api  | 2026-02-16T15:22:38.214513839Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214517378Z     raise exc
+stackpilot-api  | 2026-02-16T15:22:38.214520677Z   File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+stackpilot-api  | 2026-02-16T15:22:38.214527880Z     await app(scope, receive, sender)
+stackpilot-api  | 2026-02-16T15:22:38.214531439Z   File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+stackpilot-api  | 2026-02-16T15:22:38.214534998Z     response = await f(request)
+stackpilot-api  | 2026-02-16T15:22:38.214538386Z                ^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214541754Z   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+stackpilot-api  | 2026-02-16T15:22:38.214545260Z     raw_response = await run_endpoint_function(
+stackpilot-api  | 2026-02-16T15:22:38.214548703Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214552093Z   File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+stackpilot-api  | 2026-02-16T15:22:38.214555682Z     return await run_in_threadpool(dependant.call, **values)
+stackpilot-api  | 2026-02-16T15:22:38.214559068Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214562563Z   File "/usr/local/lib/python3.11/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+stackpilot-api  | 2026-02-16T15:22:38.214566163Z     return await anyio.to_thread.run_sync(func, *args)
+stackpilot-api  | 2026-02-16T15:22:38.214570056Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214573484Z   File "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
+stackpilot-api  | 2026-02-16T15:22:38.214577077Z     return await get_async_backend().run_sync_in_worker_thread(
+stackpilot-api  | 2026-02-16T15:22:38.214580475Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214583874Z   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+stackpilot-api  | 2026-02-16T15:22:38.214587466Z     return await future
+stackpilot-api  | 2026-02-16T15:22:38.214591066Z            ^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214594429Z   File "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+stackpilot-api  | 2026-02-16T15:22:38.214597984Z     result = context.run(func, *args)
+stackpilot-api  | 2026-02-16T15:22:38.214601363Z              ^^^^^^^^^^^^^^^^^^^^^^^^
+stackpilot-api  | 2026-02-16T15:22:38.214604789Z   File "/app/app.py", line 376, in create_order
+stackpilot-api  | 2026-02-16T15:22:38.214608241Z     cur.execute(
+stackpilot-api  | 2026-02-16T15:22:38.214611608Z   File "/usr/local/lib/python3.11/site-packages/psycopg/cursor.py", line 97, in execute
+stackpilot-api  | 2026-02-16T15:22:38.214615120Z     raise ex.with_traceback(None)
+stackpilot-api  | 2026-02-16T15:22:38.214618462Z psycopg.errors.UndefinedTable: relation "orders" does not exist
+stackpilot-api  | 2026-02-16T15:22:38.214621988Z LINE 2:                 INSERT INTO orders (id, symbol, side, qty, s...
+stackpilot-api  | 2026-02-16T15:22:38.214625415Z                                     ^
+stackpilot-api  | 2026-02-16T15:28:54.703649288Z event='request' ts=1771255734 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | 2026-02-16T15:28:54.703684426Z INFO:     102.67.23.92:62697 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:28:57.575506795Z event='request' ts=1771255737 method='GET' path='/ready' status=200 latency_ms=14
+stackpilot-api  | 2026-02-16T15:28:57.575535001Z INFO:     102.67.23.92:62698 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:30:47.727895956Z event='request' ts=1771255847 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | 2026-02-16T15:30:47.727930917Z INFO:     102.67.23.92:53911 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:30:48.268303471Z event='request' ts=1771255848 method='GET' path='/ready' status=200 latency_ms=14
+stackpilot-api  | 2026-02-16T15:30:48.268330794Z INFO:     102.67.23.92:53912 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:30:55.371773009Z event='order_created' ts=1771255855 order_id='7a9a1c58-b47b-4af8-b487-fec784b9e3c0' symbol='BTC' side='buy' qty=1.0
+stackpilot-api  | 2026-02-16T15:30:55.371794120Z event='request' ts=1771255855 method='POST' path='/order' status=200 latency_ms=18
+stackpilot-api  | 2026-02-16T15:30:55.371799738Z INFO:     102.67.23.92:53915 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:30:56.009788313Z event='request' ts=1771255856 method='GET' path='/orders/7a9a1c58-b47b-4af8-b487-fec784b9e3c0' status=200 latency_ms=16
+stackpilot-api  | 2026-02-16T15:30:56.009811669Z INFO:     102.67.23.92:53916 - "GET /orders/7a9a1c58-b47b-4af8-b487-fec784b9e3c0 HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:30:59.531236645Z INFO:     Shutting down
+stackpilot-api  | 2026-02-16T15:30:59.631894828Z INFO:     Waiting for application shutdown.
+stackpilot-api  | 2026-02-16T15:30:59.631919760Z INFO:     Application shutdown complete.
+stackpilot-api  | 2026-02-16T15:30:59.631925087Z INFO:     Finished server process [1]
+stackpilot-api  | 2026-02-16T15:31:01.455724842Z INFO:     Started server process [1]
+stackpilot-api  | 2026-02-16T15:31:01.455973081Z INFO:     Waiting for application startup.
+stackpilot-api  | 2026-02-16T15:31:01.456460851Z event='startup' ts=1771255861 service='mock-exchange' version='0.2.0' env='dev' git_sha='unknown'
+stackpilot-api  | 2026-02-16T15:31:01.456634213Z INFO:     Application startup complete.
+stackpilot-api  | 2026-02-16T15:31:01.465019516Z INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+stackpilot-api  | 2026-02-16T15:31:01.704534685Z event='request' ts=1771255861 method='GET' path='/health' status=200 latency_ms=1
+stackpilot-api  | 2026-02-16T15:31:01.704561655Z INFO:     102.67.23.92:53918 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:03.176408540Z event='request' ts=1771255863 method='GET' path='/ready' status=200 latency_ms=17
+stackpilot-api  | 2026-02-16T15:31:03.176432351Z INFO:     102.67.23.92:53919 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:03.729378897Z event='request' ts=1771255863 method='GET' path='/orders/7a9a1c58-b47b-4af8-b487-fec784b9e3c0' status=200 latency_ms=17
+stackpilot-api  | 2026-02-16T15:31:03.729408342Z INFO:     102.67.23.92:53920 - "GET /orders/7a9a1c58-b47b-4af8-b487-fec784b9e3c0 HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:21.326937459Z event='request' ts=1771255881 method='GET' path='/health' status=200 latency_ms=0
+stackpilot-api  | 2026-02-16T15:31:21.326978256Z INFO:     102.67.23.92:53446 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:21.846372384Z event='request' ts=1771255881 method='GET' path='/ready' status=200 latency_ms=15
+stackpilot-api  | 2026-02-16T15:31:21.846414336Z INFO:     102.67.23.92:53447 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:27.297402418Z event='order_created' ts=1771255887 order_id='3ae030c3-d850-44fa-b6a8-13ec975ff4d9' symbol='BTC' side='buy' qty=1.0
+stackpilot-api  | 2026-02-16T15:31:27.297424346Z event='request' ts=1771255887 method='POST' path='/order' status=200 latency_ms=17
+stackpilot-api  | 2026-02-16T15:31:27.297429089Z INFO:     102.67.23.92:53450 - "POST /order?symbol=BTC&side=buy&qty=1 HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:27.890686427Z event='request' ts=1771255887 method='GET' path='/orders/3ae030c3-d850-44fa-b6a8-13ec975ff4d9' status=200 latency_ms=16
+stackpilot-api  | 2026-02-16T15:31:27.890713577Z INFO:     102.67.23.92:53451 - "GET /orders/3ae030c3-d850-44fa-b6a8-13ec975ff4d9 HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:32.562862598Z INFO:     Shutting down
+stackpilot-api  | 2026-02-16T15:31:32.663557135Z INFO:     Waiting for application shutdown.
+stackpilot-api  | 2026-02-16T15:31:32.663585940Z INFO:     Application shutdown complete.
+stackpilot-api  | 2026-02-16T15:31:32.663590728Z INFO:     Finished server process [1]
+stackpilot-api  | 2026-02-16T15:31:34.442085079Z INFO:     Started server process [1]
+stackpilot-api  | 2026-02-16T15:31:34.442308717Z INFO:     Waiting for application startup.
+stackpilot-api  | 2026-02-16T15:31:34.442837764Z event='startup' ts=1771255894 service='mock-exchange' version='0.2.0' env='dev' git_sha='unknown'
+stackpilot-api  | 2026-02-16T15:31:34.442934494Z INFO:     Application startup complete.
+stackpilot-api  | 2026-02-16T15:31:34.452515662Z INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+stackpilot-api  | 2026-02-16T15:31:35.098524312Z event='request' ts=1771255895 method='GET' path='/health' status=200 latency_ms=1
+stackpilot-api  | 2026-02-16T15:31:35.098550419Z INFO:     102.67.23.92:60908 - "GET /health HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:35.602035813Z event='request' ts=1771255895 method='GET' path='/ready' status=200 latency_ms=19
+stackpilot-api  | 2026-02-16T15:31:35.602063204Z INFO:     102.67.23.92:60909 - "GET /ready HTTP/1.1" 200 OK
+stackpilot-api  | 2026-02-16T15:31:37.184422014Z event='request' ts=1771255897 method='GET' path='/orders/3ae030c3-d850-44fa-b6a8-13ec975ff4d9' status=200 latency_ms=17
+stackpilot-api  | 2026-02-16T15:31:37.184449642Z INFO:     102.67.23.92:60910 - "GET /orders/3ae030c3-d850-44fa-b6a8-13ec975ff4d9 HTTP/1.1" 200 OK
+stackpilot-db   | 2026-02-16T15:21:31.726292999Z The files belonging to this database system will be owned by user "postgres".
+stackpilot-db   | 2026-02-16T15:21:31.726365927Z This user must also own the server process.
+stackpilot-db   | 2026-02-16T15:21:31.726372436Z 
+stackpilot-db   | 2026-02-16T15:21:31.726375947Z The database cluster will be initialized with locale "en_US.utf8".
+stackpilot-db   | 2026-02-16T15:21:31.726379652Z The default database encoding has accordingly been set to "UTF8".
+stackpilot-db   | 2026-02-16T15:21:31.726383536Z The default text search configuration will be set to "english".
+stackpilot-db   | 2026-02-16T15:21:31.726387172Z 
+stackpilot-db   | 2026-02-16T15:21:31.726390878Z Data page checksums are disabled.
+stackpilot-db   | 2026-02-16T15:21:31.726394359Z 
+stackpilot-db   | 2026-02-16T15:21:31.726397698Z fixing permissions on existing directory /var/lib/postgresql/data ... ok
+stackpilot-db   | 2026-02-16T15:21:31.726401122Z creating subdirectories ... ok
+stackpilot-db   | 2026-02-16T15:21:31.726404468Z selecting dynamic shared memory implementation ... posix
+stackpilot-db   | 2026-02-16T15:21:31.793882868Z selecting default max_connections ... 100
+stackpilot-db   | 2026-02-16T15:21:31.817561419Z selecting default shared_buffers ... 128MB
+stackpilot-db   | 2026-02-16T15:21:32.067963530Z selecting default time zone ... UTC
+stackpilot-db   | 2026-02-16T15:21:32.071204100Z creating configuration files ... ok
+stackpilot-db   | 2026-02-16T15:21:32.345778712Z running bootstrap script ... ok
+stackpilot-db   | 2026-02-16T15:21:32.643620155Z sh: locale: not found
+stackpilot-db   | 2026-02-16T15:21:32.643837486Z 2026-02-16 15:21:32.643 UTC [33] WARNING:  no usable system locales were found
+stackpilot-db   | 2026-02-16T15:21:33.305923302Z performing post-bootstrap initialization ... ok
+stackpilot-db   | 2026-02-16T15:21:33.456362354Z initdb: warning: enabling "trust" authentication for local connections
+stackpilot-db   | 2026-02-16T15:21:33.456388540Z initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+stackpilot-db   | 2026-02-16T15:21:33.456402778Z syncing data to disk ... ok
+stackpilot-db   | 2026-02-16T15:21:33.456407028Z 
+stackpilot-db   | 2026-02-16T15:21:33.456410390Z 
+stackpilot-db   | 2026-02-16T15:21:33.456413831Z Success. You can now start the database server using:
+stackpilot-db   | 2026-02-16T15:21:33.456419598Z 
+stackpilot-db   | 2026-02-16T15:21:33.456457703Z     pg_ctl -D /var/lib/postgresql/data -l logfile start
+stackpilot-db   | 2026-02-16T15:21:33.456462304Z 
+stackpilot-db   | 2026-02-16T15:21:33.510560945Z waiting for server to start....2026-02-16 15:21:33.510 UTC [39] LOG:  starting PostgreSQL 16.4 on x86_64-pc-linux-musl, compiled by gcc (Alpine 13.2.1_git20240309) 13.2.1 20240309, 64-bit
+stackpilot-db   | 2026-02-16T15:21:33.513448238Z 2026-02-16 15:21:33.513 UTC [39] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+stackpilot-db   | 2026-02-16T15:21:33.524023973Z 2026-02-16 15:21:33.523 UTC [42] LOG:  database system was shut down at 2026-02-16 15:21:33 UTC
+stackpilot-db   | 2026-02-16T15:21:33.530184639Z 2026-02-16 15:21:33.530 UTC [39] LOG:  database system is ready to accept connections
+stackpilot-db   | 2026-02-16T15:21:33.584265738Z  done
+stackpilot-db   | 2026-02-16T15:21:33.584282330Z server started
+stackpilot-db   | 2026-02-16T15:21:33.679421343Z CREATE DATABASE
+stackpilot-db   | 2026-02-16T15:21:33.680638259Z 
+stackpilot-db   | 2026-02-16T15:21:33.680910639Z 
+stackpilot-db   | 2026-02-16T15:21:33.681052378Z /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+stackpilot-db   | 2026-02-16T15:21:33.681460329Z 
+stackpilot-db   | 2026-02-16T15:21:33.683236437Z waiting for server to shut down....2026-02-16 15:21:33.683 UTC [39] LOG:  received fast shutdown request
+stackpilot-db   | 2026-02-16T15:21:33.686605993Z 2026-02-16 15:21:33.686 UTC [39] LOG:  aborting any active transactions
+stackpilot-db   | 2026-02-16T15:21:33.694458736Z 2026-02-16 15:21:33.694 UTC [39] LOG:  background worker "logical replication launcher" (PID 45) exited with exit code 1
+stackpilot-db   | 2026-02-16T15:21:33.694695194Z 2026-02-16 15:21:33.694 UTC [40] LOG:  shutting down
+stackpilot-db   | 2026-02-16T15:21:33.696826012Z 2026-02-16 15:21:33.696 UTC [40] LOG:  checkpoint starting: shutdown immediate
+stackpilot-db   | 2026-02-16T15:21:33.741275163Z 2026-02-16 15:21:33.741 UTC [40] LOG:  checkpoint complete: wrote 924 buffers (5.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.029 s, sync=0.007 s, total=0.047 s; sync files=301, longest=0.003 s, average=0.001 s; distance=4267 kB, estimate=4267 kB; lsn=0/191AB68, redo lsn=0/191AB68
+stackpilot-db   | 2026-02-16T15:21:33.747624647Z 2026-02-16 15:21:33.747 UTC [39] LOG:  database system is shut down
+stackpilot-db   | 2026-02-16T15:21:33.783435220Z  done
+stackpilot-db   | 2026-02-16T15:21:33.783554463Z server stopped
+stackpilot-db   | 2026-02-16T15:21:33.784731248Z 
+stackpilot-db   | 2026-02-16T15:21:33.784744188Z PostgreSQL init process complete; ready for start up.
+stackpilot-db   | 2026-02-16T15:21:33.784748710Z 
+stackpilot-db   | 2026-02-16T15:21:33.813639747Z 2026-02-16 15:21:33.813 UTC [1] LOG:  starting PostgreSQL 16.4 on x86_64-pc-linux-musl, compiled by gcc (Alpine 13.2.1_git20240309) 13.2.1 20240309, 64-bit
+stackpilot-db   | 2026-02-16T15:21:33.813840018Z 2026-02-16 15:21:33.813 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+stackpilot-db   | 2026-02-16T15:21:33.813951371Z 2026-02-16 15:21:33.813 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+stackpilot-db   | 2026-02-16T15:21:33.819271407Z 2026-02-16 15:21:33.819 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+stackpilot-db   | 2026-02-16T15:21:33.828551140Z 2026-02-16 15:21:33.827 UTC [55] LOG:  database system was shut down at 2026-02-16 15:21:33 UTC
+stackpilot-db   | 2026-02-16T15:21:33.834103942Z 2026-02-16 15:21:33.834 UTC [1] LOG:  database system is ready to accept connections
+stackpilot-db   | 2026-02-16T15:21:54.014674551Z 2026-02-16 15:21:54.014 UTC [88] ERROR:  relation "orders" does not exist at character 30
+stackpilot-db   | 2026-02-16T15:21:54.014698636Z 2026-02-16 15:21:54.014 UTC [88] STATEMENT:  
+stackpilot-db   | 2026-02-16T15:21:54.014703331Z 	                INSERT INTO orders (id, symbol, side, qty, status)
+stackpilot-db   | 2026-02-16T15:21:54.014707475Z 	                VALUES ($1, $2, $3, $4, $5)
+stackpilot-db   | 2026-02-16T15:21:54.014728250Z 	                
+stackpilot-db   | 2026-02-16T15:22:38.206798114Z 2026-02-16 15:22:38.206 UTC [155] ERROR:  relation "orders" does not exist at character 30
+stackpilot-db   | 2026-02-16T15:22:38.206829799Z 2026-02-16 15:22:38.206 UTC [155] STATEMENT:  
+stackpilot-db   | 2026-02-16T15:22:38.206862877Z 	                INSERT INTO orders (id, symbol, side, qty, status)
+stackpilot-db   | 2026-02-16T15:22:38.206868152Z 	                VALUES ($1, $2, $3, $4, $5)
+stackpilot-db   | 2026-02-16T15:22:38.206871619Z 	                
+stackpilot-db   | 2026-02-16T15:26:33.905564297Z 2026-02-16 15:26:33.905 UTC [53] LOG:  checkpoint starting: time
+stackpilot-db   | 2026-02-16T15:26:38.132747110Z 2026-02-16 15:26:38.132 UTC [53] LOG:  checkpoint complete: wrote 45 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=4.214 s, sync=0.004 s, total=4.228 s; sync files=12, longest=0.003 s, average=0.001 s; distance=261 kB, estimate=261 kB; lsn=0/195BFF0, redo lsn=0/195BFB8
+stackpilot-db   | 2026-02-16T15:31:33.233744214Z 2026-02-16 15:31:33.233 UTC [53] LOG:  checkpoint starting: time
+stackpilot-db   | 2026-02-16T15:31:38.669104164Z 2026-02-16 15:31:38.668 UTC [53] LOG:  checkpoint complete: wrote 55 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=5.422 s, sync=0.004 s, total=5.436 s; sync files=41, longest=0.003 s, average=0.001 s; distance=178 kB, estimate=252 kB; lsn=0/19889D8, redo lsn=0/1988968
