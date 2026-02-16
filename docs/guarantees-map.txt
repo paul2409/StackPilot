@@ -46,7 +46,7 @@ G-06-02 Delivery is manual and serialized | .github/workflows/stackpilot-deliver
 G-06-03 Destroy is unconditional | scripts/aws/aws-cycle.sh | make aws-cycle | Terraform destroy must run via EXIT trap even if deploy or verify fails
 G-06-04 Cleanup proof is mandatory | scripts/aws/cleanup-check.sh | make aws-clean-check | After destroy, no tagged EC2, volumes, or security groups may remain
 G-06-05 CI AWS identity is explicit | scripts/aws/sts-checks.sh,.github/workflows/stackpilot-delivery.yml | make aws-sts | CI must use GitHub Secrets credentials; sts-check must pass without AWS_PROFILE assumption
-G-06-06 SSH key handling is non-leaking | scripts/aws/aws-keygen.sh,.github/workflows/stackpilot-delivery.yml | GitHub Actions logs | Private key must never appear in logs; no set -x around key material
+G-06-06 SSH key handling is non-leaking | scripts/aws/keygen.sh,.github/workflows/stackpilot-delivery.yml | GitHub Actions logs | Private key must never appear in logs; no set -x around key material
 G-06-07 target.env is artifact authority | scripts/aws/target-env.sh | make aws-cycle | deploy and verify must source artifacts/aws/target.env; no manual exports
 G-06-08 Deployment success requires runtime health | scripts/aws/deploy-aws.sh | make deploy-aws | deploy must poll /health with deadline; false-success (container up but app dead) is invalid
 G-06-09 Logs are always inspectable | .github/workflows/stackpilot-delivery.yml | GitHub Actions artifacts | artifacts/ must upload on success and failure using if: always()
