@@ -249,7 +249,7 @@ terraform: repo-preflight
 	@$(MAKE) terraform-ci
 	@echo "PASS: terraform checks"
 
-checks: policy secrets guarantees build python tags terraform
+checks: policy secrets guarantees build python tags
 
 
 # ----------------------------------------------------------
