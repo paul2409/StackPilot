@@ -59,6 +59,12 @@ jobs:
           terraform_version: 1.5.0
           terraform_wrapper: false
 
+      - name: Force env-cred auth (no profiles)
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset AWS_PROFILE AWS_DEFAULT_PROFILE AWS_SDK_LOAD_CONFIG || true
+
       # Single entrypoint. Makefile + orchestrator handle everything:
       # keygen -> run.tfvars -> plan/apply -> target.env -> deploy -> verify -> destroy -> clean-check (trap)
       - name: Run deterministic lifecycle (Makefile entrypoint)
@@ -66,6 +72,13 @@ jobs:
         run: |
           set -euo pipefail
           make aws-cycle
+
+      - name: Scrub private key before artifacts (always)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f artifacts/aws/stackpilot_ci_key artifacts/aws/stackpilot_ci_key.pub || true
 
       - name: Upload artifacts (always)
         if: always()
@@ -75,10 +88,3 @@ jobs:
           path: artifacts/
           if-no-files-found: warn
           retention-days: 14
-
-      - name: Remove private key before artifact upload (always)
-        if: always()
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f artifacts/aws/stackpilot_ci_key || true
