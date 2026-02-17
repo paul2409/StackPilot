@@ -21,9 +21,8 @@ G-03-08 Verification must not mutate system | scripts/verify/verify-host.sh,scri
 
 G-04-01 CI is merge authority | .github/workflows/ci.yml | GitHub PR required checks | Protected main: failing CI blocks merge; no bypass via direct push
 G-04-02 CI produces inspectable logs | .github/workflows/ci.yml | GitHub Actions artifacts | ci/logs uploaded on failure (and success where applicable); failures must be readable
-G-04-03 Terraform layout is standard | infra/terraform/README.md,infra/terraform/main.tf | make check-terraform | Terraform project is discoverable with a single root; documented destroy/usage path
-G-04-04 Terraform version determinism | infra/terraform/versions.tf,.github/workflows/ci.yml | make check-terraform | required_version and provider constraints exist; CI installs pinned terraform
-G-04-05 Terraform CI gates enforce quality | Makefile,infra/terraform/versions.tf | make check-terraform | CI runs fmt-check + validate only; no apply/destroy; output lands in ci/logs
+G-04-04 Terraform version determinism | .github/workflows/ci.yml | make check-terraform | required_version and provider constraints exist; CI installs pinned terraform
+G-04-05 Terraform CI gates enforce quality | Makefile | make check-terraform | CI runs fmt-check + validate only; no apply/destroy; output lands in ci/logs
 
 G-05-01 AWS identity is validated before execution | scripts/aws/sts-checks.sh,Makefile | make aws-sts | AWS_PROFILE and region must be correct before any Terraform operation
 G-05-02 Operator IP is explicitly controlled | scripts/ops/update-ip.sh,infra/aws/tf/variables.tf | make aws-ip | Security group ingress must restrict SSH/API to operator /32 CIDR; no 0.0.0.0/0
