@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-exchange
+  namespace: stackpilot
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  progressDeadlineSeconds: 120
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: mock-exchange
+  template:
+    metadata:
+      labels:
+        app: mock-exchange
+    spec:
+      terminationGracePeriodSeconds: 20
+
+      imagePullSecrets:
+        - name: ghcr-pull
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: mock-exchange
+                topologyKey: kubernetes.io/hostname
+
+      containers:
+        - name: api
+          image: ghcr.io/paul2409/mock-exchange:dev
+          imagePullPolicy: Always
+
+          ports:
+            - name: http
+              containerPort: 8000
+
+          env:
+            - name: SERVICE_NAME
+              value: "mock-exchange"
+            - name: ENV
+              value: "dev"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: VERSION
+              value: "0.2.0"
+
+          envFrom:
+            - secretRef:
+                name: api-db-secret
+
+          # Gives the app time to boot; while this is failing, liveness/readiness are ignored.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 3
+            timeoutSeconds: 3
+            failureThreshold: 30   # ~90s startup window
+
+          # Readiness controls Service endpoints (traffic).
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+
+          # Liveness should be more forgiving so it doesn't kill a slow-starting app.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 5
+
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 5"]
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

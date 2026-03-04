@@ -1,0 +1,45 @@
+[agent-setup] server ip: 192.168.56.10
+[agent-setup] flannel iface: enp0s8
+[agent-setup] node ip: 192.168.56.11
+[INFO]  Finding release for channel stable
+[INFO]  Using v1.34.4+k3s1 as release
+[INFO]  Downloading hash https://github.com/k3s-io/k3s/releases/download/v1.34.4+k3s1/sha256sum-amd64.txt
+[INFO]  Downloading binary https://github.com/k3s-io/k3s/releases/download/v1.34.4+k3s1/k3s
+[INFO]  Verifying binary download
+[INFO]  Installing k3s to /usr/local/bin/k3s
+[INFO]  Skipping installation of SELinux RPM
+[INFO]  Skipping /usr/local/bin/kubectl symlink to k3s, already exists
+[INFO]  Skipping /usr/local/bin/crictl symlink to k3s, already exists
+[INFO]  Skipping /usr/local/bin/ctr symlink to k3s, command exists in PATH at /usr/bin/ctr
+[INFO]  Creating killall script /usr/local/bin/k3s-killall.sh
+[INFO]  Creating uninstall script /usr/local/bin/k3s-agent-uninstall.sh
+[INFO]  env: Creating environment file /etc/systemd/system/k3s-agent.service.env
+[INFO]  systemd: Creating service file /etc/systemd/system/k3s-agent.service
+[INFO]  systemd: Enabling k3s-agent unit
+Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+[INFO]  systemd: Starting k3s-agent
+[agent-setup] done.
+[0;1;32m●[0m k3s-agent.service - Lightweight Kubernetes
+     Loaded: loaded (]8;;file://worker1/etc/systemd/system/k3s-agent.service/etc/systemd/system/k3s-agent.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Fri 2026-02-20 22:09:23 UTC; 776ms ago
+       Docs: ]8;;https://k3s.iohttps://k3s.io]8;;
+   Main PID: 3021 (k3s-agent)
+      Tasks: 23
+     Memory: 302.0M
+        CPU: 15.551s
+     CGroup: /system.slice/k3s-agent.service
+             ├─3021 "/usr/local/bin/k3s agent" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""…
+             ├─3042 "containerd " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" …
+             └─3462 /usr/sbin/iptables -t filter -C KUBE-ROUTER-INPUT -p udp -m comment --comment "allow LOCAL UDP traffic to n…
+
+Feb 20 22:09:22 worker1 k3s[3021]: I0220 22:09:22.473206    3021 vxlan_network.go:265] Received Subnet Event with VxLa…ta: (nil)
+Feb 20 22:09:22 worker1 k3s[3021]: I0220 22:09:22.475527    3021 subnet.go:150] Batch elem [0] is { lease.Event{Type:0… PublicIP
+Feb 20 22:09:22 worker1 k3s[3021]: I0220 22:09:22.475778    3021 vxlan_network.go:265] Received Subnet Event with VxLa…ta: (nil)
+Feb 20 22:09:22 worker1 k3s[3021]: I0220 22:09:22.597121    3021 iptables.go:358] bootstrap done
+Feb 20 22:09:22 worker1 k3s[3021]: I0220 22:09:22.718309    3021 iptables.go:358] bootstrap done
+Feb 20 22:09:23 worker1 k3s[3021]: time="2026-02-20T22:09:23Z" level=info msg="Starting network policy controller vers…o1.24.12"
+Feb 20 22:09:23 worker1 k3s[3021]: time="2026-02-20T22:09:23Z" level=info msg="k3s agent is up and running"
+Feb 20 22:09:23 worker1 systemd[1]: Started Lightweight Kubernetes.
+Feb 20 22:09:23 worker1 k3s[3021]: I0220 22:09:23.256551    3021 network_policy_controller.go:164] Starting network po…ontroller
+Feb 20 22:09:23 worker1 k3s[3021]: I0220 22:09:23.789400    3021 network_policy_controller.go:179] Starting network po…goroutine
+Hint: Some lines were ellipsized, use -l to show in full.

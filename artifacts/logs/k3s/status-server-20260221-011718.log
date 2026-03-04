@@ -1,0 +1,24 @@
+[0;1;32m●[0m k3s.service - K3s Server (v1.34.4+k3s1)
+     Loaded: loaded (]8;;file://control/etc/systemd/system/k3s.service/etc/systemd/system/k3s.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Sat 2026-02-21 00:06:14 UTC; 11min ago
+   Main PID: 5865 (k3s-server)
+      Tasks: 75 (limit: 9248)
+     Memory: 908.1M
+        CPU: 3min 34.702s
+     CGroup: /system.slice/k3s.service
+             ├─5865 "/usr/local/bin/k3s server" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─5961 "containerd " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─7575 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id 2e8a9a2081b5d4520bcbae95cf77a952266fc89cfe97c4a7045bfad504d5e1b1 -address /run/k3s/containerd/containerd.sock
+             ├─7584 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id aed4b27b8bc58f9fe2526ff4cd31d118a4df8a9c15a5de8f8555781b285a9814 -address /run/k3s/containerd/containerd.sock
+             └─7781 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id e35f02b84bfbb5c59a52538cb476e68a316110d67de5b7c001cb41b6c5021117 -address /run/k3s/containerd/containerd.sock
+
+Feb 21 00:07:49 control k3s[5865]: I0221 00:07:49.551288    5865 pod_startup_latency_tracker.go:108] "Observed pod startup duration" pod="kube-system/local-path-provisioner-6bc6568469-gbzsf" podStartSLOduration=50.896064935 podStartE2EDuration="1m9.551266987s" podCreationTimestamp="2026-02-21 00:06:40 +0000 UTC" firstStartedPulling="2026-02-21 00:07:28.793531407 +0000 UTC m=+65.459874189" lastFinishedPulling="2026-02-21 00:07:47.448733447 +0000 UTC m=+84.115076241" observedRunningTime="2026-02-21 00:07:48.503866122 +0000 UTC m=+85.170208905" watchObservedRunningTime="2026-02-21 00:07:49.551266987 +0000 UTC m=+86.217609777"
+Feb 21 00:08:05 control k3s[5865]: I0221 00:08:05.680955    5865 handler.go:304] Adding GroupVersion metrics.k8s.io v1beta1 to ResourceManager
+Feb 21 00:08:19 control k3s[5865]: I0221 00:08:19.423886    5865 pod_startup_latency_tracker.go:108] "Observed pod startup duration" pod="kube-system/coredns-7566b5ff58-gqb7m" podStartSLOduration=61.700993205 podStartE2EDuration="1m39.423857902s" podCreationTimestamp="2026-02-21 00:06:40 +0000 UTC" firstStartedPulling="2026-02-21 00:07:39.553131138 +0000 UTC m=+76.219473948" lastFinishedPulling="2026-02-21 00:08:17.275995832 +0000 UTC m=+113.942338645" observedRunningTime="2026-02-21 00:08:19.411027857 +0000 UTC m=+116.077370675" watchObservedRunningTime="2026-02-21 00:08:19.423857902 +0000 UTC m=+116.090200715"
+Feb 21 00:10:03 control k3s[5865]: W0221 00:10:03.811538    5865 watcher.go:93] Error while processing event ("/sys/fs/cgroup/user.slice/user-1000.slice/user-runtime-dir@1000.service": 0x40000100 == IN_CREATE|IN_ISDIR): inotify_add_watch /sys/fs/cgroup/user.slice/user-1000.slice/user-runtime-dir@1000.service: no such file or directory
+Feb 21 00:10:03 control k3s[5865]: E0221 00:10:03.819927    5865 health_controller.go:212] Metrics Controller heartbeat missed
+Feb 21 00:12:33 control k3s[5865]: E0221 00:12:33.826429    5865 health_controller.go:212] Metrics Controller heartbeat missed
+Feb 21 00:16:03 control k3s[5865]: E0221 00:16:03.881348    5865 health_controller.go:212] Metrics Controller heartbeat missed
+Feb 21 00:16:30 control k3s[5865]: I0221 00:16:30.486195    5865 cidrallocator.go:278] updated ClusterIP allocator for Service CIDR 10.43.0.0/16
+Feb 21 00:17:03 control k3s[5865]: E0221 00:17:03.845451    5865 health_controller.go:212] Metrics Controller heartbeat missed
+Feb 21 00:17:32 control k3s[5865]: E0221 00:17:32.743337    5865 health_controller.go:212] Metrics Controller heartbeat missed

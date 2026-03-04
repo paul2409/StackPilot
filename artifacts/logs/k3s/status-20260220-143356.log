@@ -1,0 +1,26 @@
+[0;1;32m●[0m k3s.service - K3s Server
+     Loaded: loaded (]8;;file://control/etc/systemd/system/k3s.service/etc/systemd/system/k3s.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Fri 2026-02-20 13:13:10 UTC; 21min ago
+   Main PID: 29506 (k3s-server)
+      Tasks: 99 (limit: 9248)
+     Memory: 1.3G
+        CPU: 40min 16.366s
+     CGroup: /system.slice/k3s.service
+             ├─29506 "/usr/local/bin/k3s server" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─29560 "containerd " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─30412 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id 349ff71a5a0f5f37c0a7beb5e668d1a5946520a725bb9209d114122c66c31d90 -address /run/k3s/containerd/containerd.sock
+             ├─30506 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id c8bd94d8fe37c8a12d03437bf73482a403f79933ae97da944992d584d236c41e -address /run/k3s/containerd/containerd.sock
+             ├─30599 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id fd15644863894d01c00829b0a5976639bd56a2bd06a64085655dbc8b7c9d85e4 -address /run/k3s/containerd/containerd.sock
+             ├─32064 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id 34f7412c88341797ac4ef1c68c5abeaa222cda9b7f6bfeb636fbb0d7e50ae95e -address /run/k3s/containerd/containerd.sock
+             └─32137 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id 2608b7a9c38b727c0b719f3522d63c561a590307d2333c065cac7b104bdad8cf -address /run/k3s/containerd/containerd.sock
+
+Feb 20 13:34:28 control k3s[29506]: I0220 13:34:28.087076   29506 reconciler_common.go:299] "Volume detached for volume \"klipper-helm\" (UniqueName: \"kubernetes.io/empty-dir/f9b82ca5-d54e-4fd0-9c6a-07aaf01fd669-klipper-helm\") on node \"control\" DevicePath \"\""
+Feb 20 13:34:28 control k3s[29506]: I0220 13:34:28.087147   29506 reconciler_common.go:299] "Volume detached for volume \"content\" (UniqueName: \"kubernetes.io/configmap/f9b82ca5-d54e-4fd0-9c6a-07aaf01fd669-content\") on node \"control\" DevicePath \"\""
+Feb 20 13:34:28 control k3s[29506]: I0220 13:34:28.087172   29506 reconciler_common.go:299] "Volume detached for volume \"kube-api-access-n782t\" (UniqueName: \"kubernetes.io/projected/f9b82ca5-d54e-4fd0-9c6a-07aaf01fd669-kube-api-access-n782t\") on node \"control\" DevicePath \"\""
+Feb 20 13:34:28 control k3s[29506]: I0220 13:34:28.342953   29506 pod_container_deletor.go:80] "Container not found in pod's containers" containerID="e86464791b7be5c1caf134d4d623dfc12a38abd92949c4f39fea16a0ba030e9a"
+Feb 20 13:34:28 control k3s[29506]: I0220 13:34:28.444259   29506 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik"
+Feb 20 13:34:28 control k3s[29506]: I0220 13:34:28.614264   29506 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik"
+Feb 20 13:34:31 control k3s[29506]: I0220 13:34:31.748608   29506 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"tmp\" (UniqueName: \"kubernetes.io/empty-dir/95a7e7f9-2260-4112-9dc8-bca07b8ee30c-tmp\") pod \"traefik-5fdc878c8d-nbgg7\" (UID: \"95a7e7f9-2260-4112-9dc8-bca07b8ee30c\") " pod="kube-system/traefik-5fdc878c8d-nbgg7"
+Feb 20 13:34:31 control k3s[29506]: I0220 13:34:31.748814   29506 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"data\" (UniqueName: \"kubernetes.io/empty-dir/95a7e7f9-2260-4112-9dc8-bca07b8ee30c-data\") pod \"traefik-5fdc878c8d-nbgg7\" (UID: \"95a7e7f9-2260-4112-9dc8-bca07b8ee30c\") " pod="kube-system/traefik-5fdc878c8d-nbgg7"
+Feb 20 13:34:31 control k3s[29506]: I0220 13:34:31.748849   29506 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"kube-api-access-fgnvp\" (UniqueName: \"kubernetes.io/projected/95a7e7f9-2260-4112-9dc8-bca07b8ee30c-kube-api-access-fgnvp\") pod \"traefik-5fdc878c8d-nbgg7\" (UID: \"95a7e7f9-2260-4112-9dc8-bca07b8ee30c\") " pod="kube-system/traefik-5fdc878c8d-nbgg7"
+Feb 20 13:34:31 control k3s[29506]: I0220 13:34:31.841807   29506 node_lifecycle_controller.go:1057] "Controller detected that some Nodes are Ready. Exiting master disruption mode"

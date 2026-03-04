@@ -1,0 +1,19 @@
+[host] repo: /c/Projects/StackPilot
+[host] vagrant dir: /c/Projects/StackPilot/vagrant
+[host] control: control
+[host] node-ip: 192.168.56.10
+[host] advertise-address: 192.168.56.10
+[host] tls-san: 192.168.56.10
+[host] K3S_VERSION: v1.34.4+k3s1
+
+[host] ensuring VM is up...
+Bringing machine 'control' up with 'virtualbox' provider...
+==> control: Checking if box 'ubuntu/jammy64' version '20241002.0.0' is up to date...
+==> control: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> control: flag to force provisioning. Provisioners marked to run always will still run.
+[host] preflight inside VM (sysctls, FORWARD policy, ufw, detect iface)...
+sed: -e expression #1, char 1: unterminated address regex
+sysctl: setting key "net.ipv4.conf.all.accept_source_route": Invalid argument
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+bash: line 23: $4: unbound variable
+bash: line 23: exit}: command not found

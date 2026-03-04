@@ -1,0 +1,51 @@
+[host] ensuring VMs are up...
+Bringing machine 'control' up with 'virtualbox' provider...
+Bringing machine 'worker1' up with 'virtualbox' provider...
+==> control: Checking if box 'ubuntu/jammy64' version '20241002.0.0' is up to date...
+==> control: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> control: flag to force provisioning. Provisioners marked to run always will still run.
+==> worker1: Checking if box 'ubuntu/jammy64' version '20241002.0.0' is up to date...
+==> worker1: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> worker1: flag to force provisioning. Provisioners marked to run always will still run.
+[host] fetching join token from control...
+[host] installing agent on worker1 node_ip=192.168.56.11 version=v1.34.4+k3s1
+[agent-setup] node_ip=192.168.56.11
+[agent-setup] server_url=https://192.168.56.10:6443
+[agent-setup] k3s_version=v1.34.4+k3s1
+[agent-setup] bin_src=/vagrant/vagrant/k3s-bin/k3s
+[agent-setup] preflight: swapoff, modules, sysctls, forwarding, ufw...
+sysctl: setting key "net.ipv4.conf.all.accept_source_route": Invalid argument
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+[agent-setup] detect flannel iface by NODE_IP...
+[agent-setup] flannel_iface=enp0s8
+[agent-setup] installing binary...
+[agent-setup] writing systemd unit...
+[agent-setup] enable + start...
+[agent-setup] agent status:
+[0;1;32m●[0m k3s-agent.service - K3s Agent (v1.34.4+k3s1)
+     Loaded: loaded (]8;;file://worker1/etc/systemd/system/k3s-agent.service/etc/systemd/system/k3s-agent.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Tue 2026-02-24 23:35:29 UTC; 4min 10s ago
+   Main PID: 4134 (k3s-agent)
+      Tasks: 48 (limit: 4647)
+     Memory: 643.7M
+        CPU: 1min 3.181s
+     CGroup: /system.slice/k3s-agent.service
+             ├─4134 "/usr/local/bin/k3s agent" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─4175 "containerd " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─4890 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id b7f0a22869fa96aee57bd25984f762c4832df8cf2f42c195d2247c477aa9be90 -address /run/k3s/containerd/containerd.sock
+             └─5008 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id 8aba3d1030ba2d73ff7c26ce62bf13b8aea43e8ed21f770c75a5e0623f168edf -address /run/k3s/containerd/containerd.sock
+
+Feb 24 23:36:52 worker1 k3s[4134]: E0224 23:36:52.213952    4134 kuberuntime_image.go:43] "Failed to pull image" err="failed to pull and unpack image \"docker.io/library/nginx:1.25\": failed to copy: httpReadSeeker: failed open: failed to do request: Get \"https://docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com/registry-v2/docker/registry/v2/blobs/sha256/e7/e784f4560448b14a66f55c26e1b4dad2c2877cc73d001b7cd0b18e24a700a070/data?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=f1baa2dd9b876aeb89efebbfc9e5d5f4%2F20260224%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260224T233647Z&X-Amz-Expires=1200&X-Amz-SignedHeaders=host&X-Amz-Signature=0e92648fd806d5039db570df42a74b666ac5fa733c4146ad15f1a5cac90ee018\": dial tcp: lookup docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com: Try again" image="nginx:1.25"
+Feb 24 23:36:52 worker1 k3s[4134]: E0224 23:36:52.214496    4134 kuberuntime_manager.go:1664] "Unhandled Error" err="container nginx start failed in pod p2p-nginx-w1_default(c715b3bb-170c-4cd9-82ad-3eadd9ac1e80): ErrImagePull: failed to pull and unpack image \"docker.io/library/nginx:1.25\": failed to copy: httpReadSeeker: failed open: failed to do request: Get \"https://docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com/registry-v2/docker/registry/v2/blobs/sha256/e7/e784f4560448b14a66f55c26e1b4dad2c2877cc73d001b7cd0b18e24a700a070/data?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=f1baa2dd9b876aeb89efebbfc9e5d5f4%2F20260224%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260224T233647Z&X-Amz-Expires=1200&X-Amz-SignedHeaders=host&X-Amz-Signature=0e92648fd806d5039db570df42a74b666ac5fa733c4146ad15f1a5cac90ee018\": dial tcp: lookup docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com: Try again"
+Feb 24 23:36:52 worker1 k3s[4134]: E0224 23:36:52.214626    4134 pod_workers.go:1324] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"nginx\" with ErrImagePull: \"failed to pull and unpack image \\\"docker.io/library/nginx:1.25\\\": failed to copy: httpReadSeeker: failed open: failed to do request: Get \\\"https://docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com/registry-v2/docker/registry/v2/blobs/sha256/e7/e784f4560448b14a66f55c26e1b4dad2c2877cc73d001b7cd0b18e24a700a070/data?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=f1baa2dd9b876aeb89efebbfc9e5d5f4%2F20260224%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260224T233647Z&X-Amz-Expires=1200&X-Amz-SignedHeaders=host&X-Amz-Signature=0e92648fd806d5039db570df42a74b666ac5fa733c4146ad15f1a5cac90ee018\\\": dial tcp: lookup docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com: Try again\"" pod="default/p2p-nginx-w1" podUID="c715b3bb-170c-4cd9-82ad-3eadd9ac1e80"
+Feb 24 23:36:52 worker1 k3s[4134]: E0224 23:36:52.639398    4134 pod_workers.go:1324] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"nginx\" with ImagePullBackOff: \"Back-off pulling image \\\"nginx:1.25\\\": ErrImagePull: failed to pull and unpack image \\\"docker.io/library/nginx:1.25\\\": failed to copy: httpReadSeeker: failed open: failed to do request: Get \\\"https://docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com/registry-v2/docker/registry/v2/blobs/sha256/e7/e784f4560448b14a66f55c26e1b4dad2c2877cc73d001b7cd0b18e24a700a070/data?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=f1baa2dd9b876aeb89efebbfc9e5d5f4%2F20260224%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260224T233647Z&X-Amz-Expires=1200&X-Amz-SignedHeaders=host&X-Amz-Signature=0e92648fd806d5039db570df42a74b666ac5fa733c4146ad15f1a5cac90ee018\\\": dial tcp: lookup docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com: Try again\"" pod="default/p2p-nginx-w1" podUID="c715b3bb-170c-4cd9-82ad-3eadd9ac1e80"
+Feb 24 23:37:09 worker1 k3s[4134]: E0224 23:37:09.284115    4134 log.go:32] "PullImage from image service failed" err="rpc error: code = Unknown desc = failed to pull and unpack image \"docker.io/library/nginx:1.25\": failed to resolve reference \"docker.io/library/nginx:1.25\": failed to do request: Head \"https://registry-1.docker.io/v2/library/nginx/manifests/1.25\": dial tcp: lookup registry-1.docker.io: Try again" image="nginx:1.25"
+Feb 24 23:37:09 worker1 k3s[4134]: E0224 23:37:09.285547    4134 kuberuntime_image.go:43] "Failed to pull image" err="failed to pull and unpack image \"docker.io/library/nginx:1.25\": failed to resolve reference \"docker.io/library/nginx:1.25\": failed to do request: Head \"https://registry-1.docker.io/v2/library/nginx/manifests/1.25\": dial tcp: lookup registry-1.docker.io: Try again" image="nginx:1.25"
+Feb 24 23:37:09 worker1 k3s[4134]: E0224 23:37:09.286602    4134 kuberuntime_manager.go:1664] "Unhandled Error" err="container nginx start failed in pod p2p-nginx-w1_default(c715b3bb-170c-4cd9-82ad-3eadd9ac1e80): ErrImagePull: failed to pull and unpack image \"docker.io/library/nginx:1.25\": failed to resolve reference \"docker.io/library/nginx:1.25\": failed to do request: Head \"https://registry-1.docker.io/v2/library/nginx/manifests/1.25\": dial tcp: lookup registry-1.docker.io: Try again"
+Feb 24 23:37:09 worker1 k3s[4134]: E0224 23:37:09.286993    4134 pod_workers.go:1324] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"nginx\" with ErrImagePull: \"failed to pull and unpack image \\\"docker.io/library/nginx:1.25\\\": failed to resolve reference \\\"docker.io/library/nginx:1.25\\\": failed to do request: Head \\\"https://registry-1.docker.io/v2/library/nginx/manifests/1.25\\\": dial tcp: lookup registry-1.docker.io: Try again\"" pod="default/p2p-nginx-w1" podUID="c715b3bb-170c-4cd9-82ad-3eadd9ac1e80"
+Feb 24 23:37:24 worker1 k3s[4134]: E0224 23:37:24.262387    4134 pod_workers.go:1324] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"nginx\" with ImagePullBackOff: \"Back-off pulling image \\\"nginx:1.25\\\": ErrImagePull: failed to pull and unpack image \\\"docker.io/library/nginx:1.25\\\": failed to resolve reference \\\"docker.io/library/nginx:1.25\\\": failed to do request: Head \\\"https://registry-1.docker.io/v2/library/nginx/manifests/1.25\\\": dial tcp: lookup registry-1.docker.io: Try again\"" pod="default/p2p-nginx-w1" podUID="c715b3bb-170c-4cd9-82ad-3eadd9ac1e80"
+Feb 24 23:37:54 worker1 k3s[4134]: E0224 23:37:54.801098    4134 kubelet.go:2691] "Housekeeping took longer than expected" err="housekeeping took too long" expected="1s" actual="2.548s"
+[host] done. verify from control:
+NAME      STATUS   ROLES           AGE     VERSION        INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
+control   Ready    control-plane   8m36s   v1.35.1+k3s1   192.168.56.10   <none>        Ubuntu 22.04.5 LTS   5.15.0-164-generic   containerd://2.1.5-k3s1
+worker1   Ready    <none>          4m3s    v1.35.1+k3s1   192.168.56.11   <none>        Ubuntu 22.04.5 LTS   5.15.0-164-generic   containerd://2.1.5-k3s1

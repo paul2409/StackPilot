@@ -1,0 +1,160 @@
+Feb 20 14:36:48 worker2 systemd[1]: Starting K3s Agent...
+Feb 20 14:36:48 worker2 systemd[1]: Started K3s Agent.
+Feb 20 14:36:48 worker2 k3s[4623]: time="2026-02-20T14:36:48Z" level=info msg="Acquiring lock file /var/lib/rancher/k3s/data/.lock"
+Feb 20 14:36:48 worker2 k3s[4623]: time="2026-02-20T14:36:48Z" level=info msg="Preparing data dir /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4"
+Feb 20 14:37:13 worker2 k3s[4623]: time="2026-02-20T14:37:13Z" level=info msg="Starting k3s agent v1.35.1+k3s1 (50fa2d70)"
+Feb 20 14:37:13 worker2 k3s[4623]: time="2026-02-20T14:37:13Z" level=info msg="Updated load balancer k3s-agent-load-balancer default server: 192.168.56.10:6443"
+Feb 20 14:37:13 worker2 k3s[4623]: time="2026-02-20T14:37:13Z" level=info msg="Running load balancer k3s-agent-load-balancer 127.0.0.1:6444 -> [] [default: 192.168.56.10:6443]"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Module overlay was already loaded"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Module nf_conntrack was already loaded"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Set sysctl 'net/netfilter/nf_conntrack_max' to 131072"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Set sysctl 'net/netfilter/nf_conntrack_tcp_timeout_established' to 86400"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Set sysctl 'net/netfilter/nf_conntrack_tcp_timeout_close_wait' to 3600"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Logging containerd to /var/lib/rancher/k3s/agent/containerd/containerd.log"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Running containerd -c /var/lib/rancher/k3s/agent/etc/containerd/config.toml"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Creating k3s-cert-monitor event broadcaster"
+Feb 20 14:37:20 worker2 k3s[4623]: time="2026-02-20T14:37:20Z" level=info msg="Getting list of apiserver endpoints from server"
+Feb 20 14:37:20 worker2 k3s[4623]: I0220 14:37:20.685499    4623 event.go:389] "Event occurred" object="worker2-bb313f16" fieldPath="" kind="Node" apiVersion="" type="Normal" reason="CertificateExpirationOK" message="Node and Certificate Authority certificates managed by k3s are OK"
+Feb 20 14:37:21 worker2 k3s[4623]: time="2026-02-20T14:37:21Z" level=info msg="Waiting for containerd startup: rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: dial unix /run/k3s/containerd/containerd.sock: connect: no such file or directory\""
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="containerd is now running"
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="Got apiserver addresses from supervisor: [192.168.56.10:6443]"
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="Server 192.168.56.10:6443@STANDBY*->UNCHECKED from add to load balancer k3s-agent-load-balancer"
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="Updated load balancer k3s-agent-load-balancer server addresses -> [192.168.56.10:6443] [default: 192.168.56.10:6443]"
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="Connecting to proxy" url="wss://192.168.56.10:6443/v1-k3s/connect"
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="Connected to proxy" url="wss://192.168.56.10:6443/v1-k3s/connect"
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="Remotedialer connected to proxy" url="wss://192.168.56.10:6443/v1-k3s/connect"
+Feb 20 14:37:22 worker2 k3s[4623]: time="2026-02-20T14:37:22Z" level=info msg="Server 192.168.56.10:6443@UNCHECKED*->RECOVERING from successful health check"
+Feb 20 14:37:23 worker2 k3s[4623]: time="2026-02-20T14:37:23Z" level=info msg="Running kubelet --cloud-provider=external --config-dir=/var/lib/rancher/k3s/agent/etc/kubelet.conf.d --containerd=/run/k3s/containerd/containerd.sock --hostname-override=worker2-bb313f16 --kubeconfig=/var/lib/rancher/k3s/agent/kubelet.kubeconfig --node-ip=192.168.56.12 --node-labels= --read-only-port=0"
+Feb 20 14:37:23 worker2 k3s[4623]: Flag --containerd has been deprecated, This is a cadvisor flag that was mistakenly registered with the Kubelet. Due to legacy concerns, it will follow the standard CLI deprecation timeline before being removed.
+Feb 20 14:37:23 worker2 k3s[4623]: time="2026-02-20T14:37:23Z" level=info msg="Running kube-proxy --cluster-cidr=10.42.0.0/16 --conntrack-max-per-core=0 --conntrack-tcp-timeout-close-wait=0s --conntrack-tcp-timeout-established=0s --healthz-bind-address=127.0.0.1 --hostname-override=worker2-bb313f16 --kubeconfig=/var/lib/rancher/k3s/agent/kubeproxy.kubeconfig --proxy-mode=iptables"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.120909    4623 server.go:521] "Kubelet version" kubeletVersion="v1.35.1+k3s1"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.121171    4623 server.go:523] "Golang settings" GOGC="" GOMAXPROCS="" GOTRACEBACK=""
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.121251    4623 watchdog_linux.go:95] "Systemd watchdog is not enabled"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.121271    4623 watchdog_linux.go:138] "Systemd watchdog is not enabled or the interval is invalid, so health checking will not be started."
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.137069    4623 dynamic_cafile_content.go:161] "Starting controller" name="client-ca-bundle::/var/lib/rancher/k3s/agent/client-ca.crt"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.170456    4623 server.go:1414] "Using cgroup driver setting received from the CRI runtime" cgroupDriver="systemd"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.200680    4623 server.go:771] "--cgroups-per-qos enabled, but --cgroup-root was not specified.  Defaulting to /"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.201267    4623 server.go:832] "NoSwap is set due to memorySwapBehavior not specified" memorySwapBehavior="" FailSwapOn=false
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.202633    4623 container_manager_linux.go:272] "Container manager verified user specified cgroup-root exists" cgroupRoot=[]
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.203392    4623 container_manager_linux.go:277] "Creating Container Manager object based on Node Config" nodeConfig={"NodeName":"worker2-bb313f16","RuntimeCgroupsName":"","SystemCgroupsName":"","KubeletCgroupsName":"","KubeletOOMScoreAdj":-999,"ContainerRuntime":"","CgroupsPerQOS":true,"CgroupRoot":"/","CgroupDriver":"systemd","KubeletRootDir":"/var/lib/kubelet","ProtectKernelDefaults":false,"KubeReservedCgroupName":"","SystemReservedCgroupName":"","ReservedSystemCPUs":{},"EnforceNodeAllocatable":{"pods":{}},"KubeReserved":null,"SystemReserved":null,"HardEvictionThresholds":[{"Signal":"imagefs.available","Operator":"LessThan","Value":{"Quantity":null,"Percentage":0.05},"GracePeriod":0,"MinReclaim":null},{"Signal":"nodefs.available","Operator":"LessThan","Value":{"Quantity":null,"Percentage":0.05},"GracePeriod":0,"MinReclaim":null}],"QOSReserved":{},"CPUManagerPolicy":"none","CPUManagerPolicyOptions":null,"TopologyManagerScope":"container","CPUManagerReconcilePeriod":10000000000,"MemoryManagerPolicy":"None","MemoryManagerReservedMemory":null,"PodPidsLimit":-1,"EnforceCPULimits":true,"CPUCFSQuotaPeriod":100000000,"TopologyManagerPolicy":"none","TopologyManagerPolicyOptions":null,"CgroupVersion":2}
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.205614    4623 topology_manager.go:143] "Creating topology manager with none policy"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.205771    4623 container_manager_linux.go:308] "Creating device plugin manager"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.208687    4623 container_manager_linux.go:317] "Creating Dynamic Resource Allocation (DRA) manager"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.225052    4623 state_mem.go:41] "Initialized"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.227228    4623 kubelet.go:482] "Attempting to sync node with API server"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.227739    4623 kubelet.go:383] "Adding static pod path" path="/var/lib/rancher/k3s/agent/pod-manifests"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.228186    4623 kubelet.go:394] "Adding apiserver pod source"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.228800    4623 apiserver.go:42] "Waiting for node sync before watching apiserver pods"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.249565    4623 kuberuntime_manager.go:294] "Container runtime initialized" containerRuntime="containerd" version="v2.1.5-k3s1" apiVersion="v1"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.251694    4623 kubelet.go:943] "Not starting ClusterTrustBundle informer because we are in static kubelet mode or the ClusterTrustBundleProjection featuregate is disabled"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.252688    4623 kubelet.go:970] "Not starting PodCertificateRequest manager because we are in static kubelet mode or the PodCertificateProjection feature gate is disabled"
+Feb 20 14:37:23 worker2 k3s[4623]: W0220 14:37:23.252823    4623 probe.go:272] Flexvolume plugin directory at /usr/libexec/kubernetes/kubelet-plugins/volume/exec/ does not exist. Recreating.
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.254328    4623 server.go:1252] "Started kubelet"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.259570    4623 server.go:182] "Starting to listen" address="0.0.0.0" port=10250
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.275856    4623 fs_resource_analyzer.go:69] "Starting FS ResourceAnalyzer"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.280061    4623 server.go:317] "Adding debug handlers to kubelet server"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.271985    4623 ratelimit.go:56] "Setting rate limiting for endpoint" service="podresources" qps=100 burstTokens=10
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.292705    4623 server_v1.go:49] "podresources" method="list" useActivePods=true
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.298552    4623 dynamic_serving_content.go:135] "Starting controller" name="kubelet-server-cert-files::/var/lib/rancher/k3s/agent/serving-kubelet.crt::/var/lib/rancher/k3s/agent/serving-kubelet.key"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.303367    4623 server.go:254] "Starting to serve the podresources API" endpoint="unix:/var/lib/kubelet/pod-resources/kubelet.sock"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.307739    4623 volume_manager.go:311] "Starting Kubelet Volume Manager"
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.309753    4623 kubelet_node_status.go:392] "Error getting the current node from lister" err="node \"worker2-bb313f16\" not found"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.325131    4623 desired_state_of_world_populator.go:146] "Desired state populator starts to run"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.334186    4623 reconciler.go:29] "Reconciler: start to sync state"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.370058    4623 factory.go:223] Registration of the systemd container factory successfully
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.380176    4623 factory.go:221] Registration of the crio container factory failed: Get "http://%2Fvar%2Frun%2Fcrio%2Fcrio.sock/info": dial unix /var/run/crio/crio.sock: connect: no such file or directory
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.389765    4623 kubelet.go:1656] "Image garbage collection failed once. Stats initialization may not have completed yet" err="invalid capacity 0 on image filesystem"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.401567    4623 factory.go:223] Registration of the containerd container factory successfully
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.453009    4623 nodelease.go:50] "Failed to get node when trying to set owner ref to the node lease" err="nodes \"worker2-bb313f16\" not found" node="worker2-bb313f16"
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.453429    4623 kubelet_node_status.go:392] "Error getting the current node from lister" err="node \"worker2-bb313f16\" not found"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.553039    4623 cpu_manager.go:225] "Starting" policy="none"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.553226    4623 cpu_manager.go:226] "Reconciling" reconcilePeriod="10s"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.553285    4623 state_mem.go:41] "Initialized"
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.562668    4623 kubelet_node_status.go:392] "Error getting the current node from lister" err="node \"worker2-bb313f16\" not found"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.563745    4623 policy_none.go:50] "Start"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.564586    4623 memory_manager.go:187] "Starting memorymanager" policy="None"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.564891    4623 state_mem.go:36] "Initializing new in-memory state store"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.599262    4623 policy_none.go:44] "Start"
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.663853    4623 kubelet_node_status.go:392] "Error getting the current node from lister" err="node \"worker2-bb313f16\" not found"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.704829    4623 shared_informer.go:370] "Waiting for caches to sync"
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.769725    4623 kubelet_node_status.go:392] "Error getting the current node from lister" err="node \"worker2-bb313f16\" not found"
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.873518    4623 kubelet_node_status.go:392] "Error getting the current node from lister" err="node \"worker2-bb313f16\" not found"
+Feb 20 14:37:23 worker2 k3s[4623]: E0220 14:37:23.913474    4623 manager.go:525] "Failed to read data from checkpoint" err="checkpoint is not found" checkpoint="kubelet_internal_checkpoint"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.946921    4623 eviction_manager.go:194] "Eviction manager: starting control loop"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.960643    4623 container_log_manager.go:146] "Initializing container log rotate workers" workers=1 monitorPeriod="10s"
+Feb 20 14:37:23 worker2 k3s[4623]: I0220 14:37:23.963732    4623 plugin_manager.go:121] "Starting Kubelet Plugin Manager"
+Feb 20 14:37:23 worker2 k3s[4623]: time="2026-02-20T14:37:23Z" level=info msg="Server 192.168.56.10:6443@RECOVERING*->ACTIVE from successful health check"
+Feb 20 14:37:24 worker2 k3s[4623]: E0220 14:37:24.001841    4623 eviction_manager.go:272] "eviction manager: failed to check if we have separate container filesystem. Ignoring." err="no imagefs label for configured runtime"
+Feb 20 14:37:24 worker2 k3s[4623]: E0220 14:37:24.009853    4623 eviction_manager.go:297] "Eviction manager: failed to get summary stats" err="failed to get node info: node \"worker2-bb313f16\" not found"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.040252    4623 shared_informer.go:377] "Caches are synced"
+Feb 20 14:37:24 worker2 k3s[4623]: E0220 14:37:24.045036    4623 csi_plugin.go:403] Failed to initialize CSINode: error updating CSINode annotation: timed out waiting for the condition; caused by: nodes "worker2-bb313f16" not found
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.101807    4623 kubelet_node_status.go:74] "Attempting to register node" node="worker2-bb313f16"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.199191    4623 kubelet_network_linux.go:54] "Initialized iptables rules." protocol="IPv4"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.228329    4623 kubelet_network_linux.go:54] "Initialized iptables rules." protocol="IPv6"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.229424    4623 status_manager.go:249] "Starting to sync pod status with apiserver"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.230728    4623 kubelet.go:2501] "Starting kubelet main sync loop"
+Feb 20 14:37:24 worker2 k3s[4623]: E0220 14:37:24.231422    4623 kubelet.go:2525] "Skipping pod synchronization" err="PLEG is not healthy: pleg has yet to be successful"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.248560    4623 apiserver.go:52] "Watching apiserver"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.297597    4623 kubelet_node_status.go:77] "Successfully registered node" node="worker2-bb313f16"
+Feb 20 14:37:24 worker2 k3s[4623]: E0220 14:37:24.315881    4623 kubelet_node_status.go:474] "Error updating node status, will retry" err="error getting node \"worker2-bb313f16\": node \"worker2-bb313f16\" not found"
+Feb 20 14:37:24 worker2 k3s[4623]: I0220 14:37:24.436256    4623 desired_state_of_world_populator.go:154] "Finished populating initial desired state of world"
+Feb 20 14:37:24 worker2 k3s[4623]: time="2026-02-20T14:37:24Z" level=info msg="Annotations and labels have been set successfully on node: worker2-bb313f16"
+Feb 20 14:37:24 worker2 k3s[4623]: time="2026-02-20T14:37:24Z" level=info msg="Starting flannel with backend vxlan"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.048179    4623 server.go:218] "Successfully retrieved NodeIPs" NodeIPs=["192.168.56.12"]
+Feb 20 14:37:25 worker2 k3s[4623]: E0220 14:37:25.048890    4623 server.go:255] "Kube-proxy configuration may be incomplete or incorrect" err="nodePortAddresses is unset; NodePort connections will be accepted on all local IPs. Consider using `--nodeport-addresses primary`"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.129821    4623 kuberuntime_manager.go:2062] "Updating runtime config through cri with podcidr" CIDR="10.42.2.0/24"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.136283    4623 kubelet_network.go:47] "Updating Pod CIDR" originalPodCIDR="" newPodCIDR="10.42.2.0/24"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.142872    4623 kubelet_node_status.go:427] "Fast updating node status as it just became ready"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.176739    4623 server.go:264] "kube-proxy running in dual-stack mode" primary ipFamily="IPv4"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.177196    4623 server_linux.go:136] "Using iptables Proxier"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.259173    4623 proxier.go:242] "Setting route_localnet=1 to allow node-ports on localhost; to change this either disable iptables.localhostNodePorts (--iptables-localhost-nodeports) or set nodePortAddresses (--nodeport-addresses) to filter loopback addresses"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.347272    4623 server.go:529] "Version info" version="v1.35.1+k3s1"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.353140    4623 server.go:531] "Golang settings" GOGC="" GOMAXPROCS="" GOTRACEBACK=""
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.364976    4623 config.go:106] "Starting endpoint slice config controller"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.365331    4623 shared_informer.go:349] "Waiting for caches to sync" controller="endpoint slice config"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.365421    4623 config.go:403] "Starting serviceCIDR config controller"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.365441    4623 shared_informer.go:349] "Waiting for caches to sync" controller="serviceCIDR config"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.369189    4623 config.go:309] "Starting node config controller"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.369798    4623 shared_informer.go:349] "Waiting for caches to sync" controller="node config"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.369849    4623 shared_informer.go:356] "Caches are synced" controller="node config"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.395876    4623 config.go:200] "Starting service config controller"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.396172    4623 shared_informer.go:349] "Waiting for caches to sync" controller="service config"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.569659    4623 shared_informer.go:356] "Caches are synced" controller="endpoint slice config"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.567670    4623 shared_informer.go:356] "Caches are synced" controller="serviceCIDR config"
+Feb 20 14:37:25 worker2 k3s[4623]: time="2026-02-20T14:37:25Z" level=info msg="Flannel found PodCIDR assigned for node worker2-bb313f16"
+Feb 20 14:37:25 worker2 k3s[4623]: time="2026-02-20T14:37:25Z" level=info msg="The interface enp0s3 with ipv4 address 10.0.2.15 will be used by flannel"
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.654625    4623 kube.go:139] Waiting 10m0s for node controller to sync
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.655503    4623 kube.go:537] Starting kube subnet manager
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.787067    4623 kube.go:558] Creating the node lease for IPv4. This is the n.Spec.PodCIDRs: [10.42.0.0/24]
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.790584    4623 kube.go:558] Creating the node lease for IPv4. This is the n.Spec.PodCIDRs: [10.42.1.0/24]
+Feb 20 14:37:25 worker2 k3s[4623]: I0220 14:37:25.798204    4623 shared_informer.go:356] "Caches are synced" controller="service config"
+Feb 20 14:37:26 worker2 k3s[4623]: time="2026-02-20T14:37:26Z" level=info msg="Tunnel authorizer set Kubelet Port 0.0.0.0:10250"
+Feb 20 14:37:26 worker2 k3s[4623]: I0220 14:37:26.677290    4623 kube.go:163] Node controller sync successful
+Feb 20 14:37:26 worker2 k3s[4623]: I0220 14:37:26.677912    4623 vxlan.go:128] VXLAN config: VNI=1 Port=0 GBP=false Learning=false DirectRouting=false
+Feb 20 14:37:26 worker2 k3s[4623]: I0220 14:37:26.776422    4623 kube.go:704] List of node(worker2-bb313f16) annotations: map[string]string{"alpha.kubernetes.io/provided-node-ip":"192.168.56.12", "k3s.io/hostname":"worker2", "k3s.io/internal-ip":"192.168.56.12", "k3s.io/node-args":"[\"agent\",\"--node-ip\",\"192.168.56.12\",\"--with-node-id\"]", "k3s.io/node-config-hash":"RRYKIXL5KHFF6FEV4OWA4BLWTLTRSPBWXCBKBKPKD4UT2KMXKIWA====", "k3s.io/node-env":"{\"K3S_TOKEN\":\"********\",\"K3S_URL\":\"https://192.168.56.10:6443\"}", "node.alpha.kubernetes.io/ttl":"0", "volumes.kubernetes.io/controller-managed-attach-detach":"true"}
+Feb 20 14:37:27 worker2 k3s[4623]: I0220 14:37:27.189848    4623 kube.go:558] Creating the node lease for IPv4. This is the n.Spec.PodCIDRs: [10.42.2.0/24]
+Feb 20 14:37:27 worker2 k3s[4623]: I0220 14:37:27.312248    4623 iptables.go:50] Starting flannel in iptables mode...
+Feb 20 14:37:27 worker2 k3s[4623]: time="2026-02-20T14:37:27Z" level=warning msg="no subnet found for key: FLANNEL_NETWORK in file: /run/flannel/subnet.env"
+Feb 20 14:37:27 worker2 k3s[4623]: time="2026-02-20T14:37:27Z" level=warning msg="no subnet found for key: FLANNEL_SUBNET in file: /run/flannel/subnet.env"
+Feb 20 14:37:27 worker2 k3s[4623]: time="2026-02-20T14:37:27Z" level=warning msg="no subnet found for key: FLANNEL_IPV6_NETWORK in file: /run/flannel/subnet.env"
+Feb 20 14:37:27 worker2 k3s[4623]: time="2026-02-20T14:37:27Z" level=warning msg="no subnet found for key: FLANNEL_IPV6_SUBNET in file: /run/flannel/subnet.env"
+Feb 20 14:37:27 worker2 k3s[4623]: I0220 14:37:27.313715    4623 iptables.go:101] Current network or subnet (10.42.0.0/16, 10.42.2.0/24) is not equal to previous one (0.0.0.0/0, 0.0.0.0/0), trying to recycle old iptables rules
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:27.998602    4623 iptables.go:111] Setting up masking rules
+Feb 20 14:37:28 worker2 k3s[4623]: time="2026-02-20T14:37:28Z" level=info msg="Starting network policy controller version v2.6.3-k3s1, built on 2026-02-12T23:46:55Z, go1.25.6"
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.074967    4623 network_policy_controller.go:164] Starting network policy controller
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.145608    4623 iptables.go:212] Changing default FORWARD chain policy to ACCEPT
+Feb 20 14:37:28 worker2 k3s[4623]: time="2026-02-20T14:37:28Z" level=info msg="Wrote flannel subnet file to /run/flannel/subnet.env"
+Feb 20 14:37:28 worker2 k3s[4623]: time="2026-02-20T14:37:28Z" level=info msg="Running flannel backend."
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.281204    4623 vxlan_network.go:68] watching for new subnet leases
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.281288    4623 vxlan_network.go:115] starting vxlan device watcher
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.294867    4623 subnet.go:150] Batch elem [0] is { lease.Event{Type:0, Lease:lease.Lease{EnableIPv4:true, EnableIPv6:false, Subnet:ip.IP4Net{IP:0xa2a0000, PrefixLen:0x18}, IPv6Subnet:ip.IP6Net{IP:(*ip.IP6)(nil), PrefixLen:0x0}, Attrs:lease.LeaseAttrs{PublicIP:0xa00020f, PublicIPv6:(*ip.IP6)(nil), BackendType:"vxlan", BackendData:json.RawMessage{0x7b, 0x22, 0x56, 0x4e, 0x49, 0x22, 0x3a, 0x31, 0x2c, 0x22, 0x56, 0x74, 0x65, 0x70, 0x4d, 0x41, 0x43, 0x22, 0x3a, 0x22, 0x32, 0x65, 0x3a, 0x61, 0x39, 0x3a, 0x39, 0x32, 0x3a, 0x36, 0x63, 0x3a, 0x62, 0x38, 0x3a, 0x63, 0x66, 0x22, 0x7d}, BackendV6Data:json.RawMessage(nil)}, Expiration:time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC), Asof:0}} }
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.296047    4623 subnet.go:150] Batch elem [0] is { lease.Event{Type:0, Lease:lease.Lease{EnableIPv4:true, EnableIPv6:false, Subnet:ip.IP4Net{IP:0xa2a0100, PrefixLen:0x18}, IPv6Subnet:ip.IP6Net{IP:(*ip.IP6)(nil), PrefixLen:0x0}, Attrs:lease.LeaseAttrs{PublicIP:0xa00020f, PublicIPv6:(*ip.IP6)(nil), BackendType:"vxlan", BackendData:json.RawMessage{0x7b, 0x22, 0x56, 0x4e, 0x49, 0x22, 0x3a, 0x31, 0x2c, 0x22, 0x56, 0x74, 0x65, 0x70, 0x4d, 0x41, 0x43, 0x22, 0x3a, 0x22, 0x31, 0x61, 0x3a, 0x34, 0x62, 0x3a, 0x38, 0x32, 0x3a, 0x33, 0x39, 0x3a, 0x39, 0x30, 0x3a, 0x30, 0x39, 0x22, 0x7d}, BackendV6Data:json.RawMessage(nil)}, Expiration:time.Date(1, time.January, 1, 0, 0, 0, 0, time.UTC), Asof:0}} }
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.296243    4623 vxlan_network.go:265] Received Subnet Event with VxLan: BackendType: vxlan, PublicIP: 10.0.2.15, PublicIPv6: (nil), BackendData: {"VNI":1,"VtepMAC":"2e:a9:92:6c:b8:cf"}, BackendV6Data: (nil)
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.302822    4623 vxlan_network.go:265] Received Subnet Event with VxLan: BackendType: vxlan, PublicIP: 10.0.2.15, PublicIPv6: (nil), BackendData: {"VNI":1,"VtepMAC":"1a:4b:82:39:90:09"}, BackendV6Data: (nil)
+Feb 20 14:37:28 worker2 k3s[4623]: E0220 14:37:28.436555    4623 log.go:32] "RunPodSandbox from runtime service failed" err="rpc error: code = Unknown desc = failed to setup network for sandbox \"cf5695a9f6d7e9d229eb8775b7892b0d4fab35c0115f4bcf59c9f695a4bda187\": plugin type=\"flannel\" failed (add): failed to load flannel 'subnet.env' file: open /run/flannel/subnet.env: no such file or directory. Check the flannel pod log for this node."
+Feb 20 14:37:28 worker2 k3s[4623]: E0220 14:37:28.437152    4623 kuberuntime_sandbox.go:71] "Failed to create sandbox for pod" err="rpc error: code = Unknown desc = failed to setup network for sandbox \"cf5695a9f6d7e9d229eb8775b7892b0d4fab35c0115f4bcf59c9f695a4bda187\": plugin type=\"flannel\" failed (add): failed to load flannel 'subnet.env' file: open /run/flannel/subnet.env: no such file or directory. Check the flannel pod log for this node." pod="kube-system/svclb-traefik-29a2e40e-9l9bz"
+Feb 20 14:37:28 worker2 k3s[4623]: E0220 14:37:28.437378    4623 kuberuntime_manager.go:1558] "CreatePodSandbox for pod failed" err="rpc error: code = Unknown desc = failed to setup network for sandbox \"cf5695a9f6d7e9d229eb8775b7892b0d4fab35c0115f4bcf59c9f695a4bda187\": plugin type=\"flannel\" failed (add): failed to load flannel 'subnet.env' file: open /run/flannel/subnet.env: no such file or directory. Check the flannel pod log for this node." pod="kube-system/svclb-traefik-29a2e40e-9l9bz"
+Feb 20 14:37:28 worker2 k3s[4623]: E0220 14:37:28.437786    4623 pod_workers.go:1324] "Error syncing pod, skipping" err="failed to \"CreatePodSandbox\" for \"svclb-traefik-29a2e40e-9l9bz_kube-system(8cce18ba-67bb-42ef-8f8c-88d0d870fabd)\" with CreatePodSandboxError: \"Failed to create sandbox for pod \\\"svclb-traefik-29a2e40e-9l9bz_kube-system(8cce18ba-67bb-42ef-8f8c-88d0d870fabd)\\\": rpc error: code = Unknown desc = failed to setup network for sandbox \\\"cf5695a9f6d7e9d229eb8775b7892b0d4fab35c0115f4bcf59c9f695a4bda187\\\": plugin type=\\\"flannel\\\" failed (add): failed to load flannel 'subnet.env' file: open /run/flannel/subnet.env: no such file or directory. Check the flannel pod log for this node.\"" pod="kube-system/svclb-traefik-29a2e40e-9l9bz" podUID="8cce18ba-67bb-42ef-8f8c-88d0d870fabd"
+Feb 20 14:37:28 worker2 k3s[4623]: I0220 14:37:28.844329    4623 iptables.go:358] bootstrap done
+Feb 20 14:37:29 worker2 k3s[4623]: I0220 14:37:29.021026    4623 iptables.go:358] bootstrap done
+Feb 20 14:37:29 worker2 k3s[4623]: I0220 14:37:29.729081    4623 network_policy_controller.go:179] Starting network policy controller full sync goroutine

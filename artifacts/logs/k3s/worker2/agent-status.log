@@ -1,0 +1,15 @@
+[0;1;32m●[0m k3s-agent.service - K3s Agent
+     Loaded: loaded (]8;;file://worker2/etc/systemd/system/k3s-agent.service/etc/systemd/system/k3s-agent.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Fri 2026-02-20 14:36:48 UTC; 21s ago
+   Main PID: 4623 (k3s)
+      Tasks: 5 (limit: 4647)
+     Memory: 350.0M
+        CPU: 23.392s
+     CGroup: /system.slice/k3s-agent.service
+             └─4623 /usr/local/bin/k3s agent --node-ip=192.168.56.12 --with-node-id
+
+Feb 20 14:36:48 worker2 systemd[1]: Starting K3s Agent...
+Feb 20 14:36:48 worker2 systemd[1]: Started K3s Agent.
+Feb 20 14:36:48 worker2 k3s[4623]: time="2026-02-20T14:36:48Z" level=info msg="Acquiring lock file /v…/.lock"
+Feb 20 14:36:48 worker2 k3s[4623]: time="2026-02-20T14:36:48Z" level=info msg="Preparing data dir /va…7fa3f4"
+Hint: Some lines were ellipsized, use -l to show in full.

@@ -19,3 +19,6 @@ venv
 artifacts/aws/stackpilot_ci_key
 artifacts/aws/stackpilot_ci_key.pub
 artifacts/aws/run.tfvars
+
+# k8s local secrets (do not commit)
+k8s/base/*.secret.env
