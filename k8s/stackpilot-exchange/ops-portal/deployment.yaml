@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ops-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ops-portal
+  template:
+    metadata:
+      labels:
+        app: ops-portal
+    spec:
+      containers:
+        - name: ops-portal
+          image: ghcr.io/paul2409/ops-portal:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: SERVICE_NAME
+              value: ops-portal
+            - name: SERVICE_VERSION
+              value: "1.0.0"
+            - name: ENV
+              value: dev
+            - name: PORT
+              value: "8000"
+            - name: IDENTITY_SERVICE_URL
+              value: http://identity-service:8000
+            - name: WALLET_SERVICE_URL
+              value: http://wallet-service:8000
+            - name: SYSTEM_SERVICE_URL
+              value: http://system-service:8000
+            - name: REQUEST_TIMEOUT
+              value: "2.0"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10

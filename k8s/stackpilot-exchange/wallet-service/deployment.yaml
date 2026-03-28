@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallet-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wallet-service
+  template:
+    metadata:
+      labels:
+        app: wallet-service
+    spec:
+      containers:
+        - name: wallet-service
+          image: ghcr.io/paul2409/wallet-service:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          env:
+            - name: SERVICE_NAME
+              value: wallet-service
+            - name: SERVICE_VERSION
+              value: "1.0.0"
+            - name: ENV
+              value: dev
+            - name: PORT
+              value: "8000"
+            - name: POSTGRES_HOST
+              value: postgres-wallet
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: wallet_db
+            - name: POSTGRES_USER
+              value: wallet_user
+            - name: POSTGRES_PASSWORD
+              value: wallet_pass
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10

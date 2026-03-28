@@ -1,73 +1,44 @@
-# Vagrant configuration (version 2)
 Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2204"
+  config.vm.box_check_update = false
 
-  # Base OS image for all machines
-  # Ubuntu 22.04 LTS – stable and suitable for k3s later
-  config.vm.box = "ubuntu/jammy64"
+  # Disable default synced folder
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 
-  # Sync project repo into /vagrant inside each VM
-  # This allows provisioning scripts to be reused across nodes
-  config.vm.synced_folder ".", "/vagrant", type: "virtualbox", disabled: true
-  config.vm.synced_folder "../", "/vagrant", type: "virtualbox"
+  # Rsync repo into guest
+  config.vm.synced_folder "../", "/vagrant",
+    type: "rsync",
+    rsync__auto: true,
+    rsync__exclude: [".git/", ".vagrant/", ".venv/"]
 
-  # Canonical definition of all nodes
-  # Single source of truth for identity and resources
   nodes = [
-    {
-      name: "control",
-      ip: "192.168.56.10",
-      memory: 8000,
-      cpus: 3
-    },
-    {
-      name: "worker1",
-      ip: "192.168.56.11",
-      memory: 4100,
-      cpus: 2
-    },
-    {
-      name: "worker2",
-      ip: "192.168.56.12",
-      memory: 4100,
-      cpus: 2
-    }
+    { name: "control", ip: "192.168.56.10", memory: 4096, maxmemory: 4096, cpus: 2 },
+    { name: "worker1", ip: "192.168.56.11", memory: 2048, maxmemory: 5120, cpus: 3 },
+    { name: "worker2", ip: "192.168.56.12", memory: 2048, maxmemory: 5120, cpus: 3 }
   ]
 
   nodes.each do |node|
     config.vm.define node[:name] do |n|
-
-      # Hostname must match logical node name
       n.vm.hostname = node[:name]
 
-      # Private network with static IP
+      # Lab NIC only. When prompted, choose: StackPilotInternal
       n.vm.network "private_network", ip: node[:ip]
 
+      n.vm.provider "hyperv" do |h|
+        h.vmname = "stackpilot-#{node[:name]}"
+        h.memory = node[:memory]
+        h.maxmemory = node[:maxmemory]
+        h.cpus = node[:cpus]
+      end
 
-
-      # --- Provisioning ---
-      # Baseline OS packages and tooling (idempotent)
-      
+      # Keep provisioners, but script runs them later with `vagrant provision`
       n.vm.provision "shell",
         path: "../scripts/provision/bootstrap.sh",
         privileged: true
 
-      # Enforce deterministic hostname resolution
-      # This manages only the StackPilot block in /etc/hosts
       n.vm.provision "shell",
         path: "../scripts/ops/hosts.sh",
         privileged: true
-
-      # Install Docker engine and CLI (idempotent)
-    #  n.vm.provision "shell",
-     #   path: "../scripts/provision/install-docker.sh",
-      #  privileged: true
-
-      # --- Provider configuration ---
-      n.vm.provider "virtualbox" do |vb|
-        vb.name   = "stackpilot-#{node[:name]}"
-        vb.memory = node[:memory]
-        vb.cpus   = node[:cpus]
-      end
     end
   end
 end

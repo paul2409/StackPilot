@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.customerPortal.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ .Values.customerPortal.name }}
+  ports:
+    - port: 80
+      targetPort: {{ .Values.customerPortal.port }}
+  type: ClusterIP

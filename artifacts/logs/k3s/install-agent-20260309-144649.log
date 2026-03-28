@@ -1,0 +1,77 @@
+[host] control=control server_url=https://192.168.56.10:6443 k3s_version=v1.34.4+k3s1
+[host] target_nodes='worker1 worker2'
+[host] log=/c/Projects/StackPilot/artifacts/logs/k3s/install-agent-20260309-144649.log
+
+[host] ensuring control VM is up...
+Bringing machine 'control' up with 'hyperv' provider...
+==> control: Verifying Hyper-V is enabled...
+==> control: Verifying Hyper-V is accessible...
+==> control: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> control: flag to force provisioning. Provisioners marked to run always will still run.
+[host] fetching join token from control...
+[host] token: ok
+
+============================================================
+[host] target=worker1 node_ip=192.168.56.11
+============================================================
+[host] ensuring VM is up: worker1
+Bringing machine 'worker1' up with 'hyperv' provider...
+==> worker1: Verifying Hyper-V is enabled...
+==> worker1: Verifying Hyper-V is accessible...
+==> worker1: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> worker1: flag to force provisioning. Provisioners marked to run always will still run.
+[host] preflight network inside worker1 (dns + ping)...
+DNS_OK
+PING_OK
+[host] installing agent inside worker1...
+[agent-setup] node_ip=192.168.56.11
+[agent-setup] server_url=https://192.168.56.10:6443
+[agent-setup] k3s_version=v1.34.4+k3s1
+[agent-setup] bin_src=/vagrant/vagrant/k3s-bin/k3s
+[agent-setup] preflight: swapoff, modules, sysctls, forwarding, ufw...
+sysctl: setting key "net.ipv4.conf.all.accept_source_route": Invalid argument
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+[agent-setup] detect flannel iface by NODE_IP...
+[agent-setup] flannel_iface=eth1
+[agent-setup] installing binary...
+[agent-setup] writing systemd unit...
+[agent-setup] enable + start...
+Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+[agent-setup] agent status:
+[0;1;32m●[0m k3s-agent.service - K3s Agent (v1.34.4+k3s1)
+     Loaded: loaded (]8;;file://worker1/etc/systemd/system/k3s-agent.service/etc/systemd/system/k3s-agent.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Mon 2026-03-09 13:47:52 UTC; 10ms ago
+   Main PID: 2897 (k3s)
+      Tasks: 4 (limit: 2143)
+     Memory: 7.7M
+        CPU: 9ms
+     CGroup: /system.slice/k3s-agent.service
+             └─2897 /usr/local/bin/k3s agent --node-ip=192.168.56.11 --flannel-iface=eth1
+
+Mar 09 13:47:52 worker1 systemd[1]: Starting K3s Agent (v1.34.4+k3s1)...
+Mar 09 13:47:52 worker1 systemd[1]: Started K3s Agent (v1.34.4+k3s1).
+Mar 09 13:47:52 worker1 k3s[2897]: time="2026-03-09T13:47:52Z" level=info msg="Acquiring lock file /var/lib/rancher/k3s/data/.lock"
+Mar 09 13:47:52 worker1 k3s[2897]: time="2026-03-09T13:47:52Z" level=info msg="Preparing data dir /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4"
+[host] verify nodes from control:
+NAME      STATUS   ROLES           AGE     VERSION        INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+control   Ready    control-plane   7m18s   v1.35.1+k3s1   192.168.56.10   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://2.1.5-k3s1
+worker1   Ready    <none>          8s      v1.35.1+k3s1   192.168.56.11   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://2.1.5-k3s1
+
+============================================================
+[host] target=worker2 node_ip=192.168.56.12
+============================================================
+[host] ensuring VM is up: worker2
+Bringing machine 'worker2' up with 'hyperv' provider...
+==> worker2: Verifying Hyper-V is enabled...
+==> worker2: Verifying Hyper-V is accessible...
+==> worker2: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> worker2: flag to force provisioning. Provisioners marked to run always will still run.
+[host] preflight network inside worker2 (dns + ping)...
+DNS_OK
+PING_OK
+[host] installing agent inside worker2...
+bash: line 6: /vagrant/scripts/k3s/agent-node-setup.sh: Permission denied
+[host] FAIL: agent-node-setup failed on worker2 (rc=126)
+[host] check inside VM:
+  vagrant ssh worker2 -c "sudo systemctl status k3s-agent --no-pager -l"
+  vagrant ssh worker2 -c "sudo journalctl -u k3s-agent -n 200 --no-pager"

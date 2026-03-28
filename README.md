@@ -399,3 +399,77 @@ If infrastructure remains after workflow completion, the milestone is not comple
 v0.6 — CI Delivery Authority & Deterministic Lifecycle
 
 ⸻
+
+
+Milestone 07 — Kubernetes Runtime Authority & Helm Release Discipline (v0.7)
+
+Goal
+
+Move StackPilot from container orchestration by convention to runtime enforcement by Kubernetes.
+
+This milestone proves that the platform runs as a controlled Kubernetes system with truthful health semantics, dependency-aware readiness, stable rollout behavior, and release packaging through Helm.
+
+Kubernetes becomes the runtime authority.
+Helm becomes the release authority.
+
+The system is no longer considered correct because containers start.
+It is considered correct only when the cluster admits healthy workloads, blocks unready ones, routes traffic correctly, and can recover cleanly through controlled release changes.
+
+⸻
+
+What This Milestone Demonstrates
+
+• Full six-service deployment to local k3s
+• In-cluster Postgres dependencies for identity-service and wallet-service
+• Kubernetes Deployments and Services for all workloads
+• NGINX ingress routing for customer.local, admin.local, and ops.local
+• Stable service discovery through Kubernetes DNS
+• Separation between process liveness (/health) and dependency truth (/ready)
+• Dependency-aware readiness propagation across upstream services
+• Traffic routed only to ready workloads
+• Controlled rollout behavior under good and bad releases
+• A repeatable Kubernetes verification path from the host
+• Helm packaging of the full stack as a releasable system
+• Helm install, upgrade, and rollback working locally
+• Values-based environment separation for local and staged runtime definitions
+• Clear separation between runtime authority (Kubernetes) and release authority (Helm)
+
+⸻
+
+What “Working” Means
+
+The system is considered working only if all of the following are true:
+
+• All six services and both Postgres dependencies run in k3s
+• Kubernetes Services resolve workloads correctly by internal DNS name
+• Ingress routes external traffic correctly to:
+• customer.local
+• admin.local
+• ops.local
+• /health reports process liveness only
+• /ready reports dependency truth only
+• If a dependency fails, upstream readiness degrades truthfully
+• Unready workloads do not receive traffic
+• A bad release is visibly blocked by readiness
+• Verification passes through the canonical Kubernetes verification path
+• Helm can install the stack cleanly
+• Helm can upgrade the stack cleanly
+• Helm can roll the stack back to a known-good revision
+• Re-deploying from chart state behaves deterministically
+
+If workloads are merely “Running” but readiness is dishonest, the milestone is not complete.
+
+⸻
+
+Runbooks
+
+• docs/runbooks/milestone07.md
+• docs/runbooks/troubleshooting.md
+
+⸻
+
+Tag
+
+v0.7 — Kubernetes Runtime Authority & Helm Release Discipline
+
+⸻

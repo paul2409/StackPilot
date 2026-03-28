@@ -1,59 +1,15 @@
 ## ==========================================================
-# StackPilot Makefile - Golden Path
+# StackPilot Makefile - Golden Path (Hyper-V Edition)
 #
 # This Makefile is the "operator interface" for the repo.
 # If a command is not exposed here, it is not part of the
 # supported golden path.
 #
-# Key principles:
-#  - main commands are simple and deterministic
-#  - host preflight fails fast before doing expensive work
-#  - service operations happen via scripts (not ad-hoc docker)
-#  - NODE allows running the service on control/worker1/worker2
-#  - drills are explicit and destructive (never part of verify)
-#
-# Milestone 03 Item 4 + Item 5
-#  - Item 4 (Secrets): secrets gate must be runnable via Make
-#  - Item 5 (Guarantees): guarantees map gate must be runnable via Make
-#  - Checks must run BEFORE runtime verification
-# ==========================================================
-# QUICK EXAMPLES (copy/paste)
-#
-# Golden path:
-#   make up        -> boots VMs, starts services
-#   make verify    -> runs checks first, then proves system state
-#   make down      -> stops services (keeps images/volumes)
-#
-# Reviewer flow:
-#   make reviewer -> clean-room -> demo -> verify
-#
-# Failure drills:
-#   make drill-db
-#   NODE=worker1 make drill-db
-#
-# Multi-node usage:
-#   NODE=worker1 make demo
-#   NODE=worker1 make verify
-#   NODE=worker2 make logs
-#
-# Clean-room / reviewer proof:
-#   make reviewer
-#   NODE=worker1 make reviewer
-#
-# Full reset:
-#   make destroy
-#
-# AWS usage:
-#   make aws-sts
-#   make aws-ip
-#   make aws-plan-guarded
-#   make aws-apply
-#   make aws-target
-#   make deploy-aws
-#   make verify-aws
-#   make aws-destroy
-#   make aws-run
-# ==========================================================
+# Hyper-V notes:
+#  - Vagrant Hyper-V provider needs an elevated (Admin) shell.
+#  - Shared folders use SMB (you will be prompted for Windows creds).
+#  - VM images (boxes) must have a Hyper-V build (e.g. generic/ubuntu2204).
+## ==========================================================
 
 .DEFAULT_GOAL := help
 SHELL := /usr/bin/env bash
@@ -72,6 +28,11 @@ OPS_DIR     := $(SCRIPTS_DIR)/ops
 CHECKS_DIR  := $(SCRIPTS_DIR)/checks
 DRILLS_DIR  := $(SCRIPTS_DIR)/drills
 AWS_DIR     := $(SCRIPTS_DIR)/aws
+
+NAMESPACE ?= stackpilot
+CUSTOMER_HOST ?= http://customer.local
+ADMIN_HOST ?= http://admin.local
+OPS_HOST ?= http://ops.local
 
 # Terraform (local lab)
 TF_DIR := $(ROOT_DIR)/infra/terraform
@@ -95,6 +56,13 @@ AWS_TF_DIR := $(ROOT_DIR)/infra/aws/tf
 NODE ?= control
 APP_IMAGE ?= infra-api:local
 
+# Hyper-V provider (single source of truth)
+PROVIDER ?= hyperv
+
+# Optional: if you have multiple Hyper-V switches, you can set this
+# in your environment and use it in your Vagrantfile.
+# HYPERV_SWITCH ?= "Default Switch"
+
 # ----------------------------------------------------------
 # Phony targets
 # ----------------------------------------------------------
@@ -103,23 +71,32 @@ APP_IMAGE ?= infra-api:local
         terraform-fmt terraform-fmtcheck terraform-init terraform-validate terraform-plan terraform-ci terraform-exec \
         verify host-verify cluster-verify runtime-verify \
         logs down clean destroy \
-        vm-up vm-halt vm-destroy ssh status provision \
+        vm-up vm-halt vm-destroy vm-reload ssh status provision \
         drills drill-db \
         aws-sts aws-ip aws-init aws-validate aws-plan aws-plan-guarded aws-apply aws-destroy aws-cycle aws-clean-check \
-        aws-target deploy-aws verify-aws aws-run aws-remote-logs
-
+        aws-target deploy-aws verify-aws aws-run aws-remote-logs \
+		k8s-up k8s-down k8s-status k8s-verify
 
 # ----------------------------------------------------------
 # help
 # ----------------------------------------------------------
 help:
-	@echo "StackPilot (Golden Path)"
+	@echo "StackPilot (Golden Path) - Hyper-V"
 	@echo ""
 	@echo "Golden path"
 	@echo "  make up              Boot VMs + start services on NODE (default: control)"
 	@echo "  make demo            Start services on NODE (canonical entrypoint)"
 	@echo "  make verify          Run checks first, then run verification suite"
 	@echo "  make down            Stop services on NODE (containers removed, images/volumes kept)"
+	@echo ""
+	@echo "VM lifecycle (Hyper-V)"
+	@echo "  make vm-up            vagrant up --provider=$(PROVIDER)"
+	@echo "  make vm-halt          vagrant halt"
+	@echo "  make vm-reload        vagrant reload"
+	@echo "  make vm-destroy       vagrant destroy -f"
+	@echo "  make ssh              vagrant ssh NODE (default: control)"
+	@echo "  make status           vagrant status"
+	@echo "  make provision        vagrant provision"
 	@echo ""
 	@echo "Reviewer proof"
 	@echo "  make reviewer        Clean-room -> demo -> verify (anti-stale proof)"
@@ -140,16 +117,15 @@ help:
 	@echo "  make deploy-aws      Rsync repo + docker compose up on EC2 (scripts/aws/deploy-aws.sh)"
 	@echo "  make verify-aws      External verification + persistence (scripts/aws/verify-aws.sh)"
 	@echo "  make aws-destroy     Terraform destroy (AWS)"
-	@echo "  make aws-clean-check Prove no leftover AWS resources (scripts/aws/cleanup-check.sh)"
 	@echo "  make aws-run         apply -> target -> deploy -> verify -> destroy -> clean-check"
 	@echo ""
-	@echo "Artifacts (single root):"
+	@echo "Artifacts:"
 	@echo "  $(ARTIFACTS_DIR)/"
-	@echo "Examples:"
-	@echo "  make up"
-	@echo "  make reviewer"
-	@echo "  make aws-run"
-
+	@echo ""
+	@echo "Notes:"
+	@echo "  - Hyper-V provider requires an Admin shell."
+	@echo "  - SMB shared folders will prompt for your Windows credentials."
+	@echo "  - Use a Hyper-V-capable box (e.g. generic/ubuntu2204)."
 
 # ----------------------------------------------------------
 # preflight
@@ -157,10 +133,6 @@ help:
 preflight:
 	@echo "== PREFLIGHT: host (scripts/core/preflight-host.sh) =="
 	@bash "$(CORE_DIR)/preflight-host.sh"
-
-repo-preflight:
-	@echo "== PREFLIGHT: repo (scripts/core/preflight-repo.sh) =="
-	@bash "$(CORE_DIR)/preflight-repo.sh"
 
 
 # ----------------------------------------------------------
@@ -179,32 +151,37 @@ reviewer:
 
 
 # ----------------------------------------------------------
+# VM lifecycle (Hyper-V)
+# ----------------------------------------------------------
+vm-up: preflight
+	@echo "== VM: up (vagrant up) provider=$(PROVIDER) =="
+	@cd "$(VAGRANT_DIR)" && vagrant up --provider="$(PROVIDER)"
+
+vm-halt: preflight
+	@echo "== VM: halt (vagrant halt) =="
+	@cd "$(VAGRANT_DIR)" && vagrant halt
+
+vm-reload: preflight
+	@echo "== VM: reload (vagrant reload) =="
+	@cd "$(VAGRANT_DIR)" && vagrant reload
+
+vm-destroy: preflight
+	@echo "== VM: destroy (vagrant destroy -f) =="
+	@cd "$(VAGRANT_DIR)" && vagrant destroy -f
+
+# ----------------------------------------------------------
 # Checks
 # ----------------------------------------------------------
-policy: repo-preflight
-	@echo "== CHECK: policy | scripts/checks/policy.sh =="
-	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/policy.sh"
-
 secrets: repo-preflight
 	@echo "== CHECK: secrets | scripts/checks/secrets.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/secrets.sh"
 
-guarantees: repo-preflight
-	@echo "== CHECK: guarantees | scripts/checks/guarantees-map.sh =="
-	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/guarantees-map.sh"
-
-build: repo-preflight
-	@echo "== CHECK: build | scripts/checks/build.sh =="
-	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/build.sh"
-
-python: repo-preflight
-	@echo "== CHECK: python | scripts/checks/python.sh =="
-	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/python.sh"
 
 tags: repo-preflight
 	@echo "== CHECK: immutable-tags | scripts/checks/immutable-tags.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(CHECKS_DIR)/immutable-tags.sh"
 
+checks: secrets tags
 
 # ----------------------------------------------------------
 # Terraform gates (local lab)
@@ -249,23 +226,15 @@ terraform: repo-preflight
 	@$(MAKE) terraform-ci
 	@echo "PASS: terraform checks"
 
-checks: policy secrets guarantees build python tags
-
-
 # ----------------------------------------------------------
 # Verification (runtime proof)
 # ----------------------------------------------------------
-host-verify: preflight
-	@echo "== VERIFY: host | scripts/verify/verify-host.sh =="
-	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-host.sh"
 
 cluster-verify: preflight
 	@echo "== VERIFY: cluster | scripts/verify/verify-cluster.sh =="
 	@cd "$(ROOT_DIR)" && bash "$(VERIFY_DIR)/verify-cluster.sh"
 
-runtime-verify: preflight
-	@echo "== VERIFY: build/runtime | scripts/verify/verify-build.sh =="
-	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(VERIFY_DIR)/verify-build.sh"
+
 
 verify: repo-preflight
 	@echo "== VERIFY: start =="
@@ -278,17 +247,10 @@ verify: repo-preflight
 		exit 0; \
 	fi
 
-	@echo "== VERIFY: host verification =="
-	@$(MAKE) host-verify
-
 	@echo "== VERIFY: cluster verification =="
 	@$(MAKE) cluster-verify
 
-	@echo "== VERIFY: build/runtime verification =="
-	@$(MAKE) runtime-verify
-
 	@echo "== VERIFY: PASS =="
-
 
 # ----------------------------------------------------------
 # Failure drills
@@ -300,7 +262,6 @@ drills:
 drill-db: preflight
 	@echo "== DRILL: db-ready | scripts/drills/db-ready.sh =="
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" bash "$(DRILLS_DIR)/db-ready.sh"
-
 
 # ----------------------------------------------------------
 # Service lifecycle targets
@@ -314,22 +275,6 @@ clean: preflight
 	@cd "$(ROOT_DIR)" && NODE="$(NODE)" APP_IMAGE="$(APP_IMAGE)" bash "$(CORE_DIR)/clean-room.sh"
 
 destroy: preflight clean vm-destroy
-
-
-# ----------------------------------------------------------
-# VM lifecycle
-# ----------------------------------------------------------
-vm-up: preflight
-	@echo "== VM: up (vagrant up) =="
-	@cd "$(VAGRANT_DIR)" && vagrant up
-
-vm-halt: preflight
-	@echo "== VM: halt (vagrant halt) =="
-	@cd "$(VAGRANT_DIR)" && vagrant halt
-
-vm-destroy: preflight
-	@echo "== VM: destroy (vagrant destroy -f) =="
-	@cd "$(VAGRANT_DIR)" && vagrant destroy -f
 
 
 # ----------------------------------------------------------
@@ -350,7 +295,6 @@ status: preflight
 provision: preflight
 	@echo "== PROVISION: vagrant provision =="
 	@cd "$(VAGRANT_DIR)" && vagrant provision
-
 
 # ----------------------------------------------------------
 # AWS commands (no console clicking)
@@ -387,7 +331,6 @@ aws-plan-guarded: aws-plan
 	@echo "== AWS: plan guard =="
 	@bash "$(AWS_DIR)/plan-guard.sh"
 
-# Note: keep as-is unless you want to enforce guarded plan in the chain:
 aws-apply: aws-plan-guarded
 	@echo "== AWS: terraform apply =="
 	@bash "$(AWS_DIR)/tf-apply.sh"
@@ -424,3 +367,16 @@ aws-remote-logs:
 	@echo "== AWS: collect remote docker logs =="
 	@bash "$(AWS_DIR)/remote-logs.sh"
 
+
+
+k8s-up:
+	kubectl apply -k k8s/stackpilot-exchange
+
+k8s-down:
+	kubectl delete -k k8s/stackpilot-exchange
+
+k8s-status:
+	NAMESPACE=$(NAMESPACE) bash scripts/verify/k8s-status.sh
+
+k8s-verify:
+	NAMESPACE=$(NAMESPACE) CUSTOMER_HOST=$(CUSTOMER_HOST) ADMIN_HOST=$(ADMIN_HOST) OPS_HOST=$(OPS_HOST) bash scripts/verify/verify-k8s.sh

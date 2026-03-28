@@ -1,0 +1,115 @@
+[host] control=control server_url=https://192.168.56.10:6443 k3s_version=v1.34.4+k3s1
+[host] target_nodes='worker1 worker2'
+[host] log=/c/Projects/StackPilot/artifacts/logs/k3s/install-agent-20260309-145117.log
+
+[host] ensuring control VM is up...
+Bringing machine 'control' up with 'hyperv' provider...
+==> control: Verifying Hyper-V is enabled...
+==> control: Verifying Hyper-V is accessible...
+==> control: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> control: flag to force provisioning. Provisioners marked to run always will still run.
+[host] fetching join token from control...
+[host] token: ok
+
+============================================================
+[host] target=worker1 node_ip=192.168.56.11
+============================================================
+[host] ensuring VM is up: worker1
+Bringing machine 'worker1' up with 'hyperv' provider...
+==> worker1: Verifying Hyper-V is enabled...
+==> worker1: Verifying Hyper-V is accessible...
+==> worker1: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> worker1: flag to force provisioning. Provisioners marked to run always will still run.
+[host] preflight network inside worker1 (dns + ping)...
+DNS_OK
+PING_OK
+[host] installing agent inside worker1...
+[agent-setup] node_ip=192.168.56.11
+[agent-setup] server_url=https://192.168.56.10:6443
+[agent-setup] k3s_version=v1.34.4+k3s1
+[agent-setup] bin_src=/vagrant/vagrant/k3s-bin/k3s
+[agent-setup] preflight: swapoff, modules, sysctls, forwarding, ufw...
+sysctl: setting key "net.ipv4.conf.all.accept_source_route": Invalid argument
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+[agent-setup] detect flannel iface by NODE_IP...
+[agent-setup] flannel_iface=eth1
+[agent-setup] installing binary...
+[agent-setup] writing systemd unit...
+[agent-setup] enable + start...
+[agent-setup] agent status:
+[0;1;32m●[0m k3s-agent.service - K3s Agent (v1.34.4+k3s1)
+     Loaded: loaded (]8;;file://worker1/etc/systemd/system/k3s-agent.service/etc/systemd/system/k3s-agent.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Mon 2026-03-09 13:47:52 UTC; 4min 30s ago
+   Main PID: 2897 (k3s-agent)
+      Tasks: 49 (limit: 2143)
+     Memory: 840.7M
+        CPU: 16.256s
+     CGroup: /system.slice/k3s-agent.service
+             ├─2897 "/usr/local/bin/k3s agent" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─2918 "containerd " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─4226 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id 3929e68d33de907ca979847d212efc66380ff13f39b88f18e13dc763599f081f -address /run/k3s/containerd/containerd.sock
+             └─4239 /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4/bin/containerd-shim-runc-v2 -namespace k8s.io -id ce4216fb52a20b63d63d2f4f6d02d8247843ab47110ab8e944338dc08c7b20d7 -address /run/k3s/containerd/containerd.sock
+
+Mar 09 13:49:00 worker1 k3s[2897]: I0309 13:49:00.831900    2897 reconciler_common.go:299] "Volume detached for volume \"content\" (UniqueName: \"kubernetes.io/configmap/304b2eef-7740-46f6-a076-e27226cbbf69-content\") on node \"worker1\" DevicePath \"\""
+Mar 09 13:49:00 worker1 k3s[2897]: I0309 13:49:00.832936    2897 operation_generator.go:779] UnmountVolume.TearDown succeeded for volume "kubernetes.io/empty-dir/304b2eef-7740-46f6-a076-e27226cbbf69-klipper-cache" pod "304b2eef-7740-46f6-a076-e27226cbbf69" (UID: "304b2eef-7740-46f6-a076-e27226cbbf69"). InnerVolumeSpecName "klipper-cache". PluginName "kubernetes.io/empty-dir", VolumeGIDValue ""
+Mar 09 13:49:00 worker1 k3s[2897]: I0309 13:49:00.833401    2897 operation_generator.go:779] UnmountVolume.TearDown succeeded for volume "kubernetes.io/empty-dir/304b2eef-7740-46f6-a076-e27226cbbf69-klipper-config" pod "304b2eef-7740-46f6-a076-e27226cbbf69" (UID: "304b2eef-7740-46f6-a076-e27226cbbf69"). InnerVolumeSpecName "klipper-config". PluginName "kubernetes.io/empty-dir", VolumeGIDValue ""
+Mar 09 13:49:00 worker1 k3s[2897]: I0309 13:49:00.833566    2897 operation_generator.go:779] UnmountVolume.TearDown succeeded for volume "kubernetes.io/empty-dir/304b2eef-7740-46f6-a076-e27226cbbf69-tmp" pod "304b2eef-7740-46f6-a076-e27226cbbf69" (UID: "304b2eef-7740-46f6-a076-e27226cbbf69"). InnerVolumeSpecName "tmp". PluginName "kubernetes.io/empty-dir", VolumeGIDValue ""
+Mar 09 13:49:00 worker1 k3s[2897]: I0309 13:49:00.933013    2897 reconciler_common.go:299] "Volume detached for volume \"klipper-config\" (UniqueName: \"kubernetes.io/empty-dir/304b2eef-7740-46f6-a076-e27226cbbf69-klipper-config\") on node \"worker1\" DevicePath \"\""
+Mar 09 13:49:00 worker1 k3s[2897]: I0309 13:49:00.933069    2897 reconciler_common.go:299] "Volume detached for volume \"tmp\" (UniqueName: \"kubernetes.io/empty-dir/304b2eef-7740-46f6-a076-e27226cbbf69-tmp\") on node \"worker1\" DevicePath \"\""
+Mar 09 13:49:00 worker1 k3s[2897]: I0309 13:49:00.933079    2897 reconciler_common.go:299] "Volume detached for volume \"klipper-cache\" (UniqueName: \"kubernetes.io/empty-dir/304b2eef-7740-46f6-a076-e27226cbbf69-klipper-cache\") on node \"worker1\" DevicePath \"\""
+Mar 09 13:49:01 worker1 k3s[2897]: I0309 13:49:01.558339    2897 pod_container_deletor.go:80] "Container not found in pod's containers" containerID="c6e1c3e8695834dc2f914b6f1175db7c84608e1fcedc5d9e8bc3b7ad3a430b7d"
+Mar 09 13:49:11 worker1 k3s[2897]: I0309 13:49:11.593438    2897 pod_startup_latency_tracker.go:108] "Observed pod startup duration" pod="kube-system/svclb-traefik-ecb3647a-hlckn" podStartSLOduration=1.3594394859999999 podStartE2EDuration="12.59341662s" podCreationTimestamp="2026-03-09 13:48:59 +0000 UTC" firstStartedPulling="2026-03-09 13:48:59.697160471 +0000 UTC m=+65.469882617" lastFinishedPulling="2026-03-09 13:49:10.931137605 +0000 UTC m=+76.703859751" observedRunningTime="2026-03-09 13:49:11.593081532 +0000 UTC m=+77.365803678" watchObservedRunningTime="2026-03-09 13:49:11.59341662 +0000 UTC m=+77.366138666"
+Mar 09 13:49:24 worker1 k3s[2897]: I0309 13:49:24.617135    2897 pod_startup_latency_tracker.go:108] "Observed pod startup duration" pod="kube-system/traefik-5fdc878c8d-qb77x" podStartSLOduration=2.193630074 podStartE2EDuration="26.61712221s" podCreationTimestamp="2026-03-09 13:48:58 +0000 UTC" firstStartedPulling="2026-03-09 13:48:59.708275482 +0000 UTC m=+65.480997528" lastFinishedPulling="2026-03-09 13:49:24.131767518 +0000 UTC m=+89.904489664" observedRunningTime="2026-03-09 13:49:24.616522332 +0000 UTC m=+90.389244478" watchObservedRunningTime="2026-03-09 13:49:24.61712221 +0000 UTC m=+90.389844256"
+[host] verify nodes from control:
+NAME      STATUS   ROLES           AGE     VERSION        INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+control   Ready    control-plane   11m     v1.35.1+k3s1   192.168.56.10   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://2.1.5-k3s1
+worker1   Ready    <none>          4m37s   v1.35.1+k3s1   192.168.56.11   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://2.1.5-k3s1
+
+============================================================
+[host] target=worker2 node_ip=192.168.56.12
+============================================================
+[host] ensuring VM is up: worker2
+Bringing machine 'worker2' up with 'hyperv' provider...
+==> worker2: Verifying Hyper-V is enabled...
+==> worker2: Verifying Hyper-V is accessible...
+==> worker2: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> worker2: flag to force provisioning. Provisioners marked to run always will still run.
+[host] preflight network inside worker2 (dns + ping)...
+DNS_OK
+PING_OK
+[host] installing agent inside worker2...
+[agent-setup] node_ip=192.168.56.12
+[agent-setup] server_url=https://192.168.56.10:6443
+[agent-setup] k3s_version=v1.34.4+k3s1
+[agent-setup] bin_src=/vagrant/vagrant/k3s-bin/k3s
+[agent-setup] preflight: swapoff, modules, sysctls, forwarding, ufw...
+sysctl: setting key "net.ipv4.conf.all.accept_source_route": Invalid argument
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+[agent-setup] detect flannel iface by NODE_IP...
+[agent-setup] flannel_iface=eth1
+[agent-setup] installing binary...
+[agent-setup] writing systemd unit...
+[agent-setup] enable + start...
+Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+[agent-setup] agent status:
+[0;1;32m●[0m k3s-agent.service - K3s Agent (v1.34.4+k3s1)
+     Loaded: loaded (]8;;file://worker2/etc/systemd/system/k3s-agent.service/etc/systemd/system/k3s-agent.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Mon 2026-03-09 13:53:14 UTC; 12ms ago
+   Main PID: 2868 (k3s)
+      Tasks: 5 (limit: 2143)
+     Memory: 14.3M
+        CPU: 9ms
+     CGroup: /system.slice/k3s-agent.service
+             └─2868 /usr/local/bin/k3s agent --node-ip=192.168.56.12 --flannel-iface=eth1
+
+Mar 09 13:53:14 worker2 systemd[1]: Starting K3s Agent (v1.34.4+k3s1)...
+Mar 09 13:53:14 worker2 systemd[1]: Started K3s Agent (v1.34.4+k3s1).
+Mar 09 13:53:14 worker2 k3s[2868]: time="2026-03-09T13:53:14Z" level=info msg="Acquiring lock file /var/lib/rancher/k3s/data/.lock"
+Mar 09 13:53:14 worker2 k3s[2868]: time="2026-03-09T13:53:14Z" level=info msg="Preparing data dir /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4"
+[host] verify nodes from control:
+NAME      STATUS   ROLES           AGE     VERSION        INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+control   Ready    control-plane   12m     v1.35.1+k3s1   192.168.56.10   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://2.1.5-k3s1
+worker1   Ready    <none>          5m30s   v1.35.1+k3s1   192.168.56.11   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://2.1.5-k3s1
+worker2   Ready    <none>          7s      v1.35.1+k3s1   192.168.56.12   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://2.1.5-k3s1
+
+[host] SUCCESS. all target nodes attempted.

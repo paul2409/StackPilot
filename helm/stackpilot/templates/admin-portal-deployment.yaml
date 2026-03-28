@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.adminPortal.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.adminPortal.name }}
+spec:
+  replicas: {{ .Values.adminPortal.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.adminPortal.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.adminPortal.name }}
+    spec:
+      containers:
+        - name: {{ .Values.adminPortal.name }}
+          image: {{ .Values.image.registry }}/admin-portal:{{ .Values.adminPortal.tag }}
+          ports:
+            - containerPort: {{ .Values.adminPortal.port }}
+          env:
+            - name: SERVICE_NAME
+              value: {{ .Values.adminPortal.name }}
+            - name: SERVICE_VERSION
+              value: "1.0.0"
+            - name: ENV
+              value: "dev"
+            - name: PORT
+              value: "{{ .Values.adminPortal.port }}"
+            - name: IDENTITY_SERVICE_URL
+              value: "http://{{ .Values.identity.name }}"
+            - name: WALLET_SERVICE_URL
+              value: "http://{{ .Values.wallet.name }}"
+            - name: SYSTEM_SERVICE_URL
+              value: "http://{{ .Values.system.name }}"
+            - name: REQUEST_TIMEOUT
+              value: "2.0"
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.adminPortal.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.adminPortal.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10

@@ -1,42 +1,163 @@
 services:
-  db:
-    image: postgres:16.4-alpine
-    container_name: stackpilot-db
+  postgres-identity:
+    image: postgres:16
+    container_name: postgres-identity
     environment:
-      POSTGRES_DB: stackpilot
-      POSTGRES_USER: stackpilot
-      POSTGRES_PASSWORD: stackpilot
-    volumes:
-      - stackpilot_pgdata:/var/lib/postgresql/data
-      - ./db/init:/infra/db/init:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stackpilot -d stackpilot"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    restart: unless-stopped
-
-  api:
-    image: infra-api:local
-    build:
-      context: ../apps/mock-exchange
-      dockerfile: Dockerfile
-    container_name: stackpilot-api
-    env_file:
-      - ../apps/mock-exchange/env/dev.env
-    environment:
-      DB_HOST: db
-      DB_PORT: "5432"
-      DB_NAME: stackpilot
-      DB_USER: stackpilot
-      DB_PASSWORD: stackpilot
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: identity_user
+      POSTGRES_PASSWORD: identity_pass
     ports:
-      - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
+      - "5433:5432"
+    volumes:
+      - identity_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U identity_user -d identity_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  identity-service:
+    build:
+      context: ../services/identity-service
+    container_name: identity-service
+    environment:
+      SERVICE_NAME: identity-service
+      SERVICE_VERSION: 1.0.0
+      ENV: dev
+      PORT: 8000
+      POSTGRES_HOST: postgres-identity
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: identity_user
+      POSTGRES_PASSWORD: identity_pass
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres-identity:
+        condition: service_healthy
+
+  postgres-wallet:
+    image: postgres:16
+    container_name: postgres-wallet
+    environment:
+      POSTGRES_DB: wallet_db
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - wallet_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet_user -d wallet_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wallet-service:
+    build:
+      context: ../services/wallet-service
+    container_name: wallet-service
+    environment:
+      SERVICE_NAME: wallet-service
+      SERVICE_VERSION: 1.0.0
+      ENV: dev
+      PORT: 8000
+      POSTGRES_HOST: postgres-wallet
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: wallet_db
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_pass
+    ports:
+      - "8002:8000"
+    depends_on:
+      postgres-wallet:
+        condition: service_healthy
+
+  system-service:
+    build:
+      context: ../services/system-service
+    container_name: system-service
+    environment:
+      SERVICE_NAME: system-service
+      SERVICE_VERSION: 1.0.0
+      ENV: dev
+      PORT: 8000
+      IDENTITY_SERVICE_URL: http://identity-service:8000
+      WALLET_SERVICE_URL: http://wallet-service:8000
+      REQUEST_TIMEOUT: 2.0
+    ports:
+      - "8003:8000"
+    depends_on:
+      identity-service:
+        condition: service_started
+      wallet-service:
+        condition: service_started
+
+  customer-portal:
+    build:
+      context: ../apps/stackpilot-exchange/customer-portal
+    container_name: customer-portal
+    environment:
+      SERVICE_NAME: customer-portal
+      SERVICE_VERSION: 1.0.0
+      ENV: dev
+      PORT: 8000
+      IDENTITY_SERVICE_URL: http://identity-service:8000
+      WALLET_SERVICE_URL: http://wallet-service:8000
+      SYSTEM_SERVICE_URL: http://system-service:8000
+      REQUEST_TIMEOUT: 2.0
+    ports:
+      - "8004:8000"
+    depends_on:
+      identity-service:
+        condition: service_started
+      wallet-service:
+        condition: service_started
+      system-service:
+        condition: service_started
+
+  admin-portal:
+    build:
+      context: ../apps/stackpilot-exchange/admin-portal
+    container_name: admin-portal
+    environment:
+      SERVICE_NAME: admin-portal
+      SERVICE_VERSION: 1.0.0
+      ENV: dev
+      PORT: 8000
+      IDENTITY_SERVICE_URL: http://identity-service:8000
+      WALLET_SERVICE_URL: http://wallet-service:8000
+      SYSTEM_SERVICE_URL: http://system-service:8000
+    ports:
+      - "8005:8000"
+    depends_on:
+      wallet-service:
+        condition: service_started
+      system-service:
+        condition: service_started
+
+  ops-portal:
+    build:
+      context: ../apps/stackpilot-exchange/ops-portal
+    container_name: ops-portal
+    environment:
+      SERVICE_NAME: ops-portal
+      SERVICE_VERSION: 1.0.0
+      ENV: dev
+      PORT: 8000
+      IDENTITY_SERVICE_URL: http://identity-service:8000
+      WALLET_SERVICE_URL: http://wallet-service:8000
+      SYSTEM_SERVICE_URL: http://system-service:8000
+      REQUEST_TIMEOUT: 2.0
+    ports:
+      - "8006:8000"
+    depends_on:
+      identity-service:
+        condition: service_started
+      wallet-service:
+        condition: service_started
+      system-service:
+        condition: service_started
 volumes:
-  stackpilot_pgdata:
-    name: stackpilot_pgdata
+  identity_pg_data:
+  wallet_pg_data:

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.postgresWallet.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.postgresWallet.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.postgresWallet.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.postgresWallet.name }}
+    spec:
+      containers:
+        - name: {{ .Values.postgresWallet.name }}
+          image: {{ .Values.postgresWallet.image }}
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresWallet.db }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresWallet.user }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresWallet.password }}

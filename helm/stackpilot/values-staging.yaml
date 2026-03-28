@@ -1,0 +1,34 @@
+global:
+  env: staging
+  version: "1.0.0"
+  requestTimeout: "2.0"
+
+identity:
+  replicas: 1
+  tag: v1
+
+wallet:
+  replicas: 1
+  tag: v1
+
+system:
+  replicas: 1
+  tag: v1
+
+customerPortal:
+  replicas: 2
+  tag: v1
+
+adminPortal:
+  replicas: 2
+  tag: v1
+
+opsPortal:
+  replicas: 1
+  tag: v1
+
+ingress:
+  hosts:
+    customer: customer-staging.local
+    admin: admin-staging.local
+    ops: ops-staging.local

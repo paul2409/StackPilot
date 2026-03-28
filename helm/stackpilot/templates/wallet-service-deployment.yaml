@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.wallet.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.wallet.name }}
+spec:
+  replicas: {{ .Values.wallet.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.wallet.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.wallet.name }}
+    spec:
+      containers:
+        - name: {{ .Values.wallet.name }}
+          image: {{ .Values.image.registry }}/wallet-service:{{ .Values.wallet.tag }}
+          ports:
+            - containerPort: {{ .Values.wallet.port }}
+          env:
+            - name: SERVICE_NAME
+              value: {{ .Values.wallet.name }}
+            - name: SERVICE_VERSION
+              value: "1.0.0"
+            - name: ENV
+              value: "dev"
+            - name: PORT
+              value: "{{ .Values.wallet.port }}"
+            - name: POSTGRES_HOST
+              value: {{ .Values.postgresWallet.name }}
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresWallet.db }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresWallet.user }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresWallet.password }}
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.wallet.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.wallet.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
