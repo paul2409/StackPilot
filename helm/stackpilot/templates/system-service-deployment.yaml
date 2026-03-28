@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.system.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.system.name }}
+spec:
+  replicas: {{ .Values.system.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.system.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.system.name }}
+    spec:
+      containers:
+        - name: {{ .Values.system.name }}
+          image: {{ .Values.image.registry }}/system-service:{{ .Values.system.tag }}
+          ports:
+            - containerPort: {{ .Values.system.port }}
+          env:
+            - name: SERVICE_NAME
+              value: {{ .Values.system.name }}
+            - name: SERVICE_VERSION
+              value: "1.0.0"
+            - name: ENV
+              value: "dev"
+            - name: PORT
+              value: "{{ .Values.system.port }}"
+            - name: IDENTITY_SERVICE_URL
+              value: "http://{{ .Values.identity.name }}"
+            - name: WALLET_SERVICE_URL
+              value: "http://{{ .Values.wallet.name }}"
+            - name: REQUEST_TIMEOUT
+              value: "2.0"
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.system.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.system.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10

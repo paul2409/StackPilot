@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "kubernetes://schema/apps/v1@deployment": "file:///c%3A/Projects/StackPilot/k8s/base/db.yaml"
+    }
+} 

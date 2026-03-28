@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.postgresWallet.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ .Values.postgresWallet.name }}
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP

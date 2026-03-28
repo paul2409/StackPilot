@@ -1,0 +1,62 @@
+namespace: stackpilot
+
+image:
+  registry: ghcr.io/paul2409
+
+identity:
+  name: identity-service
+  tag: v1
+  replicas: 1
+  port: 8000
+
+wallet:
+  name: wallet-service
+  tag: v1
+  replicas: 1
+  port: 8000
+
+system:
+  name: system-service
+  tag: v1
+  replicas: 1
+  port: 8000
+
+customerPortal:
+  name: customer-portal
+  tag: v1
+  replicas: 1
+  port: 8000
+
+adminPortal:
+  name: admin-portal
+  tag: v1
+  replicas: 1
+  port: 8000
+
+opsPortal:
+  name: ops-portal
+  tag: v1
+  replicas: 1
+  port: 8000
+
+postgresIdentity:
+  name: postgres-identity
+  image: postgres:16
+  db: identity_db
+  user: identity_user
+  password: identity_pass
+
+postgresWallet:
+  name: postgres-wallet
+  image: postgres:16
+  db: wallet_db
+  user: wallet_user
+  password: wallet_pass
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    customer: customer.local
+    admin: admin.local
+    ops: ops.local

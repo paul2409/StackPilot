@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.opsPortal.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.opsPortal.name }}
+spec:
+  replicas: {{ .Values.opsPortal.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.opsPortal.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.opsPortal.name }}
+    spec:
+      containers:
+        - name: {{ .Values.opsPortal.name }}
+          image: {{ .Values.image.registry }}/ops-portal:{{ .Values.opsPortal.tag }}
+          ports:
+            - containerPort: {{ .Values.opsPortal.port }}
+          env:
+            - name: SERVICE_NAME
+              value: {{ .Values.opsPortal.name }}
+            - name: SERVICE_VERSION
+              value: "1.0.0"
+            - name: ENV
+              value: "dev"
+            - name: PORT
+              value: "{{ .Values.opsPortal.port }}"
+            - name: IDENTITY_SERVICE_URL
+              value: "http://{{ .Values.identity.name }}"
+            - name: WALLET_SERVICE_URL
+              value: "http://{{ .Values.wallet.name }}"
+            - name: SYSTEM_SERVICE_URL
+              value: "http://{{ .Values.system.name }}"
+            - name: REQUEST_TIMEOUT
+              value: "2.0"
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.opsPortal.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.opsPortal.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10

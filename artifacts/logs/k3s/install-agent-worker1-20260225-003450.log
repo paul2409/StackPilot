@@ -1,0 +1,42 @@
+[host] ensuring VMs are up...
+Bringing machine 'control' up with 'virtualbox' provider...
+Bringing machine 'worker1' up with 'virtualbox' provider...
+==> control: Checking if box 'ubuntu/jammy64' version '20241002.0.0' is up to date...
+==> control: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> control: flag to force provisioning. Provisioners marked to run always will still run.
+==> worker1: Checking if box 'ubuntu/jammy64' version '20241002.0.0' is up to date...
+==> worker1: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> worker1: flag to force provisioning. Provisioners marked to run always will still run.
+[host] fetching join token from control...
+[host] installing agent on worker1 node_ip=192.168.56.11 version=v1.34.4+k3s1
+[agent-setup] node_ip=192.168.56.11
+[agent-setup] server_url=https://192.168.56.10:6443
+[agent-setup] k3s_version=v1.34.4+k3s1
+[agent-setup] bin_src=/vagrant/vagrant/k3s-bin/k3s
+[agent-setup] preflight: swapoff, modules, sysctls, forwarding, ufw...
+sysctl: setting key "net.ipv4.conf.all.accept_source_route": Invalid argument
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+[agent-setup] detect flannel iface by NODE_IP...
+[agent-setup] flannel_iface=enp0s8
+[agent-setup] installing binary...
+[agent-setup] writing systemd unit...
+[agent-setup] enable + start...
+Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+[agent-setup] agent status:
+[0;1;32m●[0m k3s-agent.service - K3s Agent (v1.34.4+k3s1)
+     Loaded: loaded (]8;;file://worker1/etc/systemd/system/k3s-agent.service/etc/systemd/system/k3s-agent.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Tue 2026-02-24 23:35:29 UTC; 56ms ago
+   Main PID: 4134 (k3s)
+      Tasks: 4 (limit: 4647)
+     Memory: 17.0M
+        CPU: 44ms
+     CGroup: /system.slice/k3s-agent.service
+             └─4134 /usr/local/bin/k3s agent --node-ip=192.168.56.11 --flannel-iface=enp0s8
+
+Feb 24 23:35:29 worker1 systemd[1]: Starting K3s Agent (v1.34.4+k3s1)...
+Feb 24 23:35:29 worker1 systemd[1]: Started K3s Agent (v1.34.4+k3s1).
+Feb 24 23:35:29 worker1 k3s[4134]: time="2026-02-24T23:35:29Z" level=info msg="Acquiring lock file /var/lib/rancher/k3s/data/.lock"
+Feb 24 23:35:29 worker1 k3s[4134]: time="2026-02-24T23:35:29Z" level=info msg="Preparing data dir /var/lib/rancher/k3s/data/3b8ce3dcb1e1c49c523944bbb534b4c6eddd3f27edc542c5109b7a51ef7fa3f4"
+[host] done. verify from control:
+NAME      STATUS   ROLES           AGE     VERSION        INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
+control   Ready    control-plane   4m26s   v1.35.1+k3s1   192.168.56.10   <none>        Ubuntu 22.04.5 LTS   5.15.0-164-generic   containerd://2.1.5-k3s1

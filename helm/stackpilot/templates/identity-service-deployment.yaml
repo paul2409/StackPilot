@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.identity.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.identity.name }}
+spec:
+  replicas: {{ .Values.identity.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.identity.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.identity.name }}
+    spec:
+      containers:
+        - name: {{ .Values.identity.name }}
+          image: {{ .Values.image.registry }}/identity-service:{{ .Values.identity.tag }}
+          ports:
+            - containerPort: {{ .Values.identity.port }}
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.identity.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.identity.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          env:
+            - name: POSTGRES_HOST
+              value: {{ .Values.postgresIdentity.name }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresIdentity.db }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresIdentity.user }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresIdentity.password }}

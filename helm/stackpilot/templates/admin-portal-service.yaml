@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.adminPortal.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ .Values.adminPortal.name }}
+  ports:
+    - port: 80
+      targetPort: {{ .Values.adminPortal.port }}
+  type: ClusterIP

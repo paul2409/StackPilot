@@ -1,0 +1,21 @@
+[0;1;32m●[0m k3s.service - K3s Server (v1.34.4+k3s1)
+     Loaded: loaded (]8;;file://control/etc/systemd/system/k3s.service/etc/systemd/system/k3s.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Mon 2026-03-09 13:40:40 UTC; 19s ago
+   Main PID: 1781 (k3s-server)
+      Tasks: 25 (limit: 4558)
+     Memory: 582.9M
+        CPU: 8.959s
+     CGroup: /system.slice/k3s.service
+             ├─1781 "/usr/local/bin/k3s server" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             └─1818 "containerd " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+
+Mar 09 13:40:54 control k3s[1781]:  >
+Mar 09 13:40:54 control k3s[1781]: I0309 13:40:54.072139    1781 controller.go:109] OpenAPI AggregationController: action for item v1beta1.metrics.k8s.io: Rate Limited Requeue.
+Mar 09 13:40:54 control k3s[1781]: W0309 13:40:54.072054    1781 handler_proxy.go:99] no RequestInfo found in the context
+Mar 09 13:40:54 control k3s[1781]: E0309 13:40:54.072174    1781 controller.go:113] "Unhandled Error" err="loading OpenAPI spec for \"v1beta1.metrics.k8s.io\" failed with: Error, could not get list of group versions for APIService"
+Mar 09 13:40:54 control k3s[1781]: I0309 13:40:54.073472    1781 controller.go:126] OpenAPI AggregationController: action for item v1beta1.metrics.k8s.io: Rate Limited Requeue.
+Mar 09 13:40:57 control k3s[1781]: I0309 13:40:57.845275    1781 kuberuntime_manager.go:2062] "Updating runtime config through cri with podcidr" CIDR="10.42.0.0/24"
+Mar 09 13:40:57 control k3s[1781]: I0309 13:40:57.846258    1781 kubelet_network.go:47] "Updating Pod CIDR" originalPodCIDR="" newPodCIDR="10.42.0.0/24"
+Mar 09 13:40:58 control k3s[1781]: time="2026-03-09T13:40:58Z" level=info msg="Starting network policy controller version v2.6.3-k3s1, built on 2026-02-12T23:46:55Z, go1.25.6"
+Mar 09 13:40:58 control k3s[1781]: I0309 13:40:58.289340    1781 network_policy_controller.go:164] Starting network policy controller
+Mar 09 13:40:58 control k3s[1781]: I0309 13:40:58.344490    1781 network_policy_controller.go:179] Starting network policy controller full sync goroutine

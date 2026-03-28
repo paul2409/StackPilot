@@ -1,0 +1,21 @@
+[0;1;32m●[0m k3s.service - K3s Server
+     Loaded: loaded (]8;;file://control/etc/systemd/system/k3s.service/etc/systemd/system/k3s.service]8;;; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Fri 2026-02-20 13:13:10 UTC; 24s ago
+   Main PID: 29506 (k3s-server)
+      Tasks: 38 (limit: 9248)
+     Memory: 547.1M
+        CPU: 37.032s
+     CGroup: /system.slice/k3s.service
+             ├─29506 "/usr/local/bin/k3s server" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             └─29560 "containerd " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+
+Feb 20 13:13:35 control k3s[29506]: time="2026-02-20T13:13:35Z" level=info msg="Synced coredns NodeHosts entries for control"
+Feb 20 13:13:35 control k3s[29506]: time="2026-02-20T13:13:35Z" level=info msg="Creating service-lb-controller event broadcaster"
+Feb 20 13:13:35 control k3s[29506]: I0220 13:13:35.338147   29506 shared_informer.go:377] "Caches are synced"
+Feb 20 13:13:35 control k3s[29506]: I0220 13:13:35.340154   29506 shared_informer.go:377] "Caches are synced"
+Feb 20 13:13:35 control k3s[29506]: I0220 13:13:35.408923   29506 event.go:389] "Event occurred" object="kube-system/rolebindings" fieldPath="" kind="Addon" apiVersion="k3s.cattle.io/v1" type="Normal" reason="ApplyingManifest" message="Applying manifest at \"/var/lib/rancher/k3s/server/manifests/rolebindings.yaml\""
+Feb 20 13:13:35 control k3s[29506]: I0220 13:13:35.447382   29506 event.go:389] "Event occurred" object="control" fieldPath="" kind="Node" apiVersion="" type="Normal" reason="NodePasswordValidationComplete" message="Deferred node password secret validation complete"
+Feb 20 13:13:35 control k3s[29506]: I0220 13:13:35.482308   29506 cidrallocator.go:278] updated ClusterIP allocator for Service CIDR 10.43.0.0/16
+Feb 20 13:13:35 control k3s[29506]: I0220 13:13:35.500980   29506 controller.go:667] quota admission added evaluator for: replicasets.apps
+Feb 20 13:13:35 control k3s[29506]: time="2026-02-20T13:13:35Z" level=info msg="Adding node OwnerReference to node-password secret control.node-password.k3s"
+Feb 20 13:13:35 control k3s[29506]: I0220 13:13:35.636200   29506 shared_informer.go:377] "Caches are synced"
