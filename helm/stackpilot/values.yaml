@@ -25,7 +25,7 @@ identityService:
     tag: "v1"
     pullPolicy: IfNotPresent
   service:
-    port: 8081
+    port: 8000
   probes:
     readinessPath: /ready
     livenessPath: /health
@@ -38,7 +38,7 @@ walletService:
     tag: "v1"
     pullPolicy: IfNotPresent
   service:
-    port: 8082
+    port: 8000
   probes:
     readinessPath: /ready
     livenessPath: /health
@@ -51,7 +51,7 @@ systemService:
     tag: "v1"
     pullPolicy: IfNotPresent
   service:
-    port: 8083
+    port: 8000
   probes:
     readinessPath: /ready
     livenessPath: /health
@@ -64,7 +64,7 @@ customerPortal:
     tag: "v1"
     pullPolicy: IfNotPresent
   service:
-    port: 8084
+    port: 8000
   probes:
     readinessPath: /ready
     livenessPath: /health
@@ -78,7 +78,7 @@ adminPortal:
     tag: "v1"
     pullPolicy: IfNotPresent
   service:
-    port: 8085
+    port: 8000
   probes:
     readinessPath: /ready
     livenessPath: /health
@@ -92,7 +92,7 @@ opsPortal:
     tag: "v1"
     pullPolicy: IfNotPresent
   service:
-    port: 8086
+    port: 8000
   probes:
     readinessPath: /ready
     livenessPath: /health

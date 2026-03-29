@@ -26,6 +26,8 @@ spec:
           env:
             - name: ENV
               value: {{ .Values.global.environment | quote }}
+            - name: PORT
+              value: {{ .Values.systemService.service.port | quote }}
             - name: IDENTITY_SERVICE_URL
               value: "http://identity-service:{{ .Values.identityService.service.port }}"
             - name: WALLET_SERVICE_URL
@@ -34,10 +36,16 @@ spec:
             httpGet:
               path: {{ .Values.systemService.probes.readinessPath }}
               port: {{ .Values.systemService.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
           livenessProbe:
             httpGet:
               path: {{ .Values.systemService.probes.livenessPath }}
               port: {{ .Values.systemService.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 6
           resources:
             requests:
               cpu: {{ .Values.resources.default.requests.cpu }}

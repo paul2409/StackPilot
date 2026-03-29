@@ -26,24 +26,32 @@ spec:
           env:
             - name: ENV
               value: {{ .Values.global.environment | quote }}
-            - name: DB_HOST
+            - name: PORT
+              value: {{ .Values.walletService.service.port | quote }}
+            - name: POSTGRES_HOST
               value: postgres-wallet
-            - name: DB_PORT
+            - name: POSTGRES_PORT
               value: {{ .Values.postgresWallet.service.port | quote }}
-            - name: DB_NAME
+            - name: POSTGRES_DB
               value: {{ .Values.postgresWallet.auth.database | quote }}
-            - name: DB_USER
+            - name: POSTGRES_USER
               value: {{ .Values.postgresWallet.auth.username | quote }}
-            - name: DB_PASSWORD
+            - name: POSTGRES_PASSWORD
               value: {{ .Values.postgresWallet.auth.password | quote }}
           readinessProbe:
             httpGet:
               path: {{ .Values.walletService.probes.readinessPath }}
               port: {{ .Values.walletService.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
           livenessProbe:
             httpGet:
               path: {{ .Values.walletService.probes.livenessPath }}
               port: {{ .Values.walletService.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 6
           resources:
             requests:
               cpu: {{ .Values.resources.default.requests.cpu }}

@@ -26,24 +26,32 @@ spec:
           env:
             - name: ENV
               value: {{ .Values.global.environment | quote }}
-            - name: DB_HOST
+            - name: PORT
+              value: {{ .Values.identityService.service.port | quote }}
+            - name: POSTGRES_HOST
               value: postgres-identity
-            - name: DB_PORT
+            - name: POSTGRES_PORT
               value: {{ .Values.postgresIdentity.service.port | quote }}
-            - name: DB_NAME
+            - name: POSTGRES_DB
               value: {{ .Values.postgresIdentity.auth.database | quote }}
-            - name: DB_USER
+            - name: POSTGRES_USER
               value: {{ .Values.postgresIdentity.auth.username | quote }}
-            - name: DB_PASSWORD
+            - name: POSTGRES_PASSWORD
               value: {{ .Values.postgresIdentity.auth.password | quote }}
           readinessProbe:
             httpGet:
               path: {{ .Values.identityService.probes.readinessPath }}
               port: {{ .Values.identityService.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
           livenessProbe:
             httpGet:
               path: {{ .Values.identityService.probes.livenessPath }}
               port: {{ .Values.identityService.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 6
           resources:
             requests:
               cpu: {{ .Values.resources.default.requests.cpu }}
