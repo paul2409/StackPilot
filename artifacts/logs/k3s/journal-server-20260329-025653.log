@@ -1,0 +1,250 @@
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.547829    9935 horizontal.go:204] "Starting HPA controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.547838    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.547855    9935 disruption.go:458] "Sending events to api server."
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.547882    9935 disruption.go:465] "Starting disruption controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.547891    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.547926    9935 certificate_controller.go:120] "Starting certificate controller" name="csrsigning-legacy-unknown"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.547936    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548010    9935 pv_controller_base.go:307] "Starting persistent volume controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548018    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548069    9935 attach_detach_controller.go:335] "Starting attach detach controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548077    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548098    9935 cleaner.go:83] "Starting CSR cleaner controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548148    9935 ttl_controller.go:127] "Starting TTL controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548156    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548272    9935 node_ipam_controller.go:142] "Starting ipam controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548284    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548340    9935 endpoints_controller.go:193] "Starting endpoint controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548347    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548374    9935 pv_protection_controller.go:81] "Starting PV protection controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548381    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548404    9935 legacy_serviceaccount_token_cleaner.go:103] "Starting legacy service account token cleaner controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548413    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548435    9935 tokencleaner.go:117] "Starting token cleaner controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548444    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548499    9935 replica_set.go:241] "Starting controller" name="replicationcontroller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548509    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548706    9935 daemon_controller.go:309] "Starting daemon sets controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.548716    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: E0329 01:57:53.572727    9935 resource_quota_controller.go:460] "Error during resource discovery" err="unable to retrieve the complete list of server APIs: metrics.k8s.io/v1beta1: stale GroupVersion discovery: metrics.k8s.io/v1beta1"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.573337    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.599984    9935 resource_quota_controller.go:297] "Starting resource quota controller"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600031    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600072    9935 certificate_controller.go:120] "Starting certificate controller" name="csrsigning-kubelet-serving"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600082    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600102    9935 certificate_controller.go:120] "Starting certificate controller" name="csrsigning-kubelet-client"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600108    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600153    9935 certificate_controller.go:120] "Starting certificate controller" name="csrsigning-kube-apiserver-client"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600163    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600189    9935 dynamic_serving_content.go:135] "Starting controller" name="csr-controller::/var/lib/rancher/k3s/server/tls/server-ca.nochain.crt::/var/lib/rancher/k3s/server/tls/server-ca.key"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600388    9935 garbagecollector.go:141] "Starting controller" controller="garbagecollector"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.600403    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.602522    9935 resource_quota_monitor.go:309] "QuotaMonitor running"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.602738    9935 dynamic_serving_content.go:135] "Starting controller" name="csr-controller::/var/lib/rancher/k3s/server/tls/server-ca.nochain.crt::/var/lib/rancher/k3s/server/tls/server-ca.key"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.602850    9935 dynamic_serving_content.go:135] "Starting controller" name="csr-controller::/var/lib/rancher/k3s/server/tls/client-ca.nochain.crt::/var/lib/rancher/k3s/server/tls/client-ca.key"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.602925    9935 dynamic_serving_content.go:135] "Starting controller" name="csr-controller::/var/lib/rancher/k3s/server/tls/client-ca.nochain.crt::/var/lib/rancher/k3s/server/tls/client-ca.key"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.603232    9935 graph_builder.go:386] "Running" component="GraphBuilder"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.608206    9935 actual_state_of_world.go:541] "Failed to update statusUpdateNeeded field in actual state of world" err="Failed to set statusUpdateNeeded to needed true, because nodeName=\"control\" does not exist"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.642689    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.646980    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647043    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647080    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647101    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647127    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647349    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647373    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647448    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647484    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647516    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.647529    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.648085    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.648134    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.648225    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.649065    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.649113    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.649154    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.649217    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.649241    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.649271    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.649336    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.650917    9935 node_lifecycle_controller.go:1234] "Initializing eviction metric for zone" zone=""
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651182    9935 node_lifecycle_controller.go:886] "Missing timestamp for Node. Assuming now as a timestamp" node="control"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651355    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651410    9935 range_allocator.go:177] "Sending events to api server"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651430    9935 range_allocator.go:181] "Starting range CIDR allocator"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651436    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651442    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651605    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651732    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651791    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651806    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651945    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651980    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.652114    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.652219    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.652341    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.650971    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651219    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651232    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651242    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651250    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.651347    9935 node_lifecycle_controller.go:1080] "Controller detected that zone is now in new state" zone="" newState="Normal"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.671697    9935 garbagecollector.go:792] "failed to discover some groups" groups="map[\"metrics.k8s.io/v1beta1\":\"stale GroupVersion discovery: metrics.k8s.io/v1beta1\"]"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.674624    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: time="2026-03-29T01:57:53Z" level=info msg="Adding node OwnerReference to node-password secret control.node-password.k3s"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.685262    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.715122    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.715209    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.715266    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.715300    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:53 control k3s[9935]: time="2026-03-29T01:57:53Z" level=info msg="Synced coredns NodeHosts entries for control"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.727771    9935 range_allocator.go:433] "Set node PodCIDR" node="control" podCIDRs=["10.42.0.0/24"]
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.771550    9935 event.go:389] "Event occurred" object="kube-system/rolebindings" fieldPath="" kind="Addon" apiVersion="k3s.cattle.io/v1" type="Normal" reason="AppliedManifest" message="Applied manifest at \"/var/lib/rancher/k3s/server/manifests/rolebindings.yaml\""
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.786236    9935 event.go:389] "Event occurred" object="kube-system/runtimes" fieldPath="" kind="Addon" apiVersion="k3s.cattle.io/v1" type="Normal" reason="ApplyingManifest" message="Applying manifest at \"/var/lib/rancher/k3s/server/manifests/runtimes.yaml\""
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.888275    9935 event.go:389] "Event occurred" object="kube-system/runtimes" fieldPath="" kind="Addon" apiVersion="k3s.cattle.io/v1" type="Normal" reason="AppliedManifest" message="Applied manifest at \"/var/lib/rancher/k3s/server/manifests/runtimes.yaml\""
+Mar 29 01:57:53 control k3s[9935]: time="2026-03-29T01:57:53Z" level=info msg="Waiting for cloud-controller-manager privileges to become available: context deadline exceeded, "
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.904466    9935 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="Addon" apiVersion="k3s.cattle.io/v1" type="Normal" reason="ApplyingManifest" message="Applying manifest at \"/var/lib/rancher/k3s/server/manifests/traefik.yaml\""
+Mar 29 01:57:53 control k3s[9935]: time="2026-03-29T01:57:53Z" level=info msg="Tunnel authorizer set Kubelet Port 0.0.0.0:10250"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.929881    9935 controller.go:667] quota admission added evaluator for: helmcharts.helm.cattle.io
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.954171    9935 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="Addon" apiVersion="k3s.cattle.io/v1" type="Normal" reason="AppliedManifest" message="Applied manifest at \"/var/lib/rancher/k3s/server/manifests/traefik.yaml\""
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.998938    9935 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik"
+Mar 29 01:57:53 control k3s[9935]: I0329 01:57:53.999363    9935 event.go:389] "Event occurred" object="kube-system/traefik-crd" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik-crd"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.074170    9935 controller.go:667] quota admission added evaluator for: jobs.batch
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.156692    9935 event.go:389] "Event occurred" object="kube-system/traefik-crd" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik-crd"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.157564    9935 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.328380    9935 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.328429    9935 event.go:389] "Event occurred" object="kube-system/traefik-crd" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik-crd"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.332275    9935 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik"
+Mar 29 01:57:54 control k3s[9935]: W0329 01:57:54.343570    9935 handler_proxy.go:99] no RequestInfo found in the context
+Mar 29 01:57:54 control k3s[9935]: E0329 01:57:54.343727    9935 controller.go:102] "Unhandled Error" err=<
+Mar 29 01:57:54 control k3s[9935]:         loading OpenAPI spec for "v1beta1.metrics.k8s.io" failed with: failed to download v1beta1.metrics.k8s.io: failed to retrieve openAPI spec, http error: ResponseCode: 503, Body: service unavailable
+Mar 29 01:57:54 control k3s[9935]:         , Header: map[Content-Type:[text/plain; charset=utf-8] X-Content-Type-Options:[nosniff]]
+Mar 29 01:57:54 control k3s[9935]:  >
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.343748    9935 controller.go:109] OpenAPI AggregationController: action for item v1beta1.metrics.k8s.io: Rate Limited Requeue.
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.351758    9935 event.go:389] "Event occurred" object="kube-system/traefik-crd" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik-crd"
+Mar 29 01:57:54 control k3s[9935]: W0329 01:57:54.352874    9935 handler_proxy.go:99] no RequestInfo found in the context
+Mar 29 01:57:54 control k3s[9935]: E0329 01:57:54.353093    9935 controller.go:113] "Unhandled Error" err="loading OpenAPI spec for \"v1beta1.metrics.k8s.io\" failed with: Error, could not get list of group versions for APIService"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.353213    9935 controller.go:126] OpenAPI AggregationController: action for item v1beta1.metrics.k8s.io: Rate Limited Requeue.
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.386570    9935 controller.go:667] quota admission added evaluator for: replicasets.apps
+Mar 29 01:57:54 control k3s[9935]: time="2026-03-29T01:57:54Z" level=info msg="Flannel found PodCIDR assigned for node control"
+Mar 29 01:57:54 control k3s[9935]: time="2026-03-29T01:57:54Z" level=info msg="The interface eth0 with ipv4 address 192.168.56.10 will be used by flannel"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.582530    9935 kube.go:139] Waiting 10m0s for node controller to sync
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.588667    9935 kube.go:537] Starting kube subnet manager
+Mar 29 01:57:54 control k3s[9935]: W0329 01:57:54.636119    9935 handler_proxy.go:99] no RequestInfo found in the context
+Mar 29 01:57:54 control k3s[9935]: E0329 01:57:54.636648    9935 controller.go:146] "Unhandled Error" err=<
+Mar 29 01:57:54 control k3s[9935]:         Error updating APIService "v1beta1.metrics.k8s.io" with err: failed to download v1beta1.metrics.k8s.io: failed to retrieve openAPI spec, http error: ResponseCode: 503, Body: service unavailable
+Mar 29 01:57:54 control k3s[9935]:         , Header: map[Content-Type:[text/plain; charset=utf-8] X-Content-Type-Options:[nosniff]]
+Mar 29 01:57:54 control k3s[9935]:  >
+Mar 29 01:57:54 control k3s[9935]: E0329 01:57:54.637194    9935 handler_proxy.go:143] error resolving kube-system/metrics-server: no endpoints available for service "metrics-server"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.653872    9935 cidrallocator.go:278] updated ClusterIP allocator for Service CIDR 10.43.0.0/16
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.706681    9935 cidrallocator.go:278] updated ClusterIP allocator for Service CIDR 10.43.0.0/16
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.788255    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.791511    9935 serving.go:392] Generated self-signed cert in-memory
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.808311    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.808345    9935 garbagecollector.go:166] "Garbage collector: all resource monitors have synced"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.808351    9935 garbagecollector.go:169] "Proceeding to collect garbage"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.819115    9935 event.go:389] "Event occurred" object="kube-system/traefik" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik"
+Mar 29 01:57:54 control k3s[9935]: I0329 01:57:54.819496    9935 event.go:389] "Event occurred" object="kube-system/traefik-crd" fieldPath="" kind="HelmChart" apiVersion="helm.cattle.io/v1" type="Normal" reason="ApplyJob" message="Applying HelmChart using Job kube-system/helm-install-traefik-crd"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.008164    9935 serving.go:392] Generated self-signed cert in-memory
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.315790    9935 controllermanager.go:160] Version: v1.35.1+k3s1
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.320752    9935 requestheader_controller.go:180] Starting RequestHeaderAuthRequestController
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.320818    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.320893    9935 configmap_cafile_content.go:205] "Starting controller" name="client-ca::kube-system::extension-apiserver-authentication::client-ca-file"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.320943    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.320971    9935 configmap_cafile_content.go:205] "Starting controller" name="client-ca::kube-system::extension-apiserver-authentication::requestheader-client-ca-file"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.320992    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.321351    9935 secure_serving.go:211] Serving securely on 127.0.0.1:10258
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.321964    9935 tlsconfig.go:243] "Starting DynamicServingCertificateController"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=info msg="Creating service-lb-controller event broadcaster"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.420994    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.421017    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.421029    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=info msg="Starting /v1, Kind=Node controller"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=info msg="Starting /v1, Kind=Pod controller"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=info msg="Starting apps/v1, Kind=DaemonSet controller"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=info msg="Starting discovery.k8s.io/v1, Kind=EndpointSlice controller"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.506421    9935 controllermanager.go:329] Started "cloud-node-controller"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.506683    9935 controllermanager.go:329] Started "cloud-node-lifecycle-controller"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.506938    9935 node_controller.go:176] Sending events to api server.
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.507062    9935 controllermanager.go:329] Started "service-lb-controller"
+Mar 29 01:57:55 control k3s[9935]: W0329 01:57:55.507081    9935 controllermanager.go:306] "node-route-controller" is disabled
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.507237    9935 node_controller.go:185] Waiting for informer caches to sync
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.507832    9935 node_lifecycle_controller.go:112] Sending events to api server
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.507949    9935 controller.go:235] Starting service controller
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.507970    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.583995    9935 kube.go:163] Node controller sync successful
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.584101    9935 vxlan.go:128] VXLAN config: VNI=1 Port=0 GBP=false Learning=false DirectRouting=false
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.590382    9935 kube.go:704] List of node(control) annotations: map[string]string{"alpha.kubernetes.io/provided-node-ip":"192.168.56.10", "k3s.io/hostname":"control", "k3s.io/internal-ip":"192.168.56.10", "k3s.io/node-args":"[\"server\",\"--node-ip\",\"192.168.56.10\",\"--advertise-address\",\"192.168.56.10\",\"--tls-san\",\"192.168.56.10\",\"--flannel-iface\",\"eth0\",\"--write-kubeconfig-mode\",\"644\"]", "k3s.io/node-config-hash":"4YYWB7RHZUTOUERWAQTCBIM7BT3BS4GRSBGXECAITYQCLHWAGQLA====", "k3s.io/node-env":"{\"K3S_KUBECONFIG_MODE\":\"644\"}", "node.alpha.kubernetes.io/ttl":"0", "volumes.kubernetes.io/controller-managed-attach-detach":"true"}
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.607929    9935 node_controller.go:429] Initializing node control with cloud provider
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.608405    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.618887    9935 node_controller.go:474] Successfully initialized node control with cloud provider
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.620477    9935 event.go:389] "Event occurred" object="control" fieldPath="" kind="Node" apiVersion="v1" type="Normal" reason="Synced" message="Node synced successfully"
+Mar 29 01:57:55 control k3s[9935]: W0329 01:57:55.642604    9935 handler_proxy.go:99] no RequestInfo found in the context
+Mar 29 01:57:55 control k3s[9935]: E0329 01:57:55.642736    9935 controller.go:102] "Unhandled Error" err=<
+Mar 29 01:57:55 control k3s[9935]:         loading OpenAPI spec for "v1beta1.metrics.k8s.io" failed with: failed to download v1beta1.metrics.k8s.io: failed to retrieve openAPI spec, http error: ResponseCode: 503, Body: service unavailable
+Mar 29 01:57:55 control k3s[9935]:         , Header: map[Content-Type:[text/plain; charset=utf-8] X-Content-Type-Options:[nosniff]]
+Mar 29 01:57:55 control k3s[9935]:  >
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.642752    9935 controller.go:109] OpenAPI AggregationController: action for item v1beta1.metrics.k8s.io: Rate Limited Requeue.
+Mar 29 01:57:55 control k3s[9935]: W0329 01:57:55.642873    9935 handler_proxy.go:99] no RequestInfo found in the context
+Mar 29 01:57:55 control k3s[9935]: E0329 01:57:55.642944    9935 controller.go:113] "Unhandled Error" err="loading OpenAPI spec for \"v1beta1.metrics.k8s.io\" failed with: Error, could not get list of group versions for APIService"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.644135    9935 controller.go:126] OpenAPI AggregationController: action for item v1beta1.metrics.k8s.io: Rate Limited Requeue.
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.660186    9935 server.go:173] "Starting Kubernetes Scheduler" version="v1.35.1+k3s1"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.660216    9935 server.go:175] "Golang settings" GOGC="" GOMAXPROCS="" GOTRACEBACK=""
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.664652    9935 secure_serving.go:211] Serving securely on 127.0.0.1:10259
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.664727    9935 requestheader_controller.go:180] Starting RequestHeaderAuthRequestController
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.664739    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.664750    9935 dynamic_serving_content.go:135] "Starting controller" name="serving-cert::/var/lib/rancher/k3s/server/tls/kube-scheduler/kube-scheduler.crt::/var/lib/rancher/k3s/server/tls/kube-scheduler/kube-scheduler.key"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.664832    9935 tlsconfig.go:243] "Starting DynamicServingCertificateController"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.670176    9935 configmap_cafile_content.go:205] "Starting controller" name="client-ca::kube-system::extension-apiserver-authentication::client-ca-file"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.670199    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.670214    9935 configmap_cafile_content.go:205] "Starting controller" name="client-ca::kube-system::extension-apiserver-authentication::requestheader-client-ca-file"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.670220    9935 shared_informer.go:370] "Waiting for caches to sync"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.671871    9935 iptables.go:50] Starting flannel in iptables mode...
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=warning msg="no subnet found for key: FLANNEL_NETWORK in file: /run/flannel/subnet.env"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=warning msg="no subnet found for key: FLANNEL_SUBNET in file: /run/flannel/subnet.env"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=warning msg="no subnet found for key: FLANNEL_IPV6_NETWORK in file: /run/flannel/subnet.env"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=warning msg="no subnet found for key: FLANNEL_IPV6_SUBNET in file: /run/flannel/subnet.env"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.672013    9935 iptables.go:101] Current network or subnet (10.42.0.0/16, 10.42.0.0/24) is not equal to previous one (0.0.0.0/0, 0.0.0.0/0), trying to recycle old iptables rules
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.679891    9935 kube.go:558] Creating the node lease for IPv4. This is the n.Spec.PodCIDRs: [10.42.0.0/24]
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.704698    9935 iptables.go:111] Setting up masking rules
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.717478    9935 iptables.go:212] Changing default FORWARD chain policy to ACCEPT
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=info msg="Wrote flannel subnet file to /run/flannel/subnet.env"
+Mar 29 01:57:55 control k3s[9935]: time="2026-03-29T01:57:55Z" level=info msg="Running flannel backend."
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.723278    9935 vxlan_network.go:68] watching for new subnet leases
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.723459    9935 vxlan_network.go:115] starting vxlan device watcher
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.734767    9935 iptables.go:358] bootstrap done
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.744589    9935 iptables.go:358] bootstrap done
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.765419    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.772071    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.772510    9935 shared_informer.go:377] "Caches are synced"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.885704    9935 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"config-volume\" (UniqueName: \"kubernetes.io/configmap/46195aae-ab2f-4edf-820a-0e84186973e0-config-volume\") pod \"local-path-provisioner-6bc6568469-z6998\" (UID: \"46195aae-ab2f-4edf-820a-0e84186973e0\") " pod="kube-system/local-path-provisioner-6bc6568469-z6998"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.885850    9935 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"kube-api-access-q7ftt\" (UniqueName: \"kubernetes.io/projected/46195aae-ab2f-4edf-820a-0e84186973e0-kube-api-access-q7ftt\") pod \"local-path-provisioner-6bc6568469-z6998\" (UID: \"46195aae-ab2f-4edf-820a-0e84186973e0\") " pod="kube-system/local-path-provisioner-6bc6568469-z6998"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.885888    9935 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"config-volume\" (UniqueName: \"kubernetes.io/configmap/3164d407-2d9a-48c9-bc89-ffdf5411614b-config-volume\") pod \"coredns-7566b5ff58-hwqbg\" (UID: \"3164d407-2d9a-48c9-bc89-ffdf5411614b\") " pod="kube-system/coredns-7566b5ff58-hwqbg"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.886047    9935 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"custom-config-volume\" (UniqueName: \"kubernetes.io/configmap/3164d407-2d9a-48c9-bc89-ffdf5411614b-custom-config-volume\") pod \"coredns-7566b5ff58-hwqbg\" (UID: \"3164d407-2d9a-48c9-bc89-ffdf5411614b\") " pod="kube-system/coredns-7566b5ff58-hwqbg"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.886195    9935 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"kube-api-access-vvvv9\" (UniqueName: \"kubernetes.io/projected/3164d407-2d9a-48c9-bc89-ffdf5411614b-kube-api-access-vvvv9\") pod \"coredns-7566b5ff58-hwqbg\" (UID: \"3164d407-2d9a-48c9-bc89-ffdf5411614b\") " pod="kube-system/coredns-7566b5ff58-hwqbg"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.886323    9935 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"tmp-dir\" (UniqueName: \"kubernetes.io/empty-dir/c0c353d1-bca6-4fae-b3f0-340e0e80e70e-tmp-dir\") pod \"metrics-server-786d997795-cp9bz\" (UID: \"c0c353d1-bca6-4fae-b3f0-340e0e80e70e\") " pod="kube-system/metrics-server-786d997795-cp9bz"
+Mar 29 01:57:55 control k3s[9935]: I0329 01:57:55.886460    9935 reconciler_common.go:251] "operationExecutor.VerifyControllerAttachedVolume started for volume \"kube-api-access-hfsz8\" (UniqueName: \"kubernetes.io/projected/c0c353d1-bca6-4fae-b3f0-340e0e80e70e-kube-api-access-hfsz8\") pod \"metrics-server-786d997795-cp9bz\" (UID: \"c0c353d1-bca6-4fae-b3f0-340e0e80e70e\") " pod="kube-system/metrics-server-786d997795-cp9bz"
+Mar 29 01:57:56 control k3s[9935]: I0329 01:57:56.002577    9935 swap_util.go:78] "error creating dir to test if tmpfs noswap is enabled. Assuming not supported" mount path="" error="stat /var/lib/kubelet/plugins/kubernetes.io/empty-dir: no such file or directory"
+Mar 29 01:57:56 control k3s[9935]: E0329 01:57:56.198866    9935 dns.go:154] "Nameserver limits exceeded" err="Nameserver limits were exceeded, some nameservers have been omitted, the applied nameserver line is: 4.2.2.1 4.2.2.2 208.67.220.220"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="Started tunnel to 192.168.56.10:6443"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="Stopped tunnel to 127.0.0.1:6443"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="Connecting to proxy" url="wss://192.168.56.10:6443/v1-k3s/connect"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="Proxy done" err="context canceled" url="wss://127.0.0.1:6443/v1-k3s/connect"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="error in remotedialer server [400]: websocket: close 1006 (abnormal closure): unexpected EOF"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="Handling backend connection request [control]"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="Connected to proxy" url="wss://192.168.56.10:6443/v1-k3s/connect"
+Mar 29 01:57:56 control k3s[9935]: time="2026-03-29T01:57:56Z" level=info msg="Remotedialer connected to proxy" url="wss://192.168.56.10:6443/v1-k3s/connect"
+Mar 29 01:57:59 control k3s[9935]: I0329 01:57:59.428524    9935 kuberuntime_manager.go:2062] "Updating runtime config through cri with podcidr" CIDR="10.42.0.0/24"
+Mar 29 01:57:59 control k3s[9935]: I0329 01:57:59.430197    9935 kubelet_network.go:47] "Updating Pod CIDR" originalPodCIDR="" newPodCIDR="10.42.0.0/24"
+Mar 29 01:58:00 control k3s[9935]: time="2026-03-29T01:58:00Z" level=info msg="Starting network policy controller version v2.6.3-k3s1, built on 2026-02-12T23:46:55Z, go1.25.6"
+Mar 29 01:58:00 control k3s[9935]: I0329 01:58:00.698577    9935 network_policy_controller.go:164] Starting network policy controller
+Mar 29 01:58:00 control k3s[9935]: I0329 01:58:00.810095    9935 network_policy_controller.go:179] Starting network policy controller full sync goroutine
+Mar 29 01:58:04 control k3s[9935]: E0329 01:58:04.579785    9935 dns.go:154] "Nameserver limits exceeded" err="Nameserver limits were exceeded, some nameservers have been omitted, the applied nameserver line is: 4.2.2.1 4.2.2.2 208.67.220.220"
+Mar 29 01:58:15 control k3s[9935]: I0329 01:58:15.407938    9935 pod_startup_latency_tracker.go:108] "Observed pod startup duration" pod="kube-system/local-path-provisioner-6bc6568469-z6998" podStartSLOduration=11.302549899 podStartE2EDuration="21.407917914s" podCreationTimestamp="2026-03-29 01:57:54 +0000 UTC" firstStartedPulling="2026-03-29 01:58:04.635518817 +0000 UTC m=+23.200030662" lastFinishedPulling="2026-03-29 01:58:14.740886732 +0000 UTC m=+33.305398677" observedRunningTime="2026-03-29 01:58:15.407094616 +0000 UTC m=+33.971606561" watchObservedRunningTime="2026-03-29 01:58:15.407917914 +0000 UTC m=+33.972429859"
+Mar 29 01:58:19 control k3s[9935]: I0329 01:58:19.489787    9935 pod_startup_latency_tracker.go:108] "Observed pod startup duration" pod="kube-system/metrics-server-786d997795-cp9bz" podStartSLOduration=11.741298087 podStartE2EDuration="25.489748925s" podCreationTimestamp="2026-03-29 01:57:54 +0000 UTC" firstStartedPulling="2026-03-29 01:58:04.612695393 +0000 UTC m=+23.177207238" lastFinishedPulling="2026-03-29 01:58:18.361146131 +0000 UTC m=+36.925658076" observedRunningTime="2026-03-29 01:58:19.482664046 +0000 UTC m=+38.047175991" watchObservedRunningTime="2026-03-29 01:58:19.489748925 +0000 UTC m=+38.054260870"
+Mar 29 01:58:22 control k3s[9935]: E0329 01:58:22.458327    9935 dns.go:154] "Nameserver limits exceeded" err="Nameserver limits were exceeded, some nameservers have been omitted, the applied nameserver line is: 4.2.2.1 4.2.2.2 208.67.220.220"
+Mar 29 01:58:22 control k3s[9935]: I0329 01:58:22.488369    9935 pod_startup_latency_tracker.go:108] "Observed pod startup duration" pod="kube-system/coredns-7566b5ff58-hwqbg" podStartSLOduration=10.953096568 podStartE2EDuration="28.488346519s" podCreationTimestamp="2026-03-29 01:57:54 +0000 UTC" firstStartedPulling="2026-03-29 01:58:04.5810722 +0000 UTC m=+23.145584145" lastFinishedPulling="2026-03-29 01:58:22.116322251 +0000 UTC m=+40.680834096" observedRunningTime="2026-03-29 01:58:22.487931821 +0000 UTC m=+41.052443766" watchObservedRunningTime="2026-03-29 01:58:22.488346519 +0000 UTC m=+41.052858464"
+Mar 29 01:58:23 control k3s[9935]: E0329 01:58:23.459944    9935 dns.go:154] "Nameserver limits exceeded" err="Nameserver limits were exceeded, some nameservers have been omitted, the applied nameserver line is: 4.2.2.1 4.2.2.2 208.67.220.220"
+Mar 29 01:58:23 control k3s[9935]: E0329 01:58:23.681795    9935 resource_quota_controller.go:460] "Error during resource discovery" err="unable to retrieve the complete list of server APIs: metrics.k8s.io/v1beta1: stale GroupVersion discovery: metrics.k8s.io/v1beta1"
+Mar 29 01:58:24 control k3s[9935]: E0329 01:58:24.462250    9935 dns.go:154] "Nameserver limits exceeded" err="Nameserver limits were exceeded, some nameservers have been omitted, the applied nameserver line is: 4.2.2.1 4.2.2.2 208.67.220.220"
+Mar 29 01:58:24 control k3s[9935]: I0329 01:58:24.797980    9935 garbagecollector.go:792] "failed to discover some groups" groups="map[\"metrics.k8s.io/v1beta1\":\"stale GroupVersion discovery: metrics.k8s.io/v1beta1\"]"
