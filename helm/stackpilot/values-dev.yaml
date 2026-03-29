@@ -3,7 +3,7 @@ global:
   domainSuffix: local
 
 customerPortal:
-  replicaCount: 1
+  replicaCount: 2
   ingressHost: customer-dev.local
 
 adminPortal:
