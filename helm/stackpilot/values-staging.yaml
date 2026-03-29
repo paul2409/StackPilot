@@ -1,34 +1,36 @@
 global:
-  env: staging
-  version: "1.0.0"
-  requestTimeout: "2.0"
-
-identity:
-  replicas: 1
-  tag: v1
-
-wallet:
-  replicas: 1
-  tag: v1
-
-system:
-  replicas: 1
-  tag: v1
+  environment: staging
+  domainSuffix: local
 
 customerPortal:
-  replicas: 2
-  tag: v1
+  replicaCount: 2
+  ingressHost: customer-staging.local
 
 adminPortal:
-  replicas: 2
-  tag: v1
+  replicaCount: 1
+  ingressHost: admin-staging.local
 
 opsPortal:
-  replicas: 1
-  tag: v1
+  replicaCount: 1
+  ingressHost: ops-staging.local
 
-ingress:
-  hosts:
-    customer: customer-staging.local
-    admin: admin-staging.local
-    ops: ops-staging.local
+identityService:
+  replicaCount: 1
+
+walletService:
+  replicaCount: 1
+
+systemService:
+  replicaCount: 1
+
+resources:
+  default:
+    requests:
+      cpu: "150m"
+      memory: "192Mi"
+    limits:
+      cpu: "400m"
+      memory: "384Mi"
+
+labels:
+  environment: staging

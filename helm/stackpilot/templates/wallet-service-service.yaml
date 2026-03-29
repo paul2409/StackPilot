@@ -1,12 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.wallet.name }}
-  namespace: {{ .Values.namespace }}
+  name: wallet-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:
-    app: {{ .Values.wallet.name }}
+    app: wallet-service
+    stackpilot.io/environment: {{ .Values.global.environment }}
   ports:
-    - port: 80
-      targetPort: {{ .Values.wallet.port }}
+    - port: {{ .Values.walletService.service.port }}
+      targetPort: {{ .Values.walletService.service.port }}
+      protocol: TCP
   type: ClusterIP

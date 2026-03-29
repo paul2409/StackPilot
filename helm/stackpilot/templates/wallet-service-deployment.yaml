@@ -1,55 +1,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.wallet.name }}
-  namespace: {{ .Values.namespace }}
+  name: wallet-service
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.wallet.name }}
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.wallet.replicas }}
+  replicas: {{ .Values.walletService.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.wallet.name }}
+      app: wallet-service
+      stackpilot.io/environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        app: {{ .Values.wallet.name }}
+        app: wallet-service
+        {{- include "stackpilot.commonLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.wallet.name }}
-          image: {{ .Values.image.registry }}/wallet-service:{{ .Values.wallet.tag }}
+        - name: wallet-service
+          image: "{{ .Values.walletService.image.repository }}:{{ .Values.walletService.image.tag }}"
+          imagePullPolicy: {{ .Values.walletService.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.wallet.port }}
+            - containerPort: {{ .Values.walletService.service.port }}
           env:
-            - name: SERVICE_NAME
-              value: {{ .Values.wallet.name }}
-            - name: SERVICE_VERSION
-              value: "1.0.0"
             - name: ENV
-              value: "dev"
-            - name: PORT
-              value: "{{ .Values.wallet.port }}"
-            - name: POSTGRES_HOST
-              value: {{ .Values.postgresWallet.name }}
-            - name: POSTGRES_PORT
-              value: "5432"
-            - name: POSTGRES_DB
-              value: {{ .Values.postgresWallet.db }}
-            - name: POSTGRES_USER
-              value: {{ .Values.postgresWallet.user }}
-            - name: POSTGRES_PASSWORD
-              value: {{ .Values.postgresWallet.password }}
-
+              value: {{ .Values.global.environment | quote }}
+            - name: DB_HOST
+              value: postgres-wallet
+            - name: DB_PORT
+              value: {{ .Values.postgresWallet.service.port | quote }}
+            - name: DB_NAME
+              value: {{ .Values.postgresWallet.auth.database | quote }}
+            - name: DB_USER
+              value: {{ .Values.postgresWallet.auth.username | quote }}
+            - name: DB_PASSWORD
+              value: {{ .Values.postgresWallet.auth.password | quote }}
           readinessProbe:
             httpGet:
-              path: /ready
-              port: {{ .Values.wallet.port }}
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
+              path: {{ .Values.walletService.probes.readinessPath }}
+              port: {{ .Values.walletService.service.port }}
           livenessProbe:
             httpGet:
-              path: /health
-              port: {{ .Values.wallet.port }}
-            initialDelaySeconds: 10
-            periodSeconds: 10
+              path: {{ .Values.walletService.probes.livenessPath }}
+              port: {{ .Values.walletService.service.port }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.default.requests.cpu }}
+              memory: {{ .Values.resources.default.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.default.limits.cpu }}
+              memory: {{ .Values.resources.default.limits.memory }}

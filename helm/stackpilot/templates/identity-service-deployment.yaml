@@ -1,46 +1,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.identity.name }}
-  namespace: {{ .Values.namespace }}
+  name: identity-service
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.identity.name }}
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.identity.replicas }}
+  replicas: {{ .Values.identityService.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.identity.name }}
+      app: identity-service
+      stackpilot.io/environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        app: {{ .Values.identity.name }}
+        app: identity-service
+        {{- include "stackpilot.commonLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.identity.name }}
-          image: {{ .Values.image.registry }}/identity-service:{{ .Values.identity.tag }}
+        - name: identity-service
+          image: "{{ .Values.identityService.image.repository }}:{{ .Values.identityService.image.tag }}"
+          imagePullPolicy: {{ .Values.identityService.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.identity.port }}
-
+            - containerPort: {{ .Values.identityService.service.port }}
+          env:
+            - name: ENV
+              value: {{ .Values.global.environment | quote }}
+            - name: DB_HOST
+              value: postgres-identity
+            - name: DB_PORT
+              value: {{ .Values.postgresIdentity.service.port | quote }}
+            - name: DB_NAME
+              value: {{ .Values.postgresIdentity.auth.database | quote }}
+            - name: DB_USER
+              value: {{ .Values.postgresIdentity.auth.username | quote }}
+            - name: DB_PASSWORD
+              value: {{ .Values.postgresIdentity.auth.password | quote }}
           readinessProbe:
             httpGet:
-              path: /ready
-              port: {{ .Values.identity.port }}
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
+              path: {{ .Values.identityService.probes.readinessPath }}
+              port: {{ .Values.identityService.service.port }}
           livenessProbe:
             httpGet:
-              path: /health
-              port: {{ .Values.identity.port }}
-            initialDelaySeconds: 10
-            periodSeconds: 10
-
-          env:
-            - name: POSTGRES_HOST
-              value: {{ .Values.postgresIdentity.name }}
-            - name: POSTGRES_DB
-              value: {{ .Values.postgresIdentity.db }}
-            - name: POSTGRES_USER
-              value: {{ .Values.postgresIdentity.user }}
-            - name: POSTGRES_PASSWORD
-              value: {{ .Values.postgresIdentity.password }}
+              path: {{ .Values.identityService.probes.livenessPath }}
+              port: {{ .Values.identityService.service.port }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.default.requests.cpu }}
+              memory: {{ .Values.resources.default.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.default.limits.cpu }}
+              memory: {{ .Values.resources.default.limits.memory }}

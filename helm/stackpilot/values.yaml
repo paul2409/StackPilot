@@ -1,62 +1,127 @@
-namespace: stackpilot
+global:
+  appName: stackpilot
+  environment: dev
+  ingressClassName: nginx
+  domainSuffix: local
 
-image:
-  registry: ghcr.io/paul2409
+labels:
+  owner: stackpilot
+  managedBy: helm
 
-identity:
-  name: identity-service
-  tag: v1
-  replicas: 1
-  port: 8000
+resources:
+  default:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
 
-wallet:
-  name: wallet-service
-  tag: v1
-  replicas: 1
-  port: 8000
+identityService:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/paul2409/identity-service
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8081
+  probes:
+    readinessPath: /ready
+    livenessPath: /health
 
-system:
-  name: system-service
-  tag: v1
-  replicas: 1
-  port: 8000
+walletService:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/paul2409/wallet-service
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8082
+  probes:
+    readinessPath: /ready
+    livenessPath: /health
+
+systemService:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/paul2409/system-service
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8083
+  probes:
+    readinessPath: /ready
+    livenessPath: /health
 
 customerPortal:
-  name: customer-portal
-  tag: v1
-  replicas: 1
-  port: 8000
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/paul2409/customer-portal
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8084
+  probes:
+    readinessPath: /ready
+    livenessPath: /health
+  ingressHost: customer.local
 
 adminPortal:
-  name: admin-portal
-  tag: v1
-  replicas: 1
-  port: 8000
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/paul2409/admin-portal
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8085
+  probes:
+    readinessPath: /ready
+    livenessPath: /health
+  ingressHost: admin.local
 
 opsPortal:
-  name: ops-portal
-  tag: v1
-  replicas: 1
-  port: 8000
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/paul2409/ops-portal
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8086
+  probes:
+    readinessPath: /ready
+    livenessPath: /health
+  ingressHost: ops.local
 
 postgresIdentity:
-  name: postgres-identity
-  image: postgres:16
-  db: identity_db
-  user: identity_user
-  password: identity_pass
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  auth:
+    database: identitydb
+    username: identity
+    password: identitypass
 
 postgresWallet:
-  name: postgres-wallet
-  image: postgres:16
-  db: wallet_db
-  user: wallet_user
-  password: wallet_pass
-
-ingress:
   enabled: true
-  className: nginx
-  hosts:
-    customer: customer.local
-    admin: admin.local
-    ops: ops.local
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  auth:
+    database: walletdb
+    username: wallet
+    password: walletpass

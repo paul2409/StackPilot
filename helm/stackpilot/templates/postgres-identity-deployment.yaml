@@ -1,29 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.postgresIdentity.name }}
-  namespace: {{ .Values.namespace }}
+  name: postgres-identity
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.postgresIdentity.name }}
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.postgresIdentity.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.postgresIdentity.name }}
+      app: postgres-identity
+      stackpilot.io/environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        app: {{ .Values.postgresIdentity.name }}
+        app: postgres-identity
+        {{- include "stackpilot.commonLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.postgresIdentity.name }}
-          image: {{ .Values.postgresIdentity.image }}
+        - name: postgres-identity
+          image: "{{ .Values.postgresIdentity.image.repository }}:{{ .Values.postgresIdentity.image.tag }}"
+          imagePullPolicy: {{ .Values.postgresIdentity.image.pullPolicy }}
           ports:
-            - containerPort: 5432
+            - containerPort: {{ .Values.postgresIdentity.service.port }}
           env:
             - name: POSTGRES_DB
-              value: {{ .Values.postgresIdentity.db }}
+              value: {{ .Values.postgresIdentity.auth.database | quote }}
             - name: POSTGRES_USER
-              value: {{ .Values.postgresIdentity.user }}
+              value: {{ .Values.postgresIdentity.auth.username | quote }}
             - name: POSTGRES_PASSWORD
-              value: {{ .Values.postgresIdentity.password }}
+              value: {{ .Values.postgresIdentity.auth.password | quote }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.default.requests.cpu }}
+              memory: {{ .Values.resources.default.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.default.limits.cpu }}
+              memory: {{ .Values.resources.default.limits.memory }}

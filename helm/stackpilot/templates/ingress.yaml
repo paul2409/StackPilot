@@ -1,42 +1,40 @@
-{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: stackpilot-ingress
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
+  ingressClassName: {{ .Values.global.ingressClassName }}
   rules:
-    - host: {{ .Values.ingress.hosts.customer }}
+    - host: {{ .Values.customerPortal.ingressHost }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.customerPortal.name }}
+                name: customer-portal
                 port:
-                  number: 80
-
-    - host: {{ .Values.ingress.hosts.admin }}
+                  number: {{ .Values.customerPortal.service.port }}
+    - host: {{ .Values.adminPortal.ingressHost }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.adminPortal.name }}
+                name: admin-portal
                 port:
-                  number: 80
-
-    - host: {{ .Values.ingress.hosts.ops }}
+                  number: {{ .Values.adminPortal.service.port }}
+    - host: {{ .Values.opsPortal.ingressHost }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.opsPortal.name }}
+                name: ops-portal
                 port:
-                  number: 80
-{{- end }}
+                  number: {{ .Values.opsPortal.service.port }}

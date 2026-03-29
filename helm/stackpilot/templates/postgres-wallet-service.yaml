@@ -1,12 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.postgresWallet.name }}
-  namespace: {{ .Values.namespace }}
+  name: postgres-wallet
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:
-    app: {{ .Values.postgresWallet.name }}
+    app: postgres-wallet
+    stackpilot.io/environment: {{ .Values.global.environment }}
   ports:
-    - port: 5432
-      targetPort: 5432
+    - port: {{ .Values.postgresWallet.service.port }}
+      targetPort: {{ .Values.postgresWallet.service.port }}
+      protocol: TCP
   type: ClusterIP

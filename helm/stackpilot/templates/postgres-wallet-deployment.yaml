@@ -1,29 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.postgresWallet.name }}
-  namespace: {{ .Values.namespace }}
+  name: postgres-wallet
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.postgresWallet.name }}
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.postgresWallet.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.postgresWallet.name }}
+      app: postgres-wallet
+      stackpilot.io/environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        app: {{ .Values.postgresWallet.name }}
+        app: postgres-wallet
+        {{- include "stackpilot.commonLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.postgresWallet.name }}
-          image: {{ .Values.postgresWallet.image }}
+        - name: postgres-wallet
+          image: "{{ .Values.postgresWallet.image.repository }}:{{ .Values.postgresWallet.image.tag }}"
+          imagePullPolicy: {{ .Values.postgresWallet.image.pullPolicy }}
           ports:
-            - containerPort: 5432
+            - containerPort: {{ .Values.postgresWallet.service.port }}
           env:
             - name: POSTGRES_DB
-              value: {{ .Values.postgresWallet.db }}
+              value: {{ .Values.postgresWallet.auth.database | quote }}
             - name: POSTGRES_USER
-              value: {{ .Values.postgresWallet.user }}
+              value: {{ .Values.postgresWallet.auth.username | quote }}
             - name: POSTGRES_PASSWORD
-              value: {{ .Values.postgresWallet.password }}
+              value: {{ .Values.postgresWallet.auth.password | quote }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.default.requests.cpu }}
+              memory: {{ .Values.resources.default.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.default.limits.cpu }}
+              memory: {{ .Values.resources.default.limits.memory }}

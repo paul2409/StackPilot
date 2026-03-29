@@ -1,12 +1,15 @@
 {{- define "stackpilot.name" -}}
-stackpilot
-{{- end }}
+{{- .Chart.Name -}}
+{{- end -}}
 
 {{- define "stackpilot.fullname" -}}
-{{ .Release.Name }}
-{{- end }}
+{{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
-{{- define "stackpilot.labels" -}}
-app.kubernetes.io/name: {{ include "stackpilot.name" . }}
+{{- define "stackpilot.commonLabels" -}}
+app.kubernetes.io/name: {{ .Chart.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: {{ .Values.global.appName }}
+stackpilot.io/environment: {{ .Values.global.environment }}
+{{- end -}}

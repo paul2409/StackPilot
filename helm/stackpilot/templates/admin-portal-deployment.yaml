@@ -1,53 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.adminPortal.name }}
-  namespace: {{ .Values.namespace }}
+  name: admin-portal
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.adminPortal.name }}
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.adminPortal.replicas }}
+  replicas: {{ .Values.adminPortal.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.adminPortal.name }}
+      app: admin-portal
+      stackpilot.io/environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        app: {{ .Values.adminPortal.name }}
+        app: admin-portal
+        {{- include "stackpilot.commonLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.adminPortal.name }}
-          image: {{ .Values.image.registry }}/admin-portal:{{ .Values.adminPortal.tag }}
+        - name: admin-portal
+          image: "{{ .Values.adminPortal.image.repository }}:{{ .Values.adminPortal.image.tag }}"
+          imagePullPolicy: {{ .Values.adminPortal.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.adminPortal.port }}
+            - containerPort: {{ .Values.adminPortal.service.port }}
           env:
-            - name: SERVICE_NAME
-              value: {{ .Values.adminPortal.name }}
-            - name: SERVICE_VERSION
-              value: "1.0.0"
             - name: ENV
-              value: "dev"
-            - name: PORT
-              value: "{{ .Values.adminPortal.port }}"
+              value: {{ .Values.global.environment | quote }}
             - name: IDENTITY_SERVICE_URL
-              value: "http://{{ .Values.identity.name }}"
+              value: "http://identity-service:{{ .Values.identityService.service.port }}"
             - name: WALLET_SERVICE_URL
-              value: "http://{{ .Values.wallet.name }}"
+              value: "http://wallet-service:{{ .Values.walletService.service.port }}"
             - name: SYSTEM_SERVICE_URL
-              value: "http://{{ .Values.system.name }}"
-            - name: REQUEST_TIMEOUT
-              value: "2.0"
-
+              value: "http://system-service:{{ .Values.systemService.service.port }}"
           readinessProbe:
             httpGet:
-              path: /ready
-              port: {{ .Values.adminPortal.port }}
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
+              path: {{ .Values.adminPortal.probes.readinessPath }}
+              port: {{ .Values.adminPortal.service.port }}
           livenessProbe:
             httpGet:
-              path: /health
-              port: {{ .Values.adminPortal.port }}
-            initialDelaySeconds: 10
-            periodSeconds: 10
+              path: {{ .Values.adminPortal.probes.livenessPath }}
+              port: {{ .Values.adminPortal.service.port }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.default.requests.cpu }}
+              memory: {{ .Values.resources.default.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.default.limits.cpu }}
+              memory: {{ .Values.resources.default.limits.memory }}

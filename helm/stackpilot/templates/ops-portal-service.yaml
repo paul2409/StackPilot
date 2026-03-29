@@ -1,12 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.opsPortal.name }}
-  namespace: {{ .Values.namespace }}
+  name: ops-portal
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:
-    app: {{ .Values.opsPortal.name }}
+    app: ops-portal
+    stackpilot.io/environment: {{ .Values.global.environment }}
   ports:
-    - port: 80
-      targetPort: {{ .Values.opsPortal.port }}
+    - port: {{ .Values.opsPortal.service.port }}
+      targetPort: {{ .Values.opsPortal.service.port }}
+      protocol: TCP
   type: ClusterIP

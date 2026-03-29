@@ -1,34 +1,36 @@
 global:
-  env: dev
-  version: "1.0.0"
-  requestTimeout: "2.0"
-
-identity:
-  replicas: 1
-  tag: v1
-
-wallet:
-  replicas: 1
-  tag: v1
-
-system:
-  replicas: 1
-  tag: v1
+  environment: dev
+  domainSuffix: local
 
 customerPortal:
-  replicas: 1
-  tag: v1
+  replicaCount: 1
+  ingressHost: customer-dev.local
 
 adminPortal:
-  replicas: 1
-  tag: v1
+  replicaCount: 1
+  ingressHost: admin-dev.local
 
 opsPortal:
-  replicas: 1
-  tag: v1
+  replicaCount: 1
+  ingressHost: ops-dev.local
 
-ingress:
-  hosts:
-    customer: customer.local
-    admin: admin.local
-    ops: ops.local
+identityService:
+  replicaCount: 1
+
+walletService:
+  replicaCount: 1
+
+systemService:
+  replicaCount: 1
+
+resources:
+  default:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+labels:
+  environment: dev

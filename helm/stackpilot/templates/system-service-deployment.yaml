@@ -1,51 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.system.name }}
-  namespace: {{ .Values.namespace }}
+  name: system-service
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.system.name }}
+    {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.system.replicas }}
+  replicas: {{ .Values.systemService.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.system.name }}
+      app: system-service
+      stackpilot.io/environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        app: {{ .Values.system.name }}
+        app: system-service
+        {{- include "stackpilot.commonLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.system.name }}
-          image: {{ .Values.image.registry }}/system-service:{{ .Values.system.tag }}
+        - name: system-service
+          image: "{{ .Values.systemService.image.repository }}:{{ .Values.systemService.image.tag }}"
+          imagePullPolicy: {{ .Values.systemService.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.system.port }}
+            - containerPort: {{ .Values.systemService.service.port }}
           env:
-            - name: SERVICE_NAME
-              value: {{ .Values.system.name }}
-            - name: SERVICE_VERSION
-              value: "1.0.0"
             - name: ENV
-              value: "dev"
-            - name: PORT
-              value: "{{ .Values.system.port }}"
+              value: {{ .Values.global.environment | quote }}
             - name: IDENTITY_SERVICE_URL
-              value: "http://{{ .Values.identity.name }}"
+              value: "http://identity-service:{{ .Values.identityService.service.port }}"
             - name: WALLET_SERVICE_URL
-              value: "http://{{ .Values.wallet.name }}"
-            - name: REQUEST_TIMEOUT
-              value: "2.0"
-
+              value: "http://wallet-service:{{ .Values.walletService.service.port }}"
           readinessProbe:
             httpGet:
-              path: /ready
-              port: {{ .Values.system.port }}
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
+              path: {{ .Values.systemService.probes.readinessPath }}
+              port: {{ .Values.systemService.service.port }}
           livenessProbe:
             httpGet:
-              path: /health
-              port: {{ .Values.system.port }}
-            initialDelaySeconds: 10
-            periodSeconds: 10
+              path: {{ .Values.systemService.probes.livenessPath }}
+              port: {{ .Values.systemService.service.port }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.default.requests.cpu }}
+              memory: {{ .Values.resources.default.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.default.limits.cpu }}
+              memory: {{ .Values.resources.default.limits.memory }}
