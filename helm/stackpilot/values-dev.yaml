@@ -1,48 +1,40 @@
 global:
   environment: dev
   domainSuffix: local
-
 identityService:
   replicaCount: 1
   image:
-    tag: "v1"
-
+    tag: v1
 walletService:
   replicaCount: 1
   image:
-    tag: "v1"
-
+    tag: v1
 systemService:
   replicaCount: 1
   image:
-    tag: "v1"
-
+    tag: v1
 customerPortal:
   replicaCount: 1
   ingressHost: customer-dev.local
   image:
-    tag: "v1"
-
+    tag: v1
 adminPortal:
   replicaCount: 1
   ingressHost: admin-dev.local
   image:
-    tag: "v1"
-
+    tag: sha-e52a7e7
 opsPortal:
   replicaCount: 1
   ingressHost: ops-dev.local
   image:
-    tag: "v1"
-
+    tag: v1
 resources:
   default:
     requests:
-      cpu: "100m"
-      memory: "128Mi"
+      cpu: 100m
+      memory: 128Mi
     limits:
-      cpu: "250m"
-      memory: "256Mi"
-
+      cpu: 250m
+      memory: 256Mi
 labels:
   environment: dev
