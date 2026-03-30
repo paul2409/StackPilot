@@ -2,26 +2,38 @@ global:
   environment: staging
   domainSuffix: local
 
+identityService:
+  replicaCount: 1
+  image:
+    tag: "v1"
+
+walletService:
+  replicaCount: 1
+  image:
+    tag: "v1"
+
+systemService:
+  replicaCount: 1
+  image:
+    tag: "v1"
+
 customerPortal:
   replicaCount: 2
   ingressHost: customer-staging.local
+  image:
+    tag: "v1"
 
 adminPortal:
   replicaCount: 1
   ingressHost: admin-staging.local
+  image:
+    tag: "v1"
 
 opsPortal:
   replicaCount: 1
   ingressHost: ops-staging.local
-
-identityService:
-  replicaCount: 1
-
-walletService:
-  replicaCount: 1
-
-systemService:
-  replicaCount: 1
+  image:
+    tag: "v1"
 
 resources:
   default:

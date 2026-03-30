@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/paul2409/stackpilot.git
-    targetRevision: milestone/m8-gitops-local-dev-staging
+    targetRevision: dev
     path: helm/stackpilot
     helm:
       valueFiles:

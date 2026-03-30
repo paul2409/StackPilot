@@ -2,26 +2,38 @@ global:
   environment: dev
   domainSuffix: local
 
+identityService:
+  replicaCount: 1
+  image:
+    tag: "v1"
+
+walletService:
+  replicaCount: 1
+  image:
+    tag: "v1"
+
+systemService:
+  replicaCount: 1
+  image:
+    tag: "v1"
+
 customerPortal:
   replicaCount: 1
   ingressHost: customer-dev.local
+  image:
+    tag: "v1"
 
 adminPortal:
   replicaCount: 1
   ingressHost: admin-dev.local
+  image:
+    tag: "v1"
 
 opsPortal:
   replicaCount: 1
   ingressHost: ops-dev.local
-
-identityService:
-  replicaCount: 1
-
-walletService:
-  replicaCount: 1
-
-systemService:
-  replicaCount: 1
+  image:
+    tag: "v1"
 
 resources:
   default:

@@ -1,7 +1,3 @@
-# StackPilot current staging artifact intent
-# Format:
-# service=image-reference
-
 identity-service=ghcr.io/paul2409/identity-service:v1
 wallet-service=ghcr.io/paul2409/wallet-service:v1
 system-service=ghcr.io/paul2409/system-service:v1

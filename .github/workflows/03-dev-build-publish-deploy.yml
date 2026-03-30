@@ -1,0 +1,229 @@
+name: Dev Build Publish Deploy
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: dev-build-publish-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-push-update-dev:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute SHA tag
+        id: vars
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHORT_SHA="sha-$(git rev-parse --short HEAD)"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Detect changed services
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="$(git rev-list --max-parents=0 HEAD)"
+          fi
+
+          git diff --name-only "$BEFORE" "$AFTER" > changed_files.txt
+          cat changed_files.txt
+
+          changed=false
+
+          if grep -q '^services/identity-service/' changed_files.txt; then echo "identity=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "identity=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^services/wallet-service/' changed_files.txt; then echo "wallet=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "wallet=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^services/system-service/' changed_files.txt; then echo "system=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "system=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^apps/stackpilot-exchange/customer-portal/' changed_files.txt; then echo "customer=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "customer=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^apps/stackpilot-exchange/admin-portal/' changed_files.txt; then echo "admin=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "admin=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^apps/stackpilot-exchange/ops-portal/' changed_files.txt; then echo "ops=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "ops=false" >> "$GITHUB_OUTPUT"; fi
+
+          echo "any_changed=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push identity-service
+        if: steps.changes.outputs.identity == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/identity-service
+          file: ./services/identity-service/Dockerfile
+          push: true
+          tags: ghcr.io/paul2409/identity-service:${{ steps.vars.outputs.short_sha }}
+
+      - name: Build and push wallet-service
+        if: steps.changes.outputs.wallet == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/wallet-service
+          file: ./services/wallet-service/Dockerfile
+          push: true
+          tags: ghcr.io/paul2409/wallet-service:${{ steps.vars.outputs.short_sha }}
+
+      - name: Build and push system-service
+        if: steps.changes.outputs.system == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/system-service
+          file: ./services/system-service/Dockerfile
+          push: true
+          tags: ghcr.io/paul2409/system-service:${{ steps.vars.outputs.short_sha }}
+
+      - name: Build and push customer-portal
+        if: steps.changes.outputs.customer == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/stackpilot-exchange/customer-portal
+          file: ./apps/stackpilot-exchange/customer-portal/Dockerfile
+          push: true
+          tags: ghcr.io/paul2409/customer-portal:${{ steps.vars.outputs.short_sha }}
+
+      - name: Build and push admin-portal
+        if: steps.changes.outputs.admin == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/stackpilot-exchange/admin-portal
+          file: ./apps/stackpilot-exchange/admin-portal/Dockerfile
+          push: true
+          tags: ghcr.io/paul2409/admin-portal:${{ steps.vars.outputs.short_sha }}
+
+      - name: Build and push ops-portal
+        if: steps.changes.outputs.ops == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/stackpilot-exchange/ops-portal
+          file: ./apps/stackpilot-exchange/ops-portal/Dockerfile
+          push: true
+          tags: ghcr.io/paul2409/ops-portal:${{ steps.vars.outputs.short_sha }}
+
+      - name: Install PyYAML
+        if: steps.changes.outputs.any_changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Update values-dev.yaml and current-dev.txt
+        if: steps.changes.outputs.any_changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          import yaml
+          from pathlib import Path
+
+          tag = "${{ steps.vars.outputs.short_sha }}"
+
+          values_path = Path("helm/stackpilot/values-dev.yaml")
+          with values_path.open() as f:
+              data = yaml.safe_load(f)
+
+          changed = {
+              "identity": "${{ steps.changes.outputs.identity }}" == "true",
+              "wallet": "${{ steps.changes.outputs.wallet }}" == "true",
+              "system": "${{ steps.changes.outputs.system }}" == "true",
+              "customer": "${{ steps.changes.outputs.customer }}" == "true",
+              "admin": "${{ steps.changes.outputs.admin }}" == "true",
+              "ops": "${{ steps.changes.outputs.ops }}" == "true",
+          }
+
+          mapping = {
+              "identity": ("identityService", "identity-service", "ghcr.io/paul2409/identity-service"),
+              "wallet": ("walletService", "wallet-service", "ghcr.io/paul2409/wallet-service"),
+              "system": ("systemService", "system-service", "ghcr.io/paul2409/system-service"),
+              "customer": ("customerPortal", "customer-portal", "ghcr.io/paul2409/customer-portal"),
+              "admin": ("adminPortal", "admin-portal", "ghcr.io/paul2409/admin-portal"),
+              "ops": ("opsPortal", "ops-portal", "ghcr.io/paul2409/ops-portal"),
+          }
+
+          for short, (key, _, _) in mapping.items():
+              if changed[short]:
+                  data.setdefault(key, {})
+                  data[key].setdefault("image", {})
+                  data[key]["image"]["tag"] = tag
+
+          with values_path.open("w") as f:
+              yaml.safe_dump(data, f, sort_keys=False)
+
+          release_path = Path("artifacts/releases")
+          release_path.mkdir(parents=True, exist_ok=True)
+          current_dev = release_path / "current-dev.txt"
+
+          existing = {}
+          if current_dev.exists():
+              for line in current_dev.read_text().splitlines():
+                  line = line.strip()
+                  if not line or line.startswith("#") or "=" not in line:
+                      continue
+                  k, v = line.split("=", 1)
+                  existing[k] = v
+
+          for _, (_, release_key, repo) in mapping.items():
+              existing.setdefault(release_key, f"{repo}:v1")
+
+          for short, (_, release_key, repo) in mapping.items():
+              if changed[short]:
+                  existing[release_key] = f"{repo}:{tag}"
+
+          lines = [
+              f"identity-service={existing['identity-service']}",
+              f"wallet-service={existing['wallet-service']}",
+              f"system-service={existing['system-service']}",
+              f"customer-portal={existing['customer-portal']}",
+              f"admin-portal={existing['admin-portal']}",
+              f"ops-portal={existing['ops-portal']}",
+          ]
+          current_dev.write_text("\n".join(lines) + "\n")
+          PY
+
+      - name: Commit deployment-state changes back to dev
+        if: steps.changes.outputs.any_changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet -- helm/stackpilot/values-dev.yaml artifacts/releases/current-dev.txt; then
+            echo "No deployment-state changes to commit"
+            exit 0
+          fi
+
+          git add helm/stackpilot/values-dev.yaml artifacts/releases/current-dev.txt
+          git commit -m "ci(dev): update dev artifact refs [skip ci]"
+          git push origin HEAD:dev
+
+      - name: No deployable service changes
+        if: steps.changes.outputs.any_changed != 'true'
+        shell: bash
+        run: |
+          echo "No deployable service paths changed. Nothing built. Nothing deployed."

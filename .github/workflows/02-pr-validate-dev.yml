@@ -1,0 +1,140 @@
+name: PR Validate Dev
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validate-dev-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+    outputs:
+      identity: ${{ steps.changes.outputs.identity }}
+      wallet: ${{ steps.changes.outputs.wallet }}
+      system: ${{ steps.changes.outputs.system }}
+      customer: ${{ steps.changes.outputs.customer }}
+      admin: ${{ steps.changes.outputs.admin }}
+      ops: ${{ steps.changes.outputs.ops }}
+      any_changed: ${{ steps.changes.outputs.any_changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changed services
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" > changed_files.txt
+          cat changed_files.txt
+
+          changed=false
+
+          if grep -q '^services/identity-service/' changed_files.txt; then echo "identity=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "identity=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^services/wallet-service/' changed_files.txt; then echo "wallet=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "wallet=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^services/system-service/' changed_files.txt; then echo "system=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "system=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^apps/stackpilot-exchange/customer-portal/' changed_files.txt; then echo "customer=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "customer=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^apps/stackpilot-exchange/admin-portal/' changed_files.txt; then echo "admin=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "admin=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '^apps/stackpilot-exchange/ops-portal/' changed_files.txt; then echo "ops=true" >> "$GITHUB_OUTPUT"; changed=true; else echo "ops=false" >> "$GITHUB_OUTPUT"; fi
+
+          echo "any_changed=$changed" >> "$GITHUB_OUTPUT"
+
+  smoke-build:
+    name: Smoke Build Changed Services
+    needs: detect
+    if: needs.detect.outputs.any_changed == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - identity
+          - wallet
+          - system
+          - customer
+          - admin
+          - ops
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Gate unchanged services
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.service }}" in
+            identity) echo "changed=${{ needs.detect.outputs.identity }}" >> "$GITHUB_OUTPUT" ;;
+            wallet) echo "changed=${{ needs.detect.outputs.wallet }}" >> "$GITHUB_OUTPUT" ;;
+            system) echo "changed=${{ needs.detect.outputs.system }}" >> "$GITHUB_OUTPUT" ;;
+            customer) echo "changed=${{ needs.detect.outputs.customer }}" >> "$GITHUB_OUTPUT" ;;
+            admin) echo "changed=${{ needs.detect.outputs.admin }}" >> "$GITHUB_OUTPUT" ;;
+            ops) echo "changed=${{ needs.detect.outputs.ops }}" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Build identity-service
+        if: matrix.service == 'identity' && steps.gate.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/identity-service
+          file: ./services/identity-service/Dockerfile
+          push: false
+
+      - name: Build wallet-service
+        if: matrix.service == 'wallet' && steps.gate.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/wallet-service
+          file: ./services/wallet-service/Dockerfile
+          push: false
+
+      - name: Build system-service
+        if: matrix.service == 'system' && steps.gate.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/system-service
+          file: ./services/system-service/Dockerfile
+          push: false
+
+      - name: Build customer-portal
+        if: matrix.service == 'customer' && steps.gate.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/stackpilot-exchange/customer-portal
+          file: ./apps/stackpilot-exchange/customer-portal/Dockerfile
+          push: false
+
+      - name: Build admin-portal
+        if: matrix.service == 'admin' && steps.gate.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/stackpilot-exchange/admin-portal
+          file: ./apps/stackpilot-exchange/admin-portal/Dockerfile
+          push: false
+
+      - name: Build ops-portal
+        if: matrix.service == 'ops' && steps.gate.outputs.changed == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/stackpilot-exchange/ops-portal
+          file: ./apps/stackpilot-exchange/ops-portal/Dockerfile
+          push: false
+
+  no-service-changes:
+    name: No Deployable Service Changes
+    needs: detect
+    if: needs.detect.outputs.any_changed != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No deployable service paths changed."

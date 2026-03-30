@@ -1,0 +1,107 @@
+name: Staging Promote Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: staging-promote-deploy
+  cancel-in-progress: true
+
+jobs:
+  promote-staging:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install PyYAML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Promote dev tags into staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          import yaml
+          from pathlib import Path
+
+          dev_path = Path("helm/stackpilot/values-dev.yaml")
+          staging_path = Path("helm/stackpilot/values-staging.yaml")
+
+          with dev_path.open() as f:
+              dev = yaml.safe_load(f)
+
+          with staging_path.open() as f:
+              staging = yaml.safe_load(f)
+
+          mapping = {
+              "identityService": "identity-service",
+              "walletService": "wallet-service",
+              "systemService": "system-service",
+              "customerPortal": "customer-portal",
+              "adminPortal": "admin-portal",
+              "opsPortal": "ops-portal",
+          }
+
+          release_entries = {}
+
+          for values_key, release_key in mapping.items():
+              dev_tag = dev.get(values_key, {}).get("image", {}).get("tag")
+              if dev_tag:
+                  staging.setdefault(values_key, {})
+                  staging[values_key].setdefault("image", {})
+                  staging[values_key]["image"]["tag"] = dev_tag
+
+              repo = staging.get(values_key, {}).get("image", {}).get("repository")
+              tag = staging.get(values_key, {}).get("image", {}).get("tag")
+              if repo and tag:
+                  release_entries[release_key] = f"{repo}:{tag}"
+
+          with staging_path.open("w") as f:
+              yaml.safe_dump(staging, f, sort_keys=False)
+
+          release_path = Path("artifacts/releases")
+          release_path.mkdir(parents=True, exist_ok=True)
+          current_staging = release_path / "current-staging.txt"
+
+          lines = [
+              f"identity-service={release_entries['identity-service']}",
+              f"wallet-service={release_entries['wallet-service']}",
+              f"system-service={release_entries['system-service']}",
+              f"customer-portal={release_entries['customer-portal']}",
+              f"admin-portal={release_entries['admin-portal']}",
+              f"ops-portal={release_entries['ops-portal']}",
+          ]
+          current_staging.write_text("\n".join(lines) + "\n")
+          PY
+
+      - name: Commit staging promotion state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet -- helm/stackpilot/values-staging.yaml artifacts/releases/current-staging.txt; then
+            echo "No staging promotion changes to commit"
+            exit 0
+          fi
+
+          git add helm/stackpilot/values-staging.yaml artifacts/releases/current-staging.txt
+          git commit -m "ci(staging): promote dev artifact refs into staging [skip ci]"
+          git push origin HEAD:main
