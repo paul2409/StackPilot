@@ -8,7 +8,6 @@ on:
 permissions:
   contents: write
   packages: write
-
 concurrency:
   group: dev-build-publish-deploy
   cancel-in-progress: true

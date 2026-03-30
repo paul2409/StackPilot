@@ -7,8 +7,8 @@ on:
       - main
 
 permissions:
-  contents: read
-
+  contents: write
+  packages: write
 concurrency:
   group: ci-checks-${{ github.ref }}
   cancel-in-progress: true

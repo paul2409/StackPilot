@@ -6,8 +6,8 @@ on:
       - dev
 
 permissions:
-  contents: read
-
+  contents: write
+  packages: write
 concurrency:
   group: pr-validate-dev-${{ github.event.pull_request.number }}
   cancel-in-progress: true

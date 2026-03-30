@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-
+  packages: write
 concurrency:
   group: staging-promote-deploy
   cancel-in-progress: true
