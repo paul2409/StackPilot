@@ -22,3 +22,26 @@ artifacts/aws/run.tfvars
 
 # k8s local secrets (do not commit)
 k8s/base/*.secret.env
+
+# Local generated residue
+tmp/*
+!tmp/.gitkeep
+
+artifacts/logs/*
+!artifacts/logs/.keep
+
+artifacts/drills/*
+!artifacts/drills/.keep
+
+artifacts/reports/*
+!artifacts/reports/.keep
+
+artifacts/smoke-tests/*
+!artifacts/smoke-tests/.keep
+
+# Local tool/binary residue
+vagrant/k3s-bin/
+venv/
+.venv/
+__pycache__/
+*.pyc

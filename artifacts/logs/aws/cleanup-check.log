@@ -1,5 +1,0 @@
-[clean-check] auth mode: profile=stackpilot-ci (local-style)
-[clean-check] region: us-east-1
-[clean-check] writing: /c/Projects/StackPilot/artifacts/logs/aws/cleanup-check.log
-[clean-check] 
-[clean-check] == INSTANCES (pending/running/stopping/stopped) ==
