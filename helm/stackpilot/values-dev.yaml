@@ -4,7 +4,7 @@ global:
 identityService:
   replicaCount: 1
   image:
-    tag: v1
+    tag: sha-acfd3bb
 walletService:
   replicaCount: 1
   image:

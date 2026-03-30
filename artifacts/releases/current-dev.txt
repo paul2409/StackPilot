@@ -1,4 +1,4 @@
-identity-service=ghcr.io/paul2409/identity-service:v1
+identity-service=ghcr.io/paul2409/identity-service:sha-acfd3bb
 wallet-service=ghcr.io/paul2409/wallet-service:v1
 system-service=ghcr.io/paul2409/system-service:v1
 customer-portal=ghcr.io/paul2409/customer-portal:v1
