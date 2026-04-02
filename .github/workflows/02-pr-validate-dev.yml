@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   packages: write
+
 concurrency:
   group: pr-validate-dev-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -28,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          feth-depth: 0
+          fetch-depth: 0   # ✅ FIXED
 
       - name: Detect changed services
         id: changes
@@ -54,6 +55,7 @@ jobs:
     needs: detect
     if: needs.detect.outputs.any_changed == 'true'
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -67,6 +69,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # ✅ keep consistent
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
