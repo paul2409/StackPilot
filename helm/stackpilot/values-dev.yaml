@@ -5,30 +5,30 @@ global:
 identityService:
   replicaCount: 1
   image:
-    tag: sha-e21cc28
+    tag: sha-8301d73
 walletService:
   replicaCount: 1
   image:
-    tag: sha-e21cc28
+    tag: sha-8301d73
 systemService:
   replicaCount: 1
   image:
-    tag: sha-e21cc28
+    tag: sha-8301d73
 customerPortal:
   replicaCount: 1
   ingressHost: customer-dev.local
   image:
-    tag: sha-e21cc28
+    tag: sha-8301d73
 adminPortal:
   replicaCount: 1
   ingressHost: admin-dev.local
   image:
-    tag: sha-e21cc28
+    tag: sha-8301d73
 opsPortal:
   replicaCount: 1
   ingressHost: ops-dev.local
   image:
-    tag: sha-e21cc28
+    tag: sha-8301d73
 resources:
   default:
     requests:
