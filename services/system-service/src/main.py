@@ -7,12 +7,10 @@ from src.routes.version import router as version_router
 from src.observability import configure_metrics
 
 app = FastAPI(title="System Service")
-
 app.include_router(health_router)
 app.include_router(readiness_router)
 app.include_router(status_router)
 app.include_router(version_router)
-
 
 @app.get("/")
 def root():
@@ -20,7 +18,3 @@ def root():
         "service": "system-service",
         "status": "running",
     }
-
-@app.on_event("startup")
-def startup_event():
-    configure_metrics(app)

@@ -8,13 +8,11 @@ from src.routes.version import router as version_router
 from src.observability import configure_metrics
 
 app = FastAPI(title="Admin Portal")
-
 app.include_router(admin_router)
 app.include_router(users_router)
 app.include_router(wallets_router)
 app.include_router(health_router)
 app.include_router(version_router)
-
 
 @app.get("/")
 def root():
@@ -22,4 +20,3 @@ def root():
 
 @app.on_event("startup")
 def startup_event():
-    configure_metrics(app)

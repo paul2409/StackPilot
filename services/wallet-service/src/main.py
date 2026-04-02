@@ -9,20 +9,13 @@ from src.routes.version import router as version_router
 from src.observability import configure_metrics
 
 app = FastAPI(title="Wallet Service")
-
-
-@app.on_event("startup")
-def startup_event():
-    configure_metrics(app)
     init_db()
-
 
 app.include_router(balances_router)
 app.include_router(history_router)
 app.include_router(transfer_router)
 app.include_router(health_router)
 app.include_router(version_router)
-
 
 @app.get("/")
 def root():
