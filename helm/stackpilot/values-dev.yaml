@@ -1,34 +1,34 @@
 global:
   environment: dev
   domainSuffix: local
-  buildTime: "unknown"
+  buildTime: unknown
 identityService:
   replicaCount: 1
   image:
-    tag: sha-0f13b5e
+    tag: sha-e21cc28
 walletService:
   replicaCount: 1
   image:
-    tag: sha-0f13b5e
+    tag: sha-e21cc28
 systemService:
   replicaCount: 1
   image:
-    tag: sha-0f13b5e
+    tag: sha-e21cc28
 customerPortal:
   replicaCount: 1
   ingressHost: customer-dev.local
   image:
-    tag: sha-0f13b5e
+    tag: sha-e21cc28
 adminPortal:
   replicaCount: 1
   ingressHost: admin-dev.local
   image:
-    tag: sha-0f13b5e
+    tag: sha-e21cc28
 opsPortal:
   replicaCount: 1
   ingressHost: ops-dev.local
   image:
-    tag: sha-0f13b5e
+    tag: sha-e21cc28
 resources:
   default:
     requests:
