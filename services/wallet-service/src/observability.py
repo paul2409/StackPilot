@@ -45,7 +45,6 @@ def configure_metrics(app):
         should_ignore_untemplated=False,
         excluded_handlers=["/metrics"],
         env_var_name="ENABLE_METRICS",
-        inprogress=True,
     ).instrument(app).expose(app, include_in_schema=False, endpoint="/metrics")
     SERVICE_BUILD.info(
         {
