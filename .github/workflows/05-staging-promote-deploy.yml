@@ -7,30 +7,21 @@ on:
 
 permissions:
   contents: write
-  packages: write
+
 concurrency:
-  group: staging-promote-deploy
-  cancel-in-progress: true
+  group: staging-promote
+  cancel-in-progress: false
 
 jobs:
   promote-staging:
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
       - name: Install PyYAML
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          pip install pyyaml
+        run: pip install pyyaml
 
       - name: Promote dev tags into staging
         shell: bash
@@ -50,27 +41,27 @@ jobs:
               staging = yaml.safe_load(f)
 
           mapping = {
-              "identityService": "identity-service",
-              "walletService": "wallet-service",
-              "systemService": "system-service",
-              "customerPortal": "customer-portal",
-              "adminPortal": "admin-portal",
-              "opsPortal": "ops-portal",
+              "identityService": ("identity-service", "ghcr.io/paul2409/identity-service"),
+              "walletService": ("wallet-service", "ghcr.io/paul2409/wallet-service"),
+              "systemService": ("system-service", "ghcr.io/paul2409/system-service"),
+              "customerPortal": ("customer-portal", "ghcr.io/paul2409/customer-portal"),
+              "adminPortal": ("admin-portal", "ghcr.io/paul2409/admin-portal"),
+              "opsPortal": ("ops-portal", "ghcr.io/paul2409/ops-portal"),
           }
 
           release_entries = {}
 
-          for values_key, release_key in mapping.items():
+          for values_key, (release_key, repo) in mapping.items():
               dev_tag = dev.get(values_key, {}).get("image", {}).get("tag")
-              if dev_tag:
-                  staging.setdefault(values_key, {})
-                  staging[values_key].setdefault("image", {})
-                  staging[values_key]["image"]["tag"] = dev_tag
+              if not dev_tag:
+                  continue
 
-              repo = staging.get(values_key, {}).get("image", {}).get("repository")
-              tag = staging.get(values_key, {}).get("image", {}).get("tag")
-              if repo and tag:
-                  release_entries[release_key] = f"{repo}:{tag}"
+              staging.setdefault(values_key, {})
+              staging[values_key].setdefault("image", {})
+              staging[values_key]["image"]["repository"] = repo
+              staging[values_key]["image"]["tag"] = dev_tag
+
+              release_entries[release_key] = f"{repo}:{dev_tag}"
 
           with staging_path.open("w") as f:
               yaml.safe_dump(staging, f, sort_keys=False)
@@ -87,21 +78,16 @@ jobs:
               f"admin-portal={release_entries['admin-portal']}",
               f"ops-portal={release_entries['ops-portal']}",
           ]
+
           current_staging.write_text("\n".join(lines) + "\n")
           PY
 
       - name: Commit staging promotion state
-        shell: bash
         run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          if git diff --quiet -- helm/stackpilot/values-staging.yaml artifacts/releases/current-staging.txt; then
-            echo "No staging promotion changes to commit"
-            exit 0
-          fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
 
           git add helm/stackpilot/values-staging.yaml artifacts/releases/current-staging.txt
-          git commit -m "ci(staging): promote dev artifact refs into staging [skip ci]"
-          git push origin HEAD:main
+
+          git commit -m "chore: promote dev -> staging [skip ci]" || echo "No changes"
+          git push

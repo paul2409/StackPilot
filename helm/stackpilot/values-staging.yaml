@@ -1,48 +1,46 @@
 global:
   environment: staging
   domainSuffix: local
-
 identityService:
   replicaCount: 1
   image:
-    tag: "v1"
-
+    tag: sha-0f13b5e
+    repository: ghcr.io/paul2409/identity-service
 walletService:
   replicaCount: 1
   image:
-    tag: "v1"
-
+    tag: sha-0f13b5e
+    repository: ghcr.io/paul2409/wallet-service
 systemService:
   replicaCount: 1
   image:
-    tag: "v1"
-
+    tag: sha-0f13b5e
+    repository: ghcr.io/paul2409/system-service
 customerPortal:
   replicaCount: 2
   ingressHost: customer-staging.local
   image:
-    tag: "v1"
-
+    tag: sha-0f13b5e
+    repository: ghcr.io/paul2409/customer-portal
 adminPortal:
   replicaCount: 1
   ingressHost: admin-staging.local
   image:
-    tag: "v1"
-
+    tag: sha-0f13b5e
+    repository: ghcr.io/paul2409/admin-portal
 opsPortal:
   replicaCount: 1
   ingressHost: ops-staging.local
   image:
-    tag: "v1"
-
+    tag: sha-0f13b5e
+    repository: ghcr.io/paul2409/ops-portal
 resources:
   default:
     requests:
-      cpu: "150m"
-      memory: "192Mi"
+      cpu: 150m
+      memory: 192Mi
     limits:
-      cpu: "400m"
-      memory: "384Mi"
-
+      cpu: 400m
+      memory: 384Mi
 labels:
   environment: staging
