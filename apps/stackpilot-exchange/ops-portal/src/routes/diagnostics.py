@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from src.clients import identity_client, wallet_client, system_client
+from src.observability import record_diagnostics_request
 
 router = APIRouter()
 
@@ -20,6 +21,7 @@ def safe_call(fn):
 
 @router.get("/ops/diagnostics")
 def diagnostics():
+    record_diagnostics_request()
     return {
         "service": "ops-portal",
         "diagnostics": {

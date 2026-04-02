@@ -3,6 +3,8 @@ import os
 SERVICE_NAME = os.getenv("SERVICE_NAME", "customer-portal")
 SERVICE_VERSION = os.getenv("SERVICE_VERSION", "1.0.0")
 ENV = os.getenv("ENV", "dev")
+BUILD_TIME = os.getenv("BUILD_TIME", "unknown")
+GIT_SHA = os.getenv("GIT_SHA", SERVICE_VERSION)
 PORT = int(os.getenv("PORT", "8000"))
 
 IDENTITY_SERVICE_URL = os.getenv("IDENTITY_SERVICE_URL", "http://identity-service:8000")

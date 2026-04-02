@@ -3,6 +3,7 @@ global:
   environment: dev
   ingressClassName: nginx
   domainSuffix: local
+  buildTime: "unknown"
 
 labels:
   owner: stackpilot

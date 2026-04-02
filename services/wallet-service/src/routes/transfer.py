@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from src.db import get_cursor
+from src.observability import record_transfer_request
 
 router = APIRouter()
 
@@ -15,6 +16,7 @@ class TransferRequest(BaseModel):
 
 @router.post("/transfer")
 def transfer(payload: TransferRequest):
+    record_transfer_request()
     if payload.amount <= 0:
         raise HTTPException(status_code=400, detail="Amount must be positive")
 

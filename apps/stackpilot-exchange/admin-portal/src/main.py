@@ -5,6 +5,7 @@ from src.routes.users import router as users_router
 from src.routes.wallets import router as wallets_router
 from src.routes.health import router as health_router
 from src.routes.version import router as version_router
+from src.observability import configure_metrics
 
 app = FastAPI(title="Admin Portal")
 
@@ -18,3 +19,7 @@ app.include_router(version_router)
 @app.get("/")
 def root():
     return {"service": "admin-portal", "status": "running"}
+
+@app.on_event("startup")
+def startup_event():
+    configure_metrics(app)

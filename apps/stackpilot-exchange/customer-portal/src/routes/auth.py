@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from src.clients import identity_client
 from src.models.responses import degraded_response
+from src.observability import record_auth_failure
 
 router = APIRouter()
 
@@ -17,6 +18,7 @@ def login(payload: LoginRequest):
         data = identity_client.login(payload.username, payload.password)
         return {"portal": "customer-portal", "status": "success", "auth": data}
     except Exception as exc:
+        record_auth_failure()
         raise HTTPException(
             status_code=503,
             detail=degraded_response("/api/auth/login", "identity-service", str(exc)),

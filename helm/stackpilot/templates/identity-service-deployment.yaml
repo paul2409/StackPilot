@@ -24,6 +24,14 @@ spec:
           ports:
             - containerPort: {{ .Values.identityService.service.port }}
           env:
+            - name: SERVICE_NAME
+              value: "identity-service"
+            - name: SERVICE_VERSION
+              value: {{ .Values.identityService.image.tag | quote }}
+            - name: GIT_SHA
+              value: {{ .Values.identityService.image.tag | quote }}
+            - name: BUILD_TIME
+              value: {{ .Values.global.buildTime | quote }}
             - name: ENV
               value: {{ .Values.global.environment | quote }}
             - name: PORT

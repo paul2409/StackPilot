@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from src.clients import identity_client, wallet_client
+from src.observability import record_summary_request
 
 router = APIRouter()
 
@@ -14,6 +15,7 @@ def safe_call(fn):
 
 @router.get("/status")
 def status():
+    record_summary_request()
     identity_health = safe_call(identity_client.get_health)
     identity_ready = safe_call(identity_client.get_ready)
     identity_version = safe_call(identity_client.get_version)
