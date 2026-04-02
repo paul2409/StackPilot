@@ -5,6 +5,7 @@ from src.routes.readiness import router as readiness_router
 from src.routes.dependencies import router as dependencies_router
 from src.routes.diagnostics import router as diagnostics_router
 from src.routes.version import router as version_router
+from src.observability import configure_metrics
 
 app = FastAPI(title="Ops Portal")
 
@@ -21,3 +22,7 @@ def root():
         "service": "ops-portal",
         "status": "running",
     }
+
+@app.on_event("startup")
+def startup_event():
+    configure_metrics(app)

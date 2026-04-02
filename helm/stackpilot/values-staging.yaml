@@ -1,6 +1,7 @@
 global:
   environment: staging
   domainSuffix: local
+  buildTime: "unknown"
 identityService:
   replicaCount: 1
   image:

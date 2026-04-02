@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ops-portal
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - stackpilot
+      - stackpilot-dev
+      - stackpilot-staging
+  selector:
+    matchLabels:
+      app: ops-portal
+  endpoints:
+    - path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+      targetPort: 8000
+      honorLabels: true

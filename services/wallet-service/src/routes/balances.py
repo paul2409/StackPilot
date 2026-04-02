@@ -1,12 +1,14 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from src.db import get_cursor
+from src.observability import record_balance_request
 
 router = APIRouter()
 
 
 @router.get("/balances")
 def balances(username: str = Query(...)):
+    record_balance_request()
     with get_cursor() as cur:
         cur.execute(
             """

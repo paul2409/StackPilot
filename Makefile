@@ -380,3 +380,13 @@ k8s-status:
 
 k8s-verify:
 	NAMESPACE=$(NAMESPACE) CUSTOMER_HOST=$(CUSTOMER_HOST) ADMIN_HOST=$(ADMIN_HOST) OPS_HOST=$(OPS_HOST) bash scripts/verify/verify-k8s.sh
+
+
+monitoring-up:
+	APP_NS=${APP_NS:-stackpilot-dev} ./monitoring/scripts/install-monitoring.sh
+
+monitoring-verify:
+	APP_NS=${APP_NS:-stackpilot-dev} ./scripts/verify/verify-metrics.sh
+
+drill-wallet-db-alert:
+	APP_NS=${APP_NS:-stackpilot-dev} ./scripts/drills/drill-wallet-db-alert.sh

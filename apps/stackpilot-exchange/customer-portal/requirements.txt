@@ -5,3 +5,5 @@ pydantic==2.9.2
 # test change for dev rollout
 
 # test change for dev rollout
+prometheus-client==0.20.0
+prometheus-fastapi-instrumentator==7.0.0

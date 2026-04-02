@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-wallet-exporter
+  namespace: monitoring
+  labels:
+    app: postgres-wallet-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-wallet-exporter
+  template:
+    metadata:
+      labels:
+        app: postgres-wallet-exporter
+    spec:
+      containers:
+        - name: postgres-exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATA_SOURCE_URI
+              value: "postgres-wallet.__APP_NS__.svc.cluster.local:5432/__WALLET_DB_NAME__?sslmode=disable"
+            - name: DATA_SOURCE_USER
+              value: "__WALLET_DB_USER__"
+            - name: DATA_SOURCE_PASS
+              value: "__WALLET_DB_PASS__"
+          ports:
+            - name: metrics
+              containerPort: 9187
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-wallet-exporter
+  namespace: monitoring
+  labels:
+    app: postgres-wallet-exporter
+spec:
+  selector:
+    app: postgres-wallet-exporter
+  ports:
+    - name: metrics
+      port: 9187
+      targetPort: 9187
+      protocol: TCP

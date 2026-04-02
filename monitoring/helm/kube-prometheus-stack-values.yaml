@@ -1,0 +1,32 @@
+grafana:
+  adminPassword: stackpilot-admin
+  defaultDashboardsTimezone: utc
+  service:
+    type: ClusterIP
+
+alertmanager:
+  enabled: true
+  service:
+    type: ClusterIP
+
+prometheus:
+  service:
+    type: ClusterIP
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelectorNilUsesHelmValues: false
+    podMonitorNamespaceSelector: {}
+    ruleNamespaceSelector: {}
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+    retention: 10d
+
+kube-state-metrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+
+prometheus-node-exporter:
+  enabled: true
