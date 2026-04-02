@@ -1,6 +1,6 @@
-identity-service=ghcr.io/paul2409/identity-service:sha-a8d1a50
-wallet-service=ghcr.io/paul2409/wallet-service:sha-a8d1a50
-system-service=ghcr.io/paul2409/system-service:sha-a8d1a50
-customer-portal=ghcr.io/paul2409/customer-portal:sha-a8d1a50
-admin-portal=ghcr.io/paul2409/admin-portal:sha-a8d1a50
-ops-portal=ghcr.io/paul2409/ops-portal:sha-a8d1a50
+identity-service=ghcr.io/paul2409/identity-service:sha-67d30ad
+wallet-service=ghcr.io/paul2409/wallet-service:sha-67d30ad
+system-service=ghcr.io/paul2409/system-service:sha-67d30ad
+customer-portal=ghcr.io/paul2409/customer-portal:sha-67d30ad
+admin-portal=ghcr.io/paul2409/admin-portal:sha-67d30ad
+ops-portal=ghcr.io/paul2409/ops-portal:sha-67d30ad
