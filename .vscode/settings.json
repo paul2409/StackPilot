@@ -1,5 +1,6 @@
 {
     "yaml.schemas": {
-        "kubernetes://schema/apps/v1@deployment": "file:///c%3A/Projects/StackPilot/k8s/base/db.yaml"
+        "kubernetes://schema/apps/v1@deployment": "file:///c%3A/Projects/StackPilot/k8s/base/db.yaml",
+        "kubernetes://schema/v1@service": "chat-editing-text-model:/c%3A/Projects/StackPilot/monitoring/exporters/postgres-identity-exporter.tmpl.yaml?%7B%22kind%22%3A%22doc%22%2C%22documentId%22%3A%22modified-file-entry%3A%3A1%22%2C%22chatSessionResource%22%3A%7B%22%24mid%22%3A1%2C%22external%22%3A%22vscode-chat-session%3A%2F%2Flocal%2FYzZhNzM1NmUtMzM5NC00ZjNmLWE4YzgtZTlhZDFiMjQ2ODhj%22%2C%22path%22%3A%22%2FYzZhNzM1NmUtMzM5NC00ZjNmLWE4YzgtZTlhZDFiMjQ2ODhj%22%2C%22scheme%22%3A%22vscode-chat-session%22%2C%22authority%22%3A%22local%22%7D%7D"
     }
 } 
