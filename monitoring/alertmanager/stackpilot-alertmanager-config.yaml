@@ -1,0 +1,58 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: stackpilot-routing
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  route:
+    receiver: discord-default
+    groupBy:
+      - alertname
+      - severity
+      - owner
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 2h
+    routes:
+      - receiver: discord-critical
+        matchers:
+          - name: severity
+            matchType: "="
+            value: critical
+      - receiver: discord-warning
+        matchers:
+          - name: severity
+            matchType: "="
+            value: warning
+      - receiver: discord-info
+        matchers:
+          - name: severity
+            matchType: "="
+            value: info
+
+  receivers:
+    - name: discord-default
+      webhookConfigs:
+        - url: http://alertmanager-discord-bridge.monitoring.svc.cluster.local:9094
+          sendResolved: true
+          maxAlerts: 10
+
+    - name: discord-critical
+      webhookConfigs:
+        - url: http://alertmanager-discord-bridge.monitoring.svc.cluster.local:9094
+          sendResolved: true
+          maxAlerts: 10
+
+    - name: discord-warning
+      webhookConfigs:
+        - url: http://alertmanager-discord-bridge.monitoring.svc.cluster.local:9094
+          sendResolved: true
+          maxAlerts: 10
+
+    - name: discord-info
+      webhookConfigs:
+        - url: http://alertmanager-discord-bridge.monitoring.svc.cluster.local:9094
+          sendResolved: true
+          maxAlerts: 10

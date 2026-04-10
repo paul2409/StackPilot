@@ -1,0 +1,122 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: stackpilot-phase4-routing
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: stackpilot.phase4.routing
+      rules:
+        - alert: StackPilotAlertRoutingTest
+          expr: vector(1)
+          for: 1m
+          labels:
+            severity: info
+            owner: platform
+            service: stackpilot
+            runbook_id: RB-M9-ALERT-TEST
+          annotations:
+            summary: "StackPilot alert routing test"
+            impact: "No user impact. This is a routing validation alert."
+            first_check: "Open Alertmanager and confirm the alert is firing and routed."
+            likely_cause: "Intentional test rule for M9 Phase 4."
+            recovery: "Delete or disable the test rule after validating routing."
+            runbook: "docs/m9/runbooks/RB-M9-ALERT-TEST.md"
+
+        - alert: WalletServiceNotReady
+          expr: max by (service) (service_ready_state{service="wallet-service",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: critical
+            owner: wallet-platform
+            service: wallet-service
+            runbook_id: RB-M9-WALLET-NOT-READY
+          annotations:
+            summary: "wallet-service is not ready"
+            impact: "Wallet-backed flows may degrade or fail."
+            first_check: "Check wallet-service /ready, postgres-wallet status, and dashboard 3A/3C."
+            likely_cause: "postgres-wallet unavailable, bad release, config issue, or dependency break."
+            recovery: "Restore postgres-wallet or roll back wallet-service and verify readiness chain."
+            runbook: "docs/m9/runbooks/RB-M9-WALLET-NOT-READY.md"
+
+        - alert: SystemServiceNotReady
+          expr: max by (service) (service_ready_state{service="system-service",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: warning
+            owner: platform
+            service: system-service
+            runbook_id: RB-M9-SYSTEM-NOT-READY
+          annotations:
+            summary: "system-service is not ready"
+            impact: "System summary and diagnostic surfaces may be degraded."
+            first_check: "Check system-service /ready and dependency dashboards."
+            likely_cause: "Downstream wallet or identity dependency issue."
+            recovery: "Restore the failing dependency and confirm system-service readiness."
+            runbook: "docs/m9/runbooks/RB-M9-SYSTEM-NOT-READY.md"
+
+        - alert: PortalNotReady
+          expr: max by (service) (service_ready_state{service=~"customer-portal|admin-portal|ops-portal",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: warning
+            owner: platform
+            service: portal-surface
+            runbook_id: RB-M9-PORTAL-NOT-READY
+          annotations:
+            summary: "A portal surface is not ready"
+            impact: "User-facing or operator-facing portal functions may be degraded."
+            first_check: "Check portal readiness, then inspect wallet and identity dependency state."
+            likely_cause: "Downstream dependency failure or bad release on a portal."
+            recovery: "Restore dependency truth or roll back the affected portal."
+            runbook: "docs/m9/runbooks/RB-M9-PORTAL-NOT-READY.md"
+
+        - alert: StackPilotHighErrorRate
+          expr: sum(rate(http_requests_total{status=~"5.."}[5m])) > 0.5
+          for: 5m
+          labels:
+            severity: warning
+            owner: platform
+            service: request-path
+            runbook_id: RB-M9-HIGH-ERROR-RATE
+          annotations:
+            summary: "StackPilot 5xx error rate is elevated"
+            impact: "User-visible request failures may be occurring."
+            first_check: "Open request/error dashboard and identify the failing job or handler."
+            likely_cause: "Bad release, dependency failure, or ingress/app error path."
+            recovery: "Mitigate failing service, dependency, or roll back the release."
+            runbook: "docs/m9/runbooks/RB-M9-HIGH-ERROR-RATE.md"
+
+        - alert: StackPilotRestartLoop
+          expr: sum(increase(kube_pod_container_status_restarts_total{namespace=~"stackpilot-dev|argocd|monitoring|ingress-nginx"}[10m])) > 3
+          for: 5m
+          labels:
+            severity: warning
+            owner: platform
+            service: workload
+            runbook_id: RB-M9-RESTART-LOOP
+          annotations:
+            summary: "Restart loop detected"
+            impact: "One or more workloads may be unstable or crashlooping."
+            first_check: "Open 3B workload dashboard and inspect restarting pods."
+            likely_cause: "CrashLoopBackOff, bad config, failed dependency, or probe mismatch."
+            recovery: "Inspect failing workload, fix config/image/probe issue, and confirm restart rate stabilizes."
+            runbook: "docs/m9/runbooks/RB-M9-RESTART-LOOP.md"
+
+        - alert: PostgresWalletDownSymptom
+          expr: increase(wallet_db_check_failures_total[5m]) > 0
+          for: 2m
+          labels:
+            severity: critical
+            owner: wallet-platform
+            service: postgres-wallet
+            runbook_id: RB-M9-POSTGRES-WALLET-DOWN
+          annotations:
+            summary: "postgres-wallet down symptom detected"
+            impact: "wallet-service and dependent portals may lose readiness."
+            first_check: "Check postgres-wallet pods, wallet-service /ready, and propagation dashboard."
+            likely_cause: "Database pod unavailable or connectivity broken."
+            recovery: "Restore postgres-wallet and verify wallet readiness and upstream recovery."
+            runbook: "docs/m9/runbooks/RB-M9-POSTGRES-WALLET-DOWN.md"

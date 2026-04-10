@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager-discord-bridge
+  namespace: monitoring
+  labels:
+    app: alertmanager-discord-bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager-discord-bridge
+  template:
+    metadata:
+      labels:
+        app: alertmanager-discord-bridge
+    spec:
+      containers:
+        - name: bridge
+          image: benjojo/alertmanager-discord:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DISCORD_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: stackpilot-discord-webhook
+                  key: url
+          ports:
+            - containerPort: 9094
+              name: http
+          readinessProbe:
+            tcpSocket:
+              port: 9094
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 9094
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-discord-bridge
+  namespace: monitoring
+  labels:
+    app: alertmanager-discord-bridge
+spec:
+  selector:
+    app: alertmanager-discord-bridge
+  ports:
+    - name: http
+      port: 9094
+      targetPort: 9094

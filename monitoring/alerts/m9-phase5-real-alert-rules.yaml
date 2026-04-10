@@ -1,0 +1,155 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: stackpilot-phase5-real-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: stackpilot.phase5.readiness
+      rules:
+        - alert: WalletServiceNotReady
+          expr: max by (namespace, service) (service_ready_state{namespace="stackpilot-dev",service="wallet-service",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: critical
+            owner: wallet-platform
+            service: wallet-service
+            category: readiness
+            runbook_id: RB-M9-WALLET-NOT-READY
+          annotations:
+            summary: "wallet-service is not ready"
+            impact: "Wallet-backed flows may fail and upstream services may degrade."
+            first_check: "Check wallet-service /ready, postgres-wallet pod state, and readiness dashboard."
+            likely_cause: "postgres-wallet unavailable, bad release, bad config, or probe mismatch."
+            recovery: "Restore postgres-wallet or roll back wallet-service, then verify readiness chain recovery."
+            runbook: "docs/m9/runbooks/RB-M9-WALLET-NOT-READY.md"
+
+        - alert: SystemServiceNotReady
+          expr: max by (namespace, service) (service_ready_state{namespace="stackpilot-dev",service="system-service",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: warning
+            owner: platform
+            service: system-service
+            category: readiness
+            runbook_id: RB-M9-SYSTEM-NOT-READY
+          annotations:
+            summary: "system-service is not ready"
+            impact: "Summary and diagnostic surfaces may be degraded."
+            first_check: "Check system-service /ready and dependency dashboards."
+            likely_cause: "Downstream wallet or identity dependency issue."
+            recovery: "Restore the failing dependency and confirm system-service readiness."
+            runbook: "docs/m9/runbooks/RB-M9-SYSTEM-NOT-READY.md"
+
+        - alert: CustomerPortalNotReady
+          expr: max by (namespace, service) (service_ready_state{namespace="stackpilot-dev",service="customer-portal",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: warning
+            owner: platform
+            service: customer-portal
+            category: readiness
+            runbook_id: RB-M9-CUSTOMER-PORTAL-NOT-READY
+          annotations:
+            summary: "customer-portal is not ready"
+            impact: "Customer-facing flows may be degraded."
+            first_check: "Check customer-portal /ready, wallet-service readiness, identity-service readiness."
+            likely_cause: "Downstream dependency failure or bad portal release."
+            recovery: "Restore dependency truth or roll back customer-portal."
+            runbook: "docs/m9/runbooks/RB-M9-CUSTOMER-PORTAL-NOT-READY.md"
+
+        - alert: AdminPortalNotReady
+          expr: max by (namespace, service) (service_ready_state{namespace="stackpilot-dev",service="admin-portal",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: warning
+            owner: platform
+            service: admin-portal
+            category: readiness
+            runbook_id: RB-M9-ADMIN-PORTAL-NOT-READY
+          annotations:
+            summary: "admin-portal is not ready"
+            impact: "Admin operational visibility may be degraded."
+            first_check: "Check admin-portal /ready, wallet-service readiness, system-service readiness, identity-service readiness."
+            likely_cause: "Downstream dependency failure or bad portal release."
+            recovery: "Restore dependency truth or roll back admin-portal."
+            runbook: "docs/m9/runbooks/RB-M9-ADMIN-PORTAL-NOT-READY.md"
+
+        - alert: OpsPortalNotReady
+          expr: max by (namespace, service) (service_ready_state{namespace="stackpilot-dev",service="ops-portal",environment="dev"}) < 1
+          for: 2m
+          labels:
+            severity: warning
+            owner: platform
+            service: ops-portal
+            category: readiness
+            runbook_id: RB-M9-OPS-PORTAL-NOT-READY
+          annotations:
+            summary: "ops-portal is not ready"
+            impact: "Operational diagnostic surfaces may be degraded."
+            first_check: "Check ops-portal /ready, wallet-service readiness, system-service readiness, identity-service readiness."
+            likely_cause: "Downstream dependency failure or bad portal release."
+            recovery: "Restore dependency truth or roll back ops-portal."
+            runbook: "docs/m9/runbooks/RB-M9-OPS-PORTAL-NOT-READY.md"
+
+    - name: stackpilot.phase5.dependency
+      rules:
+        - alert: PostgresWalletDownSymptom
+          expr: increase(wallet_db_check_failures_total{namespace="stackpilot-dev"}[5m]) > 0
+          for: 2m
+          labels:
+            severity: critical
+            owner: wallet-platform
+            service: postgres-wallet
+            category: dependency
+            runbook_id: RB-M9-POSTGRES-WALLET-DOWN
+          annotations:
+            summary: "postgres-wallet down symptom detected"
+            impact: "wallet-service and dependent portals may lose readiness."
+            first_check: "Check postgres-wallet pods, wallet-service /ready, and dependency propagation dashboard."
+            likely_cause: "Database pod unavailable or connectivity broken."
+            recovery: "Restore postgres-wallet and verify wallet readiness and upstream recovery."
+            runbook: "docs/m9/runbooks/RB-M9-POSTGRES-WALLET-DOWN.md"
+
+        - alert: PostgresIdentityDownSymptom
+          expr: increase(identity_db_check_failures_total{namespace="stackpilot-dev"}[5m]) > 0
+          for: 2m
+          labels:
+            severity: critical
+            owner: identity-platform
+            service: postgres-identity
+            category: dependency
+            runbook_id: RB-M9-POSTGRES-IDENTITY-DOWN
+          annotations:
+            summary: "postgres-identity down symptom detected"
+            impact: "identity-service and upstream services may lose readiness."
+            first_check: "Check postgres-identity pods, identity-service /ready, and dependency propagation dashboard."
+            likely_cause: "Database pod unavailable or connectivity broken."
+            recovery: "Restore postgres-identity and verify identity readiness and upstream recovery."
+            runbook: "docs/m9/runbooks/RB-M9-POSTGRES-IDENTITY-DOWN.md"
+
+        - alert: WalletDependencyPropagation
+          expr: |
+            (
+              max by (namespace, service) (service_ready_state{namespace="stackpilot-dev",service=~"customer-portal|admin-portal|ops-portal|system-service",environment="dev"}) < 1
+            )
+            and
+            (
+              max by (namespace, service) (service_ready_state{namespace="stackpilot-dev",service="wallet-service",environment="dev"}) < 1
+            )
+          for: 2m
+          labels:
+            severity: critical
+            owner: platform
+            service: dependency-chain
+            category: dependency
+            runbook_id: RB-M9-WALLET-PROPAGATION
+          annotations:
+            summary: "wallet dependency failure is propagating upstream"
+            impact: "One or more upstream services are degraded because wallet-service is not ready."
+            first_check: "Open readiness and dependency dashboards, confirm wallet-service failed first."
+            likely_cause: "postgres-wallet failure or wallet-service bad release."
+            recovery: "Restore wallet-service root cause and confirm upstream services recover."
+            runbook: "docs/m9/runbooks/RB-M9-WALLET-PROPAGATION.md"

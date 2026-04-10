@@ -390,3 +390,31 @@ monitoring-verify:
 
 drill-wallet-db-alert:
 	APP_NS=${APP_NS:-stackpilot-dev} ./scripts/drills/drill-wallet-db-alert.sh
+
+
+alert-routing-up:
+	./monitoring/scripts/install-alert-routing.sh
+
+alert-routing-verify:
+	./monitoring/scripts/verify-alert-routing.sh
+
+alert-routing-disable-test:
+	./monitoring/scripts/disable-test-alert.sh
+
+
+discord-bridge-up:
+	./monitoring/scripts/install-discord-bridge.sh
+
+discord-bridge-verify:
+	./monitoring/scripts/verify-discord-bridge.sh
+
+
+phase5-alerts-up:
+	./monitoring/scripts/install-phase5-real-alerts.sh
+
+phase5-alerts-verify:
+	./monitoring/scripts/verify-phase5-real-alerts.sh
+
+
+phase6-runbooks-verify:
+	./monitoring/scripts/verify-phase6-runbook-linkage.sh
