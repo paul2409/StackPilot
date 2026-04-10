@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: staging-promote
@@ -19,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install PyYAML
         run: pip install pyyaml
@@ -60,7 +63,6 @@ jobs:
               staging[values_key].setdefault("image", {})
               staging[values_key]["image"]["repository"] = repo
               staging[values_key]["image"]["tag"] = dev_tag
-
               release_entries[release_key] = f"{repo}:{dev_tag}"
 
           with staging_path.open("w") as f:
@@ -68,26 +70,103 @@ jobs:
 
           release_path = Path("artifacts/releases")
           release_path.mkdir(parents=True, exist_ok=True)
-          current_staging = release_path / "current-staging.txt"
 
-          lines = [
-              f"identity-service={release_entries['identity-service']}",
-              f"wallet-service={release_entries['wallet-service']}",
-              f"system-service={release_entries['system-service']}",
-              f"customer-portal={release_entries['customer-portal']}",
-              f"admin-portal={release_entries['admin-portal']}",
-              f"ops-portal={release_entries['ops-portal']}",
+          current_staging = release_path / "current-staging.txt"
+          ordered_services = [
+              "identity-service",
+              "wallet-service",
+              "system-service",
+              "customer-portal",
+              "admin-portal",
+              "ops-portal",
           ]
+
+          lines = []
+          for svc in ordered_services:
+              if svc in release_entries:
+                  lines.append(f"{svc}={release_entries[svc]}")
 
           current_staging.write_text("\n".join(lines) + "\n")
           PY
 
-      - name: Commit staging promotion state
+      - name: Check for changes
+        id: changes
+        shell: bash
         run: |
+          set -euo pipefail
+          if git diff --quiet -- helm/stackpilot/values-staging.yaml artifacts/releases/current-staging.txt; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create promotion branch
+        if: steps.changes.outputs.changed == 'true'
+        id: branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="promote-staging-${GITHUB_SHA::7}"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          git checkout -b "$BRANCH"
+
+      - name: Commit promotion state
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
           git add helm/stackpilot/values-staging.yaml artifacts/releases/current-staging.txt
+          git commit -m "chore: promote dev -> staging [skip ci]"
 
-          git commit -m "chore: promote dev -> staging [skip ci]" || echo "No changes"
-          git push
+      - name: Push promotion branch
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin "${{ steps.branch.outputs.branch }}"
+
+      - name: Open promotion PR
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = "${{ steps.branch.outputs.branch }}";
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: "open",
+              head: `${owner}:${branch}`,
+              base: "main"
+            });
+
+            if (prs.data.length > 0) {
+              core.info(`PR already exists: ${prs.data[0].html_url}`);
+              return;
+            }
+
+            const pr = await github.rest.pulls.create({
+              owner,
+              repo,
+              title: "chore: promote dev -> staging",
+              head: branch,
+              base: "main",
+              body: [
+                "Automated staging promotion PR.",
+                "",
+                "This PR copies the validated dev image tags into staging.",
+                "",
+                "No rebuild is performed.",
+                "Promotion uses the same artifact identity validated in dev."
+              ].join("\n")
+            });
+
+            core.info(`Created PR: ${pr.data.html_url}`);
+
+      - name: No-op if no changes
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "No staging promotion changes detected."
