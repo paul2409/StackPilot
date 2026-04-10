@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: stackpilot-manual-discord-test
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: stackpilot.manual.discord.test
+      rules:
+        - alert: StackPilotManualDiscordTest
+          expr: vector(1)
+          for: 15s
+          labels:
+            severity: warning
+            owner: platform
+            service: stackpilot
+            runbook_id: RB-M9-ALERT-TEST
+          annotations:
+            summary: "StackPilot manual Discord alert test"
+            impact: "No user impact. This is a controlled end-to-end alert test."
+            first_check: "Confirm this alert appears in Alertmanager, bridge logs, and Discord."
+            likely_cause: "Intentional manual test."
+            recovery: "Delete the temporary PrometheusRule and confirm the resolved message arrives."
+            runbook: "docs/m9/runbooks/RB-M9-ALERT-TEST.md"

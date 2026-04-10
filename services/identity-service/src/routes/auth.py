@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from src.db import get_cursor
+from src.observability import record_login_request
 
 router = APIRouter()
 
@@ -13,6 +14,7 @@ class LoginRequest(BaseModel):
 
 @router.post("/login")
 def login(payload: LoginRequest):
+    record_login_request()
     # simple mock login, password not checked deeply for now
     with get_cursor() as cur:
         cur.execute(

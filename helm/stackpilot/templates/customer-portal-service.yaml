@@ -4,6 +4,7 @@ metadata:
   name: customer-portal
   namespace: {{ .Release.Namespace }}
   labels:
+    app: customer-portal
     {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:

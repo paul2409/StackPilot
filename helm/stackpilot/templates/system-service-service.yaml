@@ -4,6 +4,7 @@ metadata:
   name: system-service
   namespace: {{ .Release.Namespace }}
   labels:
+    app: system-service
     {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:

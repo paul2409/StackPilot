@@ -24,6 +24,14 @@ spec:
           ports:
             - containerPort: {{ .Values.opsPortal.service.port }}
           env:
+            - name: SERVICE_NAME
+              value: "ops-portal"
+            - name: SERVICE_VERSION
+              value: {{ .Values.opsPortal.image.tag | quote }}
+            - name: GIT_SHA
+              value: {{ .Values.opsPortal.image.tag | quote }}
+            - name: BUILD_TIME
+              value: {{ .Values.global.buildTime | quote }}
             - name: ENV
               value: {{ .Values.global.environment | quote }}
             - name: PORT

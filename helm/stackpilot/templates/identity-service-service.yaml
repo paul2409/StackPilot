@@ -4,6 +4,7 @@ metadata:
   name: identity-service
   namespace: {{ .Release.Namespace }}
   labels:
+    app: identity-service
     {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:

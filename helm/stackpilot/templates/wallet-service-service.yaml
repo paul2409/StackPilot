@@ -4,6 +4,7 @@ metadata:
   name: wallet-service
   namespace: {{ .Release.Namespace }}
   labels:
+    app: wallet-service
     {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:

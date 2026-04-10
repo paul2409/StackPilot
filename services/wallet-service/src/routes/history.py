@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Query
 
 from src.db import get_cursor
+from src.observability import record_history_request
 
 router = APIRouter()
 
 
 @router.get("/history")
 def history(username: str = Query(...)):
+    record_history_request()
     with get_cursor() as cur:
         cur.execute(
             """

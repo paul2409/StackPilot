@@ -4,6 +4,7 @@ metadata:
   name: ops-portal
   namespace: {{ .Release.Namespace }}
   labels:
+    app: ops-portal
     {{- include "stackpilot.commonLabels" . | nindent 4 }}
 spec:
   selector:

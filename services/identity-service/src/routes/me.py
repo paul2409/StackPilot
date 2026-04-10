@@ -1,12 +1,14 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from src.db import get_cursor
+from src.observability import record_lookup_request
 
 router = APIRouter()
 
 
 @router.get("/me")
 def me(token: str = Query(...)):
+    record_lookup_request("/me")
     with get_cursor() as cur:
         cur.execute(
             """
